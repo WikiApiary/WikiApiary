@@ -60,10 +60,25 @@ def get_websites(wiki, segment):
 
     sites = wiki.call({'action': 'ask', 'query': my_query})
 
+    # We could just return the raw JSON object from the API, however instead we are going to clean it up into an
+    # easier to deal with array of dictionary objects.
+    # To keep things sensible, we'll use the same name as the properties
     if len(sites['query']['results']) > 0:
+        my_sites = []
         for pagename, site in sites['query']['results'].items():
             if args.verbose >= 2:
                 print "Adding %s." % pagename.encode('utf8')
+            my_sites.append({
+                'pagename':pagename.encode('utf8'),
+                'Has API URL':site['printouts']['Has API URL'][0],
+                'fullurl':site['fullurl'].encode('utf8'),
+                'Check every':site['printouts']['Check every'][0],
+                'Collect statistics':(site['printouts']['Collect statistics'][0]=="t"), # This is a boolean but it's returned as t or f, let's make it a boolean again
+                'Has ID':site['printouts']['Has ID'][0],
+                'Collect semantic statistics':(site['printouts']['Collect semantic statistics'][0]=="t") # This is a boolean but it's returned as t or f, let's make it a boolean again
+                })
+
+        return my_sites
     else:
         raise Exception("No sites were returned to work on.")
 
@@ -93,6 +108,9 @@ def main():
 
     sites = get_websites(wiki, args.segment)
 
+    if args.verbose >= 3:
+        for i in sites:
+            print i
 
 # Run main
 if __name__ == '__main__':
