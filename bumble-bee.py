@@ -46,14 +46,19 @@ def get_websites(wiki, segment):
     global config
     global args
 
-    if segment is None:
-        if args.verbose >= 1:
-            print "Retrieving all websites of all segments."
-        sites = wiki.call({'action': 'ask', 'query': '[[Category:Website]][[Is validated::True]][[Is active::True]][[Collect statistics::+]][[Collect semantic statistics::+]]|?Has API URL|?Check every|?Creation date|?Has ID|?Collect statistics|?Collect semantic statistics|sort=Creation date|order=asc|limit=500 '})
-    else:
+    segment_string = ""
+    if segment is not None:
         if args.verbose >= 1:
             print "Only retrieving segment %s." % args.segment
-        sites = wiki.call({'action': 'ask', 'query': '[[Category:Website]][[Is validated::True]][[Is active::True]][[Collect statistics::+]][[Collect semantic statistics::+]][[Has bot segment::' + segment + ']]|?Has API URL|?Check every|?Creation date|?Has ID|?Collect statistics|?Collect semantic statistics|sort=Creation date|order=asc|limit=500 '})
+        segment_string = "[[Has bot segment::%d]]" % int(args.segment)
+
+    # Build query for sites
+    my_query = "[[Category:Website]][[Is validated::True]][[Is active::True]][[Collect statistics::+]][[Collect semantic statistics::+]]"
+    my_query += segment_string
+    my_query += "|?Has API URL|?Check every|?Creation date|?Has ID|?Collect statistics|?Collect semantic statistics"
+    my_query += "|sort=Creation date|order=asc|limit=500"
+
+    sites = wiki.call({'action': 'ask', 'query': my_query})
 
     if len(sites['query']['results']) > 0:
         for pagename, site in sites['query']['results'].items():
