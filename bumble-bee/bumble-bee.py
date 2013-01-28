@@ -14,7 +14,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 
 
-def get_config(config_file='bumble-bee.cfg'):
+def get_config(config_file='apiary.cfg'):
     try:
         config = ConfigParser.ConfigParser()
         config.read(config_file)
@@ -31,7 +31,7 @@ def get_args():
                 help="only work on websites in defined segment")
     parser.add_argument("-d", "--debug", action="store_true",
                 help="do not write any changes to wiki or database")
-    parser.add_argument("--config", default="bumble-bee.cfg",
+    parser.add_argument("--config", default="apiary.cfg",
                 help="use an alternative config file")
     parser.add_argument("-v", "--verbose", action="count", default=0,
                 help="increase output verbosity")

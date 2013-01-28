@@ -35,5 +35,4 @@ nosetests.xml
 .pydevproject
 
 # My configuration file
-bumble-bee.cfg
-
+*.cfg
