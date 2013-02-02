@@ -75,20 +75,21 @@ class ApiaryBot:
             f = opener.open(req)
             duration = datetime.datetime.now() - t1
         except socket.timeout:
-            print "Socket timeout!"
             self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
             return False, None, None
         except HTTPError as e:
-            print "Error code ", e.code
             self.botlog(bot="Bumble Bee", type="error", message="[[%s]] HTTP Error code %s while calling %s" % (sitename, e.code, data_url))
             return False, None, None
         except URLError as e:
-            print "Reason: ", e.reason
             self.botlog(bot="Bumble Bee", type="error", message="[[%s]] URL Error %s while calling %s" % (sitename, e.reason, data_url))
             return False, None, None
         else:
             # It all worked!
-            data = simplejson.load(f)
+            try:
+                data = simplejson.load(f)
+            except:
+                self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Could not decode JSON from %s" % (sitename, data_url))
+                return False, None, None
             return True, data, duration
 
     def connectdb(self):
@@ -200,6 +201,8 @@ class ApiaryBot:
         self.apiarydb.commit()
 
     def botlog(self, bot, message, type='info', duration=0):
+        if self.args.verbose >= 1:
+            print message
         cur = self.apiarydb.cursor()
 
         temp_sql = "INSERT  apiary_bot_log (log_date, log_type, bot, duration, message) "
