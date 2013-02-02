@@ -1,9 +1,15 @@
 """
-stuff here
+Base class for all WikiApiary bots. To make another bot, create a new class derived
+from this class.
+
+Jamie Thingelstad <jamie@thingelstad.com>
+http://wikiapiary.com/wiki/User:Thingles
+http://thingelstad.com/
 """
 
 import os
 import sys
+import time
 import datetime
 import pytz
 import ConfigParser
@@ -17,7 +23,6 @@ from simplemediawiki import MediaWiki
 
 
 class ApiaryBot:
-    """Base class that all WikiApiary bots will inherit from."""
 
     args = []
     config = []
@@ -57,7 +62,9 @@ class ApiaryBot:
         now = now.replace(microsecond=0)
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
-    def pull_json(self, data_url):
+    def pull_json(self, sitename, data_url):
+        socket.setdefaulttimeout(5)
+
         # Get JSON data via API and return the JSON structure parsed
         req = urllib2.Request(data_url)
         req.add_header('User-Agent', self.config.get('Bumble Bee', 'User-Agent'))
@@ -69,14 +76,32 @@ class ApiaryBot:
             duration = datetime.datetime.now() - t1
         except socket.timeout:
             print "Socket timeout!"
+            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
+            return False, None, None
         except HTTPError as e:
             print "Error code ", e.code
+            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] HTTP Error code %s while calling %s" % (sitename, e.code, data_url))
+            return False, None, None
         except URLError as e:
             print "Reason: ", e.reason
+            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] URL Error %s while calling %s" % (sitename, e.reason, data_url))
+            return False, None, None
         else:
             # It all worked!
             data = simplejson.load(f)
-            return data, duration
+            return True, data, duration
+
+    def connectdb(self):
+        # Setup our database connection
+        self.apiarydb = mdb.connect(
+            host=self.config.get('ApiaryDB', 'hostname'),
+            db=self.config.get('ApiaryDB', 'database'),
+            user=self.config.get('ApiaryDB', 'username'),
+            passwd=self.config.get('ApiaryDB', 'password'))
+
+    def connectwiki(self, bot_name):
+        self.wiki = MediaWiki(self.config.get('WikiApiary', 'API'))
+        self.wiki.login(self.config.get(bot_name, 'Username'), self.config.get(bot_name, 'Password'))
 
     def get_websites(self, wiki, segment):
         segment_string = ""
@@ -115,14 +140,14 @@ class ApiaryBot:
         else:
             raise Exception("No sites were returned to work on.")
 
-    def get_status(self, db, site):
+    def get_status(self, site):
         """
         get_status will query the website_status table in ApiaryDB. It makes the decision if new
         data should be retrieved for a given website. Two booleans are returned, the first to
         tell if new statistics information should be requested and the second to pull general information.
         """
         # Get the timestamps for the last statistics and general pulls
-        cur = db.cursor()
+        cur = self.apiarydb.cursor()
         temp_sql = "SELECT last_statistics, last_general, check_every_limit FROM website_status WHERE website_id = %d" % site['Has ID']
         cur.execute(temp_sql)
         rows_returned = cur.rowcount
@@ -151,8 +176,8 @@ class ApiaryBot:
         else:
             raise Exception("Status check returned multiple rows.")
 
-    def update_status(self, db, site):
-        cur = db.cursor()
+    def update_status(self, site):
+        cur = self.apiarydb.cursor()
 
         # Update the website_status table
         my_now = self.sqlutcnow()
@@ -172,5 +197,16 @@ class ApiaryBot:
             cur.execute(temp_sql)
 
         cur.close()
-        db.commit()
+        self.apiarydb.commit()
 
+    def botlog(self, bot, message, type='info', duration=0):
+        cur = self.apiarydb.cursor()
+
+        temp_sql = "INSERT  apiary_bot_log (log_date, log_type, bot, duration, message) "
+        temp_sql += "VALUES (\"%s\", \"%s\", \"%s\", %f, \"%s\")" % (self.sqlutcnow(), type, bot, duration, message)
+
+        if self.args.verbose >= 3:
+            print "SQL: %s" % temp_sql
+        cur.execute(temp_sql)
+        cur.close()
+        self.apiarydb.commit()

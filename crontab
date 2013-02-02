@@ -1,4 +1,15 @@
-# Apiary
-30 * * * * (nice -n 19 python collect-statistics.py)
-5 0 * * * (nice -n 19 python collect-general.py)
-5 1 * * * (nice -n 19 python collect-extensions.py)
+# Bumble Bee
+# This bot runs in parallel across multiple bot segments
+# Currently set to run three at a time, every 5 minutes.
+# Batch 1
+0,15,30,45  * * * *		(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 0)
+0,15,30,45  * * * *		(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 3)
+0,15,30,45  * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 6)
+# Batch 2
+5,20,35,50  * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 1)
+5,20,35,50  * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 4)
+5,20,35,50  * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 7)
+# Batch 3
+10,25,40,55 * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 2)
+10,25,40,55 * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 5)
+10,25,40,55 * * * * 	(cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 19 bumble-bee.py -s 8)
