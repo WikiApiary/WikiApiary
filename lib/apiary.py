@@ -26,12 +26,24 @@ class ApiaryBot:
 
     args = []
     config = []
+    apiary_wiki = []
+    apiary_db = []
+    stats = {}
+    edit_token = ''
 
     def __init__(self):
         # Get command line options
         self.get_args()
         # Get configuration settings
         self.get_config(self.args.config)
+        # Connect to the database
+        self.connectdb()
+        # Initialize stats
+        self.stats['statistics'] = 0
+        self.stats['smwinfo'] = 0
+        self.stats['general'] = 0
+        self.stats['extensions'] = 0
+        self.stats['skins'] = 0
 
     def get_config(self, config_file='../apiary.cfg'):
         try:
@@ -73,7 +85,7 @@ class ApiaryBot:
         try:
             t1 = datetime.datetime.now()
             f = opener.open(req)
-            duration = datetime.datetime.now() - t1
+            duration = (datetime.datetime.now() - t1).total_seconds()
         except socket.timeout:
             self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
             return False, None, None
@@ -94,17 +106,20 @@ class ApiaryBot:
 
     def connectdb(self):
         # Setup our database connection
-        self.apiarydb = mdb.connect(
+        self.apiary_db = mdb.connect(
             host=self.config.get('ApiaryDB', 'hostname'),
             db=self.config.get('ApiaryDB', 'database'),
             user=self.config.get('ApiaryDB', 'username'),
             passwd=self.config.get('ApiaryDB', 'password'))
 
     def connectwiki(self, bot_name):
-        self.wiki = MediaWiki(self.config.get('WikiApiary', 'API'))
-        self.wiki.login(self.config.get(bot_name, 'Username'), self.config.get(bot_name, 'Password'))
+        self.apiary_wiki = MediaWiki(self.config.get('WikiApiary', 'API'))
+        self.apiary_wiki.login(self.config.get(bot_name, 'Username'), self.config.get(bot_name, 'Password'))
+        # We need an edit token
+        c = self.apiary_wiki.call({'action': 'query', 'titles': 'Foo', 'prop': 'info', 'intoken': 'edit'})
+        self.edit_token = c['query']['pages']['-1']['edittoken']
 
-    def get_websites(self, wiki, segment):
+    def get_websites(self, segment):
         segment_string = ""
         if segment is not None:
             if self.args.verbose >= 1:
@@ -112,12 +127,13 @@ class ApiaryBot:
             segment_string = "[[Has bot segment::%d]]" % int(self.args.segment)
 
         # Build query for sites
-        my_query = "[[Category:Website]][[Is validated::True]][[Is active::True]][[Collect statistics::+]][[Collect semantic statistics::+]]"
-        my_query += segment_string
-        my_query += "|?Has API URL|?Check every|?Creation date|?Has ID|?Collect statistics|?Collect semantic statistics"
-        my_query += "|sort=Creation date|order=asc|limit=500"
+        my_query = ''.join(['[[Category:Website]]', '[[Is validated::True]][', '[[Is active::True]]', segment_string,
+            '|?Has API URL', '|?Check every', '|?Creation date', '|?Has ID', '|?In error',
+            '|?Collect general data', '|?Collect extension data', '|?Collect skin data',
+            '|?Collect statistics|', '?Collect semantic statistics',
+            '|sort=Creation date', '|order=rand', '|limit=1000'])
 
-        sites = wiki.call({'action': 'ask', 'query': my_query})
+        sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
 
         # We could just return the raw JSON object from the API, however instead we are going to clean it up into an
         # easier to deal with array of dictionary objects.
@@ -129,14 +145,18 @@ class ApiaryBot:
                     print "Adding %s." % pagename.encode('utf8')
                 my_sites.append({
                     'pagename': pagename.encode('utf8'),
-                    'Has API URL': site['printouts']['Has API URL'][0],
                     'fullurl': site['fullurl'].encode('utf8'),
+                    'Has API URL': site['printouts']['Has API URL'][0],
                     'Check every': int(site['printouts']['Check every'][0]),
-                    'Collect statistics': (site['printouts']['Collect statistics'][0] == "t"),  # This is a boolean but it's returned as t or f, let's make it a boolean again
+                    'Creation date': site['printouts']['Creation date'][0],
                     'Has ID': int(site['printouts']['Has ID'][0]),
-                    'Collect semantic statistics': (site['printouts']['Collect semantic statistics'][0] == "t")  # This is a boolean but it's returned as t or f, let's make it a boolean again
-                    })
-
+                    'In error': (site['printouts']['In error'][0] == "t"),  # Boolean fields we'll convert from the strings we get back to real booleans
+                    'Collect general data': (site['printouts']['Collect general data'][0] == "t"),
+                    'Collect extension data': (site['printouts']['Collect extension data'][0] == "t"),
+                    'Collect skin data': (site['printouts']['Collect skin data'][0] == "t"),
+                    'Collect statistics': (site['printouts']['Collect statistics'][0] == "t"),
+                    'Collect semantic statistics': (site['printouts']['Collect semantic statistics'][0] == "t")
+                })
             return my_sites
         else:
             raise Exception("No sites were returned to work on.")
@@ -148,7 +168,7 @@ class ApiaryBot:
         tell if new statistics information should be requested and the second to pull general information.
         """
         # Get the timestamps for the last statistics and general pulls
-        cur = self.apiarydb.cursor()
+        cur = self.apiary_db.cursor()
         temp_sql = "SELECT last_statistics, last_general, check_every_limit FROM website_status WHERE website_id = %d" % site['Has ID']
         cur.execute(temp_sql)
         rows_returned = cur.rowcount
@@ -178,7 +198,7 @@ class ApiaryBot:
             raise Exception("Status check returned multiple rows.")
 
     def update_status(self, site):
-        cur = self.apiarydb.cursor()
+        cur = self.apiary_db.cursor()
 
         # Update the website_status table
         my_now = self.sqlutcnow()
@@ -198,12 +218,12 @@ class ApiaryBot:
             cur.execute(temp_sql)
 
         cur.close()
-        self.apiarydb.commit()
+        self.apiary_db.commit()
 
     def botlog(self, bot, message, type='info', duration=0):
         if self.args.verbose >= 1:
             print message
-        cur = self.apiarydb.cursor()
+        cur = self.apiary_db.cursor()
 
         temp_sql = "INSERT  apiary_bot_log (log_date, log_type, bot, duration, message) "
         temp_sql += "VALUES (\"%s\", \"%s\", \"%s\", %f, \"%s\")" % (self.sqlutcnow(), type, bot, duration, message)
@@ -212,4 +232,4 @@ class ApiaryBot:
             print "SQL: %s" % temp_sql
         cur.execute(temp_sql)
         cur.close()
-        self.apiarydb.commit()
+        self.apiary_db.commit()
