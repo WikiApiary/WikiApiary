@@ -44,6 +44,8 @@ class ApiaryBot:
         self.stats['general'] = 0
         self.stats['extensions'] = 0
         self.stats['skins'] = 0
+        self.stats['skippedstatistics'] = 0
+        self.stats['skippedgeneral'] = 0
 
     def get_config(self, config_file='../apiary.cfg'):
         try:
@@ -141,7 +143,7 @@ class ApiaryBot:
         if len(sites['query']['results']) > 0:
             my_sites = []
             for pagename, site in sites['query']['results'].items():
-                if self.args.verbose >= 2:
+                if self.args.verbose >= 3:
                     print "Adding %s." % pagename.encode('utf8')
                 my_sites.append({
                     'pagename': pagename.encode('utf8'),
@@ -185,7 +187,31 @@ class ApiaryBot:
                 print "check_every_limit: %s" % check_every_limit
 
             #TODO: make this check the times!
-            return (True, True)
+            last_statistics_struct = time.strptime(str(last_statistics), '%Y-%m-%d %H:%M:%S')
+            last_general_struct = time.strptime(str(last_general), '%Y-%m-%d %H:%M:%S')
+
+            stats_delta = (time.mktime(time.gmtime()) - time.mktime(last_statistics_struct)) / 60
+            general_delta = (time.mktime(time.gmtime()) - time.mktime(last_general_struct)) / 60
+
+            if self.args.verbose >= 2:
+                print "Delta from checks: stats %s general %s" % (stats_delta, general_delta)
+
+            (check_stats, check_general) = (False, False)
+            if stats_delta > site['Check every'] and stats_delta > check_every_limit:
+                check_stats = True
+            else:
+                if self.args.verbose >= 2:
+                    print "Skipping stats..."
+                self.stats['skippedstatistics'] += 1
+
+            if general_delta > (24 * 60):   # General checks are always bound to 24 hours
+                check_general = True
+            else:
+                if self.args.verbose >= 2:
+                    print "Skipping general..."
+                self.stats['skippedgeneral'] += 1
+
+            return (check_stats, check_general)
 
         elif rows_returned == 0:
             cur.close()
@@ -197,14 +223,21 @@ class ApiaryBot:
         else:
             raise Exception("Status check returned multiple rows.")
 
-    def update_status(self, site):
+    def update_status(self, site, checktype):
         cur = self.apiary_db.cursor()
 
         # Update the website_status table
         my_now = self.sqlutcnow()
-        temp_sql = "UPDATE website_status SET last_statistics = '%s' WHERE website_id = %d" % (my_now, site['Has ID'])
+
+        if checktype == "statistics":
+            temp_sql = "UPDATE website_status SET last_statistics = '%s' WHERE website_id = %d" % (my_now, site['Has ID'])
+
+        if checktype == "general":
+            temp_sql = "UPDATE website_status SET last_general = '%s' WHERE website_id = %d" % (my_now, site['Has ID'])
+
         if self.args.verbose >= 3:
             print "SQL: %s" % temp_sql
+
         cur.execute(temp_sql)
         rows_affected = cur.rowcount
         if rows_affected == 0:

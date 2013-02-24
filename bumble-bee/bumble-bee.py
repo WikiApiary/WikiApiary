@@ -42,84 +42,89 @@ class BumbleBee(ApiaryBot):
         if status:
             # Record the new data into the DB
             if self.args.verbose >= 2:
-                print data
+                print "JSON: %s" % data
                 print "Duration: %s" % duration
 
-            # Record the data received to the database
-            sql_command = """
-                INSERT INTO statistics
-                    (website_id, capture_date, response_timer, articles, jobs, users, admins, edits, activeusers, images, pages, views)
-                VALUES
-                    (%s, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
-                """
+            if 'query' in data:
+                # Record the data received to the database
+                sql_command = """
+                    INSERT INTO statistics
+                        (website_id, capture_date, response_timer, articles, jobs, users, admins, edits, activeusers, images, pages, views)
+                    VALUES
+                        (%s, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    """
 
-            data = data['query']['statistics']
-            if 'articles' in data:
-                    articles = "%s" % data['articles']
-            else:
-                    articles = 'null'
-            if 'jobs' in data:
-                    jobs = "%s" % data['jobs']
-            else:
-                    jobs = 'null'
-            if 'users' in data:
-                    users = "%s" % data['users']
-            else:
-                    users = 'null'
-            if 'admins' in data:
-                    admins = "%s" % data['admins']
-            else:
-                    admins = 'null'
-            if 'edits' in data:
-                    edits = "%s" % data['edits']
-            else:
-                    edits = 'null'
-            if 'activeusers' in data:
-                    activeusers = "%s" % data['activeusers']
-            else:
-                    activeusers = 'null'
-            if 'images' in data:
-                    images = "%s" % data['images']
-            else:
-                    images = 'null'
-            if 'pages' in data:
-                    pages = "%s" % data['pages']
-            else:
-                    pages = 'null'
-            if 'views' in data:
-                    views = "%s" % data['views']
-            else:
-                    views = 'null'
+                data = data['query']['statistics']
+                if 'articles' in data:
+                        articles = "%s" % data['articles']
+                else:
+                        articles = 'null'
+                if 'jobs' in data:
+                        jobs = "%s" % data['jobs']
+                else:
+                        jobs = 'null'
+                if 'users' in data:
+                        users = "%s" % data['users']
+                else:
+                        users = 'null'
+                if 'admins' in data:
+                        admins = "%s" % data['admins']
+                else:
+                        admins = 'null'
+                if 'edits' in data:
+                        edits = "%s" % data['edits']
+                else:
+                        edits = 'null'
+                if 'activeusers' in data:
+                        activeusers = "%s" % data['activeusers']
+                else:
+                        activeusers = 'null'
+                if 'images' in data:
+                        images = "%s" % data['images']
+                else:
+                        images = 'null'
+                if 'pages' in data:
+                        pages = "%s" % data['pages']
+                else:
+                        pages = 'null'
+                if 'views' in data:
+                        views = "%s" % data['views']
+                else:
+                        views = 'null'
 
-            sql_command = sql_command % (
-                site['Has ID'],
-                self.sqlutcnow(),
-                duration,
-                articles,
-                jobs,
-                users,
-                admins,
-                edits,
-                activeusers,
-                images,
-                pages,
-                views)
+                sql_command = sql_command % (
+                    site['Has ID'],
+                    self.sqlutcnow(),
+                    duration,
+                    articles,
+                    jobs,
+                    users,
+                    admins,
+                    edits,
+                    activeusers,
+                    images,
+                    pages,
+                    views)
 
-            if self.args.verbose >= 3:
-                print "SQL: %s" % sql_command
+                if self.args.verbose >= 3:
+                    print "SQL: %s" % sql_command
 
-            cur = self.apiary_db.cursor()
-            cur.execute(sql_command)
-            cur.close()
-            self.apiary_db.commit()
+                cur = self.apiary_db.cursor()
+                cur.execute(sql_command)
+                cur.close()
+                self.apiary_db.commit()
 
-            self.stats['statistics'] += 1
+                self.stats['statistics'] += 1
+            else:
+                message = "[[%s]] Statistics returned unexpected JSON." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='warn', message=message)
 
-            # Update the status table that we did our work!
-            self.update_status(site)
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
+
+        # Update the status table that we did our work!
+        self.update_status(site, 'statistics')
 
     def record_smwinfo(self, site):
         # Go out and get the statistic information
@@ -131,58 +136,63 @@ class BumbleBee(ApiaryBot):
         if status:
             # Record the new data into the DB
             if self.args.verbose >= 2:
-                print data
+                print "JSON: %s" % data
                 print "Duration: %s" % duration
 
-            # Record the data received to the database
-            sql_command = """
-                INSERT INTO smwinfo
-                    (website_id, capture_date, response_timer, propcount, proppagecount, usedpropcount, declaredpropcount)
-                VALUES
-                    (%d, '%s', %s, %s, %s, %s, %s)
-                """
+            if 'query' in data:
+                # Record the data received to the database
+                sql_command = """
+                    INSERT INTO smwinfo
+                        (website_id, capture_date, response_timer, propcount, proppagecount, usedpropcount, declaredpropcount)
+                    VALUES
+                        (%d, '%s', %s, %s, %s, %s, %s)
+                    """
 
-            if 'propcount' in data['info']:
-                    propcount = data['info']['propcount']
+                if 'propcount' in data['info']:
+                        propcount = data['info']['propcount']
+                else:
+                        propcount = 'null'
+                if 'proppagecount' in data['info']:
+                        proppagecount = data['info']['proppagecount']
+                else:
+                        proppagecount = 'null'
+                if 'usedpropcount' in data['info']:
+                        usedpropcount = data['info']['usedpropcount']
+                else:
+                        usedpropcount = 'null'
+                if 'declaredpropcount' in data['info']:
+                        declaredpropcount = data['info']['declaredpropcount']
+                else:
+                        declaredpropcount = 'null'
+
+                sql_command = sql_command % (
+                    site['Has ID'],
+                    self.sqlutcnow(),
+                    duration,
+                    propcount,
+                    proppagecount,
+                    usedpropcount,
+                    declaredpropcount)
+
+                if self.args.verbose >= 3:
+                    print "SQL: %s" % sql_command
+
+                cur = self.apiary_db.cursor()
+                cur.execute(sql_command)
+                cur.close()
+                self.apiary_db.commit()
+
+                self.stats['smwinfo'] += 1
             else:
-                    propcount = 'null'
-            if 'proppagecount' in data['info']:
-                    proppagecount = data['info']['proppagecount']
-            else:
-                    proppagecount = 'null'
-            if 'usedpropcount' in data['info']:
-                    usedpropcount = data['info']['usedpropcount']
-            else:
-                    usedpropcount = 'null'
-            if 'declaredpropcount' in data['info']:
-                    declaredpropcount = data['info']['declaredpropcount']
-            else:
-                    declaredpropcount = 'null'
+                message = "[[%s]] SMWInfo returned unexpected JSON." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='warn', message=message)
 
-            sql_command = sql_command % (
-                site['Has ID'],
-                self.sqlutcnow(),
-                duration,
-                propcount,
-                proppagecount,
-                usedpropcount,
-                declaredpropcount)
-
-            if self.args.verbose >= 3:
-                print "SQL: %s" % sql_command
-
-            cur = self.apiary_db.cursor()
-            cur.execute(sql_command)
-            cur.close()
-            self.apiary_db.commit()
-
-            self.stats['smwinfo'] += 1
-
-            # Update the status table that we did our work!
-            self.update_status(site)
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
+
+        # Update the status table that we did our work!
+        self.update_status(site, 'statistics')
 
     def build_general_template(self, x, server):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -221,12 +231,19 @@ class BumbleBee(ApiaryBot):
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
         if success:
             # Successfully pulled data
-            datapage = "%s/General" % (site['pagename'].encode('utf8'))
-            template_block = self.build_general_template(data['query']['general'], '')
-            c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-            if self.args.verbose >= 3:
-                print c
-            self.stats['general'] += 1
+            if 'query' in data:
+                datapage = "%s/General" % (site['pagename'].encode('utf8'))
+                template_block = self.build_general_template(data['query']['general'], '')
+                c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+                if self.args.verbose >= 3:
+                    print c
+                self.stats['general'] += 1
+            else:
+                message = "[[%s]] Returned unexpected JSON when general info." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='warn', message=message)
+
+        # Update the status table that we did our work! It doesn't matter if this was an error.
+        self.update_status(site, 'general')
 
     def build_extensions_template(self, ext_obj):
         h = HTMLParser.HTMLParser()
@@ -276,12 +293,16 @@ class BumbleBee(ApiaryBot):
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
         if success:
             # Successfully pulled data
-            datapage = "%s/Extensions" % (site['pagename'].encode('utf8'))
-            template_block = self.build_extensions_template(data['query']['extensions'])
-            c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-            if self.args.verbose >= 3:
-                print c
-            self.stats['extensions'] += 1
+            if 'query' in data:
+                datapage = "%s/Extensions" % (site['pagename'].encode('utf8'))
+                template_block = self.build_extensions_template(data['query']['extensions'])
+                c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+                if self.args.verbose >= 3:
+                    print c
+                self.stats['extensions'] += 1
+            else:
+                message = "[[%s]] Returned unexpected JSON when requesting extension data." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='warn', message=message)
 
     def build_skins_template(self, ext_obj):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -303,12 +324,16 @@ class BumbleBee(ApiaryBot):
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
         if success:
             # Successfully pulled data
-            datapage = "%s/Skins" % (site['pagename'].encode('utf8'))
-            template_block = self.build_skins_template(data['query']['skins'])
-            c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-            if self.args.verbose >= 3:
-                print c
-            self.stats['skins'] += 1
+            if 'query' in data:
+                datapage = "%s/Skins" % (site['pagename'].encode('utf8'))
+                template_block = self.build_skins_template(data['query']['skins'])
+                c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+                if self.args.verbose >= 3:
+                    print c
+                self.stats['skins'] += 1
+            else:
+                message = "[[%s]] Returned unexpected JSON when requesting skin data." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='warn', message=message)
 
     def main(self):
         if self.args.segment is not None:
@@ -329,6 +354,8 @@ class BumbleBee(ApiaryBot):
         i = 0
         for site in sites:
             i += 1
+            if self.args.verbose >= 1:
+                print "\n\n%d: Processing %s (ID %d)" % (i, site['pagename'], site['Has ID'])
             req_statistics = False
             req_general = False
             (req_statistics, req_general) = self.get_status(site)
@@ -352,9 +379,9 @@ class BumbleBee(ApiaryBot):
             message = "Completed processing for all websites."
         message += " Processed %d websites." % i
         self.botlog(bot='Bumble Bee', duration=float(duration), message=message)
-        message = "Stats: statistics %d smwinfo %d general %d extensions %d skins %d" % (
+        message = "Stats: statistics %d smwinfo %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
             self.stats['statistics'], self.stats['smwinfo'], self.stats['general'],
-            self.stats['extensions'], self.stats['skins'])
+            self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'])
         self.botlog(bot='Bumble Bee', message=message)
 
 
