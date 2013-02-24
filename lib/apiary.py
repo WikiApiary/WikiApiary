@@ -144,10 +144,10 @@ class ApiaryBot:
             my_sites = []
             for pagename, site in sites['query']['results'].items():
                 if self.args.verbose >= 3:
-                    print "Adding %s." % pagename.encode('utf8')
+                    print "Adding %s." % pagename
                 my_sites.append({
-                    'pagename': pagename.encode('utf8'),
-                    'fullurl': site['fullurl'].encode('utf8'),
+                    'pagename': pagename,
+                    'fullurl': site['fullurl'],
                     'Has API URL': site['printouts']['Has API URL'][0],
                     'Check every': int(site['printouts']['Check every'][0]),
                     'Creation date': site['printouts']['Creation date'][0],

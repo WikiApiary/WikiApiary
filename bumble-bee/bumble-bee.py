@@ -192,7 +192,10 @@ class BumbleBee(ApiaryBot):
                 print "Did not receive valid data from %s" % (data_url)
 
         # Update the status table that we did our work!
-        self.update_status(site, 'statistics')
+        # TODO: Commenting out. There is a bug that if this updates at the same time as the previous one
+        # there is no change to the row, and my check for rows_affected in update_status will
+        # not work as intended. Going to assume that smwinfo slaves off of regular statistics.
+        #self.update_status(site, 'statistics')
 
     def build_general_template(self, x, server):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -232,7 +235,7 @@ class BumbleBee(ApiaryBot):
         if success:
             # Successfully pulled data
             if 'query' in data:
-                datapage = "%s/General" % (site['pagename'].encode('utf8'))
+                datapage = "%s/General" % site['pagename']
                 template_block = self.build_general_template(data['query']['general'], '')
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
@@ -294,7 +297,7 @@ class BumbleBee(ApiaryBot):
         if success:
             # Successfully pulled data
             if 'query' in data:
-                datapage = "%s/Extensions" % (site['pagename'].encode('utf8'))
+                datapage = "%s/Extensions" % site['pagename']
                 template_block = self.build_extensions_template(data['query']['extensions'])
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
@@ -325,7 +328,7 @@ class BumbleBee(ApiaryBot):
         if success:
             # Successfully pulled data
             if 'query' in data:
-                datapage = "%s/Skins" % (site['pagename'].encode('utf8'))
+                datapage = "%s/Skins" % site['pagename']
                 template_block = self.build_skins_template(data['query']['skins'])
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
