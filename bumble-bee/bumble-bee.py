@@ -382,7 +382,7 @@ class BumbleBee(ApiaryBot):
         else:
             message = "Completed processing for all websites."
         message += " Processed %d websites." % i
-        message += " Stats: statistics %d smwinfo %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
+        message += " Counters statistics %d smwinfo %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
             self.stats['statistics'], self.stats['smwinfo'], self.stats['general'],
             self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'])
         self.botlog(bot='Bumble Bee', duration=float(duration), message=message)
