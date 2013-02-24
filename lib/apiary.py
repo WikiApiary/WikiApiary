@@ -77,7 +77,7 @@ class ApiaryBot:
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
     def pull_json(self, sitename, data_url):
-        socket.setdefaulttimeout(5)
+        socket.setdefaulttimeout(10)
 
         # Get JSON data via API and return the JSON structure parsed
         req = urllib2.Request(data_url)

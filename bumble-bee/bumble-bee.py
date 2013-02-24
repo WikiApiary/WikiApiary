@@ -139,7 +139,7 @@ class BumbleBee(ApiaryBot):
                 print "JSON: %s" % data
                 print "Duration: %s" % duration
 
-            if 'query' in data:
+            if 'info' in data:
                 # Record the data received to the database
                 sql_command = """
                     INSERT INTO smwinfo
