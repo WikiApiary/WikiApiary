@@ -134,7 +134,8 @@ class ApiaryBot:
             '|?Collect general data', '|?Collect extension data', '|?Collect skin data',
             '|?Collect statistics|', '?Collect semantic statistics',
             '|sort=Creation date', '|order=rand', '|limit=1000'])
-
+        if self.args.verbose >= 3:
+            print "Query: %s" % my_query
         sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
 
         # We could just return the raw JSON object from the API, however instead we are going to clean it up into an

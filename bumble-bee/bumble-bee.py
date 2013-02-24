@@ -368,7 +368,7 @@ class BumbleBee(ApiaryBot):
                 if site['Collect semantic statistics']:
                     self.record_smwinfo(site)
             if req_general:
-		time.sleep(1)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
+                time.sleep(2)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
                 if site['Collect general data']:
                     self.record_general(site)
                 if site['Collect extension data']:
