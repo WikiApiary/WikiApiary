@@ -39,7 +39,7 @@ class AuditBee(ApiaryBot):
             'form': 'Website',
             'target': pagename,
             'Website[Audited]': 'Yes',
-            'Website[Audited date]': time.strftime('%B %d, %Y %I:%M:%S %p'),
+            'Website[Audited date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
             'wpSummary': 'Audit completed.'})
         if self.args.verbose >= 3:
             print c
