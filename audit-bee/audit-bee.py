@@ -109,7 +109,7 @@ class AuditBee(ApiaryBot):
 
     def audit_site(self, site):
         if self.args.verbose >= 3:
-            print "Site: ", site
+            print "\n\nSite: ", site
         data_url = site[1]['printouts']['Has API URL'][0] + "?action=query&meta=siteinfo&siprop=general&format=json"
         if self.args.verbose >= 2:
             print "Pulling general info info from %s." % data_url
