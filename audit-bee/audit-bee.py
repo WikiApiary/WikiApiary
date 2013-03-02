@@ -198,8 +198,8 @@ class AuditBee(ApiaryBot):
 
         i = 0
         if site_count > 0:
-            i += 1
             for site in sites:
+                i += 1
                 self.audit_site(site)
         else:
             self.botlog(bot='Audit Bee', message='No sites to audit.')
