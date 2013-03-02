@@ -33,6 +33,7 @@ class AuditBee(ApiaryBot):
         if self.args.verbose >= 2:
             print "%s audit completed, updating audit status." % pagename
 
+        socket.setdefaulttimeout(30)
         c = self.apiary_wiki.call({
             'action': 'sfautoedit',
             'form': 'Website',
@@ -48,6 +49,7 @@ class AuditBee(ApiaryBot):
             print "%s setting %s to %s (%s)." % (pagename, name, value, comment)
 
         property = "Website[%s]" % name
+        socket.setdefaulttimeout(30)
         c = self.apiary_wiki.call({
             'action': 'sfautoedit',
             'form': 'Website',
@@ -180,6 +182,7 @@ class AuditBee(ApiaryBot):
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
 
+        socket.setdefaulttimeout(30)
         sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
 
         return len(sites['query']['results']), sites['query']['results'].items()
