@@ -144,20 +144,21 @@ class AuditBee(ApiaryBot):
 
         # Activate and validate the site, but only if the site has not been audited before
         # if this is a re-audit, leave these flags alone.
-        if site[1]['printouts']['Is audited'][0] == "f":
-            if self.args.verbose >= 2:
-                print "%s has not been audited before, checking activation." % site[0]
-            if site[1]['printouts']['Is validated'][0] == "f":
+        if (audit_complete) and (do_audit_extensions == audit_extensions_complete):
+            if site[1]['printouts']['Is audited'][0] == "f":
                 if self.args.verbose >= 2:
-                    print "Validating %s." % site[0]
-                self.set_flag(site[0], 'Validated', 'Yes', "Validated.")
-            if site[1]['printouts']['Is active'][0] == "f":
+                    print "%s has not been audited before, checking activation." % site[0]
+                if site[1]['printouts']['Is validated'][0] == "f":
+                    if self.args.verbose >= 2:
+                        print "Validating %s." % site[0]
+                    self.set_flag(site[0], 'Validated', 'Yes', "Validated.")
+                if site[1]['printouts']['Is active'][0] == "f":
+                    if self.args.verbose >= 2:
+                        print "Activating %s." % site[0]
+                    self.set_flag(site[0], 'Active', 'Yes', "Activated.")
+            else:
                 if self.args.verbose >= 2:
-                    print "Activating %s." % site[0]
-                self.set_flag(site[0], 'Active', 'Yes', "Activated.")
-        else:
-            if self.args.verbose >= 2:
-                print "%s is being reaudited, not activating or validating." % site[0]
+                    print "%s is being reaudited, not activating or validating." % site[0]
 
         if (audit_complete) and (do_audit_extensions == audit_extensions_complete):
             self.update_audit_status(site[0])
@@ -177,7 +178,7 @@ class AuditBee(ApiaryBot):
             '|?In error',
             '|sort=Creation date',
             '|order=rand',
-            '|limit=10'])
+            '|limit=20'])
 
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
