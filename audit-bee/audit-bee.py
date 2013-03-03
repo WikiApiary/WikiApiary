@@ -45,7 +45,7 @@ class AuditBee(ApiaryBot):
             print c
 
     def set_flag(self, pagename, name, value, comment):
-        if self.args.verbose >= 3:
+        if self.args.verbose >= 2:
             print "%s setting %s to %s (%s)." % (pagename, name, value, comment)
 
         property = "Website[%s]" % name
@@ -108,7 +108,7 @@ class AuditBee(ApiaryBot):
             return False
 
     def audit_site(self, site):
-        if self.args.verbose >= 3:
+        if self.args.verbose >= 1:
             print "\n\nSite: ", site
         data_url = site[1]['printouts']['Has API URL'][0] + "?action=query&meta=siteinfo&siprop=general&format=json"
         if self.args.verbose >= 2:
