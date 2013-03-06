@@ -162,9 +162,9 @@ class AuditBee(ApiaryBot):
         else:
             self.stats['audit_failure'] += 1
 
-    def get_audit_list(self):
+    def get_audit_list(self, group, count=20):
         my_query = ''.join([
-            '[[Concept:Websites never audited]]',
+            "[[Concept:%s]]" % group,
             '|?Has API URL',
             '|?Collect general data',
             '|?Collect extension data',
@@ -177,7 +177,7 @@ class AuditBee(ApiaryBot):
             '|?In error',
             '|sort=Creation date',
             '|order=rand',
-            '|limit=20'])
+            "|limit=%d" % count])
 
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
@@ -194,14 +194,19 @@ class AuditBee(ApiaryBot):
         # Setup our connection to the wiki too
         self.connectwiki('Audit Bee')
 
-        (site_count, sites) = self.get_audit_list()
-
+        # Do never audited first
+        (site_count, sites) = self.get_audit_list(group='Websites never audited', count=20)
         if site_count > 0:
             for site in sites:
                 self.stats['audit_count'] += 1
                 self.audit_site(site)
-        else:
-            self.botlog(bot='Audit Bee', message='No sites to audit.')
+
+        # Do re-audits
+        (site_count, sites) = self.get_audit_list(group='Websites exired audit', count=20)
+        if site_count > 0:
+            for site in sites:
+                self.stats['audit_count'] += 1
+                self.audit_site(site)
 
         duration = time.time() - start_time
         message = "Completed audit %d sites  %d succeeded  %d failed" % (self.stats['audit_count'], self.stats['audit_success'], self.stats['audit_failure'])
