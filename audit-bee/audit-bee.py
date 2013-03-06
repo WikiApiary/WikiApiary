@@ -1,12 +1,6 @@
 #!/usr/bin/python
 """
-General data requires MediaWiki 1.8 or later.
-Extension data requires MediaWiki 1.14 or later.
-Skin data requires MediaWiki 1.18 or later.
-General statistics requires MediaWiki 1.11 or later.
-Semantic statistics requires Semantic MediaWiki 1.6 or later.
-
-Basic flow of Audit Bee:
+Audit bee
 """
 
 import os
@@ -28,7 +22,15 @@ from apiary import ApiaryBot
 
 
 class AuditBee(ApiaryBot):
+    def __init__(self):
+        ApiaryBot.__init__(self)
+        # Initialize stats
+        self.stats['audit_count'] = 0
+        self.stats['audit_success'] = 0
+        self.stats['audit_failure'] = 0
+
     def update_audit_status(self, pagename):
+        self.stats['audit_success'] += 1
         # Audit completed
         if self.args.verbose >= 2:
             print "%s audit completed, updating audit status." % pagename
@@ -113,7 +115,7 @@ class AuditBee(ApiaryBot):
         data_url = site[1]['printouts']['Has API URL'][0] + "?action=query&meta=siteinfo&siprop=general&format=json"
         if self.args.verbose >= 2:
             print "Pulling general info info from %s." % data_url
-        (success, data, duration) = self.pull_json(site[0], data_url)
+        (success, data, duration) = self.pull_json(site[0], data_url, bot='Audit Bee')
 
         audit_complete = False
         audit_extensions_complete = False
@@ -132,7 +134,7 @@ class AuditBee(ApiaryBot):
             data_url = site[1]['printouts']['Has API URL'][0] + "?action=query&meta=siteinfo&siprop=extensions&format=json"
             if self.args.verbose >= 2:
                 print "Pulling extension info info from %s." % data_url
-            (success, data, duration) = self.pull_json(site[0], data_url)
+            (success, data, duration) = self.pull_json(site[0], data_url, bot='Audit Bee')
 
             if success:
                 if 'query' in data:
@@ -157,6 +159,8 @@ class AuditBee(ApiaryBot):
 
             # Update audit status
             self.update_audit_status(site[0])
+        else:
+            self.stats['audit_failure'] += 1
 
     def get_audit_list(self):
         my_query = ''.join([
@@ -192,16 +196,15 @@ class AuditBee(ApiaryBot):
 
         (site_count, sites) = self.get_audit_list()
 
-        i = 0
         if site_count > 0:
             for site in sites:
-                i += 1
+                self.stats['audit_count'] += 1
                 self.audit_site(site)
         else:
             self.botlog(bot='Audit Bee', message='No sites to audit.')
 
         duration = time.time() - start_time
-        message = "Completed audit of %d sites." % i
+        message = "Completed audit %d sites  %d succeeded  %d failed" % (self.stats['audit_count'], self.stats['audit_success'], self.stats['audit_failure'])
         self.botlog(bot='Audit Bee', duration=float(duration), message=message)
 
 

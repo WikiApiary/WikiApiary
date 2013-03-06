@@ -237,6 +237,7 @@ class BumbleBee(ApiaryBot):
             if 'query' in data:
                 datapage = "%s/General" % site['pagename']
                 template_block = self.build_general_template(data['query']['general'], '')
+                socket.setdefaulttimeout(30)
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
                     print c
@@ -299,6 +300,7 @@ class BumbleBee(ApiaryBot):
             if 'query' in data:
                 datapage = "%s/Extensions" % site['pagename']
                 template_block = self.build_extensions_template(data['query']['extensions'])
+                socket.setdefaulttimeout(30)
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
                     print c
@@ -330,6 +332,7 @@ class BumbleBee(ApiaryBot):
             if 'query' in data:
                 datapage = "%s/Skins" % site['pagename']
                 template_block = self.build_skins_template(data['query']['skins'])
+                socket.setdefaulttimeout(30)
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
                     print c

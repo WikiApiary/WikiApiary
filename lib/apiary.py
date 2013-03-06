@@ -76,7 +76,7 @@ class ApiaryBot:
         now = now.replace(microsecond=0)
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
-    def pull_json(self, sitename, data_url):
+    def pull_json(self, sitename, data_url, bot='Bumble Bee'):
         socket.setdefaulttimeout(10)
 
         # Get JSON data via API and return the JSON structure parsed
@@ -89,20 +89,20 @@ class ApiaryBot:
             f = opener.open(req)
             duration = (datetime.datetime.now() - t1).total_seconds()
         except socket.timeout:
-            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
+            self.botlog(bot=bot, type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
             return False, None, None
         except HTTPError as e:
-            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] HTTP Error code %s while calling %s" % (sitename, e.code, data_url))
+            self.botlog(bot=bot, type="error", message="[[%s]] HTTP Error code %s while calling %s" % (sitename, e.code, data_url))
             return False, None, None
         except URLError as e:
-            self.botlog(bot="Bumble Bee", type="error", message="[[%s]] URL Error %s while calling %s" % (sitename, e.reason, data_url))
+            self.botlog(bot=bot, type="error", message="[[%s]] URL Error %s while calling %s" % (sitename, e.reason, data_url))
             return False, None, None
         else:
             # It all worked!
             try:
                 data = simplejson.load(f)
             except:
-                self.botlog(bot="Bumble Bee", type="error", message="[[%s]] Could not decode JSON from %s" % (sitename, data_url))
+                self.botlog(bot=bot, type="error", message="[[%s]] Could not decode JSON from %s" % (sitename, data_url))
                 return False, None, None
             return True, data, duration
 
