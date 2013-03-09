@@ -21,10 +21,12 @@ var QueryString = function () {
     return query_string;
 } ();
 
-function destroyOldGraph() {
-  if (window['my_graph'] != undefined) {
-    console.log("Destroying previous graph: " + window.my_graph);
-    window.my_graph.destroy();
+window.my_graph = new Object();
+
+function destroyOldGraph(targetDiv) {
+  if (window.my_graph[targetDiv] != undefined) {
+    console.log("Destroying previous graph: " + window.my_graph[targetDiv]);
+    window.my_graph[targetDiv].destroy();
   }  
 }
 
@@ -34,10 +36,10 @@ function notImpl() {
 
 function showArticleGraph(targetDiv, siteID) {
   console.log("Displaying article graph for " + siteID)
-  destroyOldGraph();
-  window.my_graph = new Dygraph(
+  destroyOldGraph(targetDiv);
+  window.my_graph[targetDiv] = new Dygraph(
     document.getElementById(targetDiv),
-    "http://wikiapiary.com/apiary/articles.php?id=" + siteID,
+    "http://wikiapiary.com/apiary/data/articles.php?id=" + siteID,
     {
       labels: [ 'Date', 'Articles', 'Pages'],
       'Pages': {
@@ -69,10 +71,10 @@ function showArticleGraph(targetDiv, siteID) {
 
 function showUsersGraph(targetDiv, siteID) {
   console.log("Displaying users graph for " + siteID)
-  destroyOldGraph();
-  window.my_graph = new Dygraph(
+  destroyOldGraph(targetDiv);
+  window.my_graph[targetDiv] = new Dygraph(
     document.getElementById(targetDiv),
-    "http://wikiapiary.com/apiary/users.php?id=" + siteID,
+    "http://wikiapiary.com/apiary/data/users.php?id=" + siteID,
     {
       labels: [ 'Date', 'Users', 'Active Users'],
       'Users': {
@@ -104,10 +106,10 @@ function showUsersGraph(targetDiv, siteID) {
 
 function showJobsGraph(targetDiv, siteID) {
   console.log("Displaying jobs graph for " + siteID)  
-  destroyOldGraph();
-  window.my_graph = new Dygraph(
+  destroyOldGraph(targetDiv);
+  window.my_graph[targetDiv] = new Dygraph(
     document.getElementById(targetDiv),
-    "http://wikiapiary.com/apiary/jobs.php?id=" + siteID,
+    "http://wikiapiary.com/apiary/data/jobs.php?id=" + siteID,
     {
       labels: [ 'Date', 'Jobs'],
       axes: {
