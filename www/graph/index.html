@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7; IE=EmulateIE9">
+    <title>WikiApiary Graph</title>
+    <!--[if IE]>
+    <script type="text/javascript" src="../excanvas.js"></script>
+    <![endif]-->
+    
+    <script type="text/javascript" src="http://wikiapiary.com/apiary/lib/dygraph-combined.js"></script>
+    <script type="text/javascript" src="graph.js"></script>
+    <link rel="stylesheet" href="graph.css" />
+  </head>
+  <body>
+    <div id="apiary_branding">WikiApiary</div>
+    <div id="apiary_nav">
+      <strong>Data:</strong> <ul>
+        <li><a href="#" onClick="showArticleGraph('graph', QueryString.id); return false;">Pages-Articles</a></li>
+        <li><a href="#" onClick="showUsersGraph('graph', QueryString.id); return false;">Users</a></li>
+        <li><a href="#" onClick="showJobsGraph('graph', QueryString.id); return false;">Jobs</a></li>
+      </ul>
+      <strong>Freq:</strong>
+      <ul>
+        <li><a href="#" onClick="notImpl();">Daily</a></li>
+        <li><a href="#" onClick="notImpl();">Weekly</a></li>
+        <li><a href="#" onClick="notImpl();">Raw</a></li>
+      </ul>
+    </div>
+    <div id="legend"></div>
+    <div id="graph"></div>
+    <script>
+      // Display the initial graph
+      showArticleGraph('graph', QueryString.id);
+    </script>
+  </body>
+</html>
+
