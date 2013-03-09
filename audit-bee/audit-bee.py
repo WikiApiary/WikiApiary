@@ -185,7 +185,10 @@ class AuditBee(ApiaryBot):
         socket.setdefaulttimeout(30)
         sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
 
-        return len(sites['query']['results']), sites['query']['results'].items()
+        if len(sites['query']['results']) > 0:
+            return len(sites['query']['results']), sites['query']['results'].items()
+        else:
+            return 0, None
 
     def main(self):
         self.botlog(bot='Audit Bee', message='Starting audit run.')

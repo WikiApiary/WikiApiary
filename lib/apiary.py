@@ -88,21 +88,15 @@ class ApiaryBot:
             t1 = datetime.datetime.now()
             f = opener.open(req)
             duration = (datetime.datetime.now() - t1).total_seconds()
-        except socket.timeout:
-            self.botlog(bot=bot, type="error", message="[[%s]] Socket timeout while calling %s" % (sitename, data_url))
-            return False, None, None
-        except HTTPError as e:
-            self.botlog(bot=bot, type="error", message="[[%s]] HTTP Error code %s while calling %s" % (sitename, e.code, data_url))
-            return False, None, None
-        except URLError as e:
-            self.botlog(bot=bot, type="error", message="[[%s]] URL Error %s while calling %s" % (sitename, e.reason, data_url))
+        except Exception, e:
+            self.botlog(bot=bot, type="error", message="[[%s]] %s calling %s" % (sitename, str(e), data_url))
             return False, None, None
         else:
             # It all worked!
             try:
                 data = simplejson.load(f)
-            except:
-                self.botlog(bot=bot, type="error", message="[[%s]] Could not decode JSON from %s" % (sitename, data_url))
+            except Exception, e:
+                self.botlog(bot=bot, type="error", message="[[%s]] %s from %s" % (sitename, str(e), data_url))
                 return False, None, None
             return True, data, duration
 
