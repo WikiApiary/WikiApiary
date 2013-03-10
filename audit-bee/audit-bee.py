@@ -191,7 +191,6 @@ class AuditBee(ApiaryBot):
             return 0, None
 
     def main(self):
-        self.botlog(bot='Audit Bee', message='Starting audit run.')
         start_time = time.time()
 
         # Setup our connection to the wiki too
@@ -212,8 +211,9 @@ class AuditBee(ApiaryBot):
                 self.audit_site(site)
 
         duration = time.time() - start_time
-        message = "Completed audit %d sites  %d succeeded  %d failed" % (self.stats['audit_count'], self.stats['audit_success'], self.stats['audit_failure'])
-        self.botlog(bot='Audit Bee', duration=float(duration), message=message)
+        if self.stats['audit_count'] > 0:
+            message = "Completed audit %d sites  %d succeeded  %d failed" % (self.stats['audit_count'], self.stats['audit_success'], self.stats['audit_failure'])
+            self.botlog(bot='Audit Bee', duration=float(duration), message=message)
 
 
 # Run

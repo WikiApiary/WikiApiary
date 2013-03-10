@@ -77,7 +77,7 @@ class ApiaryBot:
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
     def pull_json(self, sitename, data_url, bot='Bumble Bee'):
-        socket.setdefaulttimeout(10)
+        socket.setdefaulttimeout(15)
 
         # Get JSON data via API and return the JSON structure parsed
         req = urllib2.Request(data_url)
