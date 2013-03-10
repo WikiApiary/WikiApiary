@@ -64,7 +64,7 @@ class AuditBee(ApiaryBot):
     def set_audit_extensions(self, site, extensions):
         for extension in extensions:
             # Semantic statistics requires Semantic MediaWiki 1.6 or later.
-            if extension['name'] == 'Semantic MediaWiki':
+            if extension.get('name', "") == 'Semantic MediaWiki':
                 match = re.search(r'(\d+)\.(\d+)', extension['version'])
                 (smw_version_major, smw_version_minor) = (int(match.group(1)), int(match.group(2)))
 

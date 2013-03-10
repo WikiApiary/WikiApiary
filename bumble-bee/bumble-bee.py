@@ -255,36 +255,37 @@ class BumbleBee(ApiaryBot):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
         for x in ext_obj:
-            template_block += "{{Extension in use\n"
-            template_block += "|Extension name=%s\n" % (x['name'])
-            if 'version' in x:
-                template_block += "|Extension version=%s\n" % (x['version'])
-            if 'author' in x:
-                # Authors can have a lot of junk in them, wikitext and such.
-                # We'll try to clean that up.
-                temp_author = x['author']
-                # Wikilinks with names
-                # "[[Foobar | Foo Bar]]"
-                temp_author = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', temp_author)
-                # Simple Wikilinks
-                temp_author = re.sub(r'\[\[(.*)\]\]', r'\1', temp_author)
-                # Hyperlinks as wikiext
-                # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
-                temp_author = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', temp_author)
-                # Misc text
-                temp_author = re.sub(r'\sand\s', r', ', temp_author)
-                temp_author = re.sub(r'\.\.\.', r'', temp_author)
-                temp_author = re.sub(r'&nbsp;', r' ', temp_author)
-                # Lastly, there could be HTML encoded stuff in these
-                temp_author = h.unescape(temp_author)
+            if 'name' in x:
+                template_block += "{{Extension in use\n"
+                template_block += "|Extension name=%s\n" % (x['name'])
+                if 'version' in x:
+                    template_block += "|Extension version=%s\n" % (x['version'])
+                if 'author' in x:
+                    # Authors can have a lot of junk in them, wikitext and such.
+                    # We'll try to clean that up.
+                    temp_author = x['author']
+                    # Wikilinks with names
+                    # "[[Foobar | Foo Bar]]"
+                    temp_author = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', temp_author)
+                    # Simple Wikilinks
+                    temp_author = re.sub(r'\[\[(.*)\]\]', r'\1', temp_author)
+                    # Hyperlinks as wikiext
+                    # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
+                    temp_author = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', temp_author)
+                    # Misc text
+                    temp_author = re.sub(r'\sand\s', r', ', temp_author)
+                    temp_author = re.sub(r'\.\.\.', r'', temp_author)
+                    temp_author = re.sub(r'&nbsp;', r' ', temp_author)
+                    # Lastly, there could be HTML encoded stuff in these
+                    temp_author = h.unescape(temp_author)
 
-                template_block += "|Extension author=%s\n" % (temp_author)
+                    template_block += "|Extension author=%s\n" % (temp_author)
 
-            if 'type' in x:
-                template_block += "|Extension type=%s\n" % (x['type'])
-            if 'url' in x:
-                template_block += "|Extension URL=%s\n" % (x['url'])
-            template_block += "}}\n"
+                if 'type' in x:
+                    template_block += "|Extension type=%s\n" % (x['type'])
+                if 'url' in x:
+                    template_block += "|Extension URL=%s\n" % (x['url'])
+                template_block += "}}\n"
 
         template_block += "</includeonly>"
 
