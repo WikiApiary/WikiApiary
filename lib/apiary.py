@@ -123,7 +123,7 @@ class ApiaryBot:
             segment_string = "[[Has bot segment::%d]]" % int(self.args.segment)
 
         # Build query for sites
-        my_query = ''.join(['[[Category:Website]]', '[[Is validated::True]][', '[[Is active::True]]', segment_string,
+        my_query = ''.join(['[[Category:Website]]', '[[Is validated::True]][', '[[Is defunct::False]]', '[[Is active::True]]', segment_string,
             '|?Has API URL', '|?Check every', '|?Creation date', '|?Has ID', '|?In error',
             '|?Collect general data', '|?Collect extension data', '|?Collect skin data',
             '|?Collect statistics|', '?Collect semantic statistics',
