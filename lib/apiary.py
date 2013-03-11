@@ -89,6 +89,7 @@ class ApiaryBot:
             f = opener.open(req)
             duration = (datetime.datetime.now() - t1).total_seconds()
         except Exception, e:
+            self.record_error(sitename, str(e))
             self.botlog(bot=bot, type="error", message="[[%s]] %s calling %s" % (sitename, str(e), data_url))
             return False, None, None
         else:
@@ -96,9 +97,47 @@ class ApiaryBot:
             try:
                 data = simplejson.load(f)
             except Exception, e:
+                self.record_error(sitename, str(e))
                 self.botlog(bot=bot, type="error", message="[[%s]] %s from %s" % (sitename, str(e), data_url))
                 return False, None, None
             return True, data, duration
+
+    def record_error(self, sitename, error_message):
+        # This function updates the error properties for a wiki
+        socket.setdefaulttimeout(30)
+
+        if self.args.verbose >= 2:
+            print "Updating error information for %s" % sitename
+
+        my_query = ''.join([
+            "[[%s]]" % sitename,
+            '|?In error',
+            '|?Has error count',
+            '|?Has error date',
+            '|?Has error message'])
+        if self.args.verbose >= 3:
+            print "Get current error info: %s" % my_query
+
+        curr_status = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
+        if self.args.verbose >= 3:
+            print curr_status
+
+        try:
+            error_count = curr_status['query']['results'][sitename]['printouts']['Has error count'][0] + 1
+        except:
+            error_count = 1
+
+        c = self.apiary_wiki.call({
+            'action': 'sfautoedit',
+            'form': 'Website',
+            'target': sitename,
+            'Website[Error]': 'Yes',
+            'Website[Error date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
+            'Website[Error count]': error_count,
+            'Website[Error message]': error_message,
+            'wpSummary': "recording error %d" % error_count})
+        if self.args.verbose >= 3:
+            print c
 
     def connectdb(self):
         # Setup our database connection

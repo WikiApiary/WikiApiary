@@ -116,6 +116,7 @@ class BumbleBee(ApiaryBot):
 
                 self.stats['statistics'] += 1
             else:
+                self.record_error(site['pagename'], 'Statistics returned unexpected JSON.')
                 message = "[[%s]] Statistics returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
 
@@ -184,6 +185,7 @@ class BumbleBee(ApiaryBot):
 
                 self.stats['smwinfo'] += 1
             else:
+                self.record_error(site['pagename'], 'SMWInfo returned unexpected JSON.')
                 message = "[[%s]] SMWInfo returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
 
@@ -243,6 +245,7 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['general'] += 1
             else:
+                self.record_error(site['pagename'], 'Returned unexpected JSON when general info.')
                 message = "[[%s]] Returned unexpected JSON when general info." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
 
@@ -307,6 +310,7 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['extensions'] += 1
             else:
+                self.record_error(site['pagename'], 'Returned unexpected JSON when requesting extension data.')
                 message = "[[%s]] Returned unexpected JSON when requesting extension data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
 
@@ -339,6 +343,7 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['skins'] += 1
             else:
+                self.record_error(site['pagename'], 'Returned unexpected JSON when requesting skin data.')
                 message = "[[%s]] Returned unexpected JSON when requesting skin data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
 
