@@ -18,6 +18,7 @@ import socket
 import MySQLdb as mdb
 import simplejson
 import urllib2
+import random
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 
@@ -268,7 +269,7 @@ class ApiaryBot:
                     print "Skipping stats..."
                 self.stats['skippedstatistics'] += 1
 
-            if general_delta > (24 * 60):   # General checks are always bound to 24 hours
+            if general_delta > ((24 + random.randint(0,24)) * 60):   # General checks are always bound to 24 hours, plus a random offset to keep checks evenly distributed
                 check_general = True
             else:
                 if self.args.verbose >= 2:

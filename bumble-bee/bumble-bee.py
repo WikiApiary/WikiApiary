@@ -39,6 +39,7 @@ class BumbleBee(ApiaryBot):
             print "Pulling statistics info from %s." % data_url
         (status, data, duration) = self.pull_json(site['pagename'], data_url)
 
+        ret_value = True
         if status:
             # Record the new data into the DB
             if self.args.verbose >= 2:
@@ -115,20 +116,20 @@ class BumbleBee(ApiaryBot):
                 self.apiary_db.commit()
 
                 self.stats['statistics'] += 1
-                return True
             else:
                 self.record_error(site['pagename'], 'Statistics returned unexpected JSON.')
                 message = "[[%s]] Statistics returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
-                return False
+                ret_value = False
 
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
-            return False
+            ret_value = False
 
         # Update the status table that we did our work!
         self.update_status(site, 'statistics')
+        return ret_value
 
     def record_smwinfo(self, site):
         # Go out and get the statistic information
@@ -137,6 +138,7 @@ class BumbleBee(ApiaryBot):
             print "Pulling SMW info from %s." % data_url
         (status, data, duration) = self.pull_json(site['pagename'], data_url)
 
+        ret_value = True
         if status:
             # Record the new data into the DB
             if self.args.verbose >= 2:
@@ -187,17 +189,16 @@ class BumbleBee(ApiaryBot):
                 self.apiary_db.commit()
 
                 self.stats['smwinfo'] += 1
-                return True
             else:
                 self.record_error(site['pagename'], 'SMWInfo returned unexpected JSON.')
                 message = "[[%s]] SMWInfo returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
-                return False
+                ret_value = False
 
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
-            return False
+            ret_value = False
 
         # Update the status table that we did our work!
         # TODO: Commenting out. There is a bug that if this updates at the same time as the previous one
@@ -408,11 +409,11 @@ class BumbleBee(ApiaryBot):
                     if site['In error'] and status:
                         site['In error'] = False
                         self.clear_error(site['pagename'])
-                if site['Collect skin data']:
-                    status = self.record_skins(site)
-                    if site['In error'] and status:
-                        site['In error'] = False
-                        self.clear_error(site['pagename'])
+                #if site['Collect skin data']:
+                    #status = self.record_skins(site)
+                    #if site['In error'] and status:
+                        #site['In error'] = False
+                        #self.clear_error(site['pagename'])
 
         duration = time.time() - start_time
         if self.args.segment is not None:
