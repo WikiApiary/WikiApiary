@@ -241,6 +241,7 @@ class BumbleBee(ApiaryBot):
         if self.args.verbose >= 2:
             print "Pulling general info info from %s." % data_url
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        ret_value = True
         if success:
             # Successfully pulled data
             if 'query' in data:
@@ -251,15 +252,15 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['general'] += 1
-                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when general info.')
                 message = "[[%s]] Returned unexpected JSON when general info." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
-                return False
+                ret_value = False
 
         # Update the status table that we did our work! It doesn't matter if this was an error.
         self.update_status(site, 'general')
+        return ret_value
 
     def build_extensions_template(self, ext_obj):
         h = HTMLParser.HTMLParser()
@@ -308,6 +309,7 @@ class BumbleBee(ApiaryBot):
         if self.args.verbose >= 2:
             print "Pulling extensions from %s." % data_url
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        ret_value = True
         if success:
             # Successfully pulled data
             if 'query' in data:
@@ -318,12 +320,12 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['extensions'] += 1
-                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when requesting extension data.')
                 message = "[[%s]] Returned unexpected JSON when requesting extension data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
-                return False
+                ret_value = False
+        return ret_value
 
     def build_skins_template(self, ext_obj):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -343,6 +345,7 @@ class BumbleBee(ApiaryBot):
         if self.args.verbose >= 2:
             print "Pulling skin info from %s." % data_url
         (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        ret_value = True
         if success:
             # Successfully pulled data
             if 'query' in data:
@@ -353,12 +356,12 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['skins'] += 1
-                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when requesting skin data.')
                 message = "[[%s]] Returned unexpected JSON when requesting skin data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
-                return False
+                ret_value = False
+        return ret_value
 
     def main(self):
         if self.args.segment is not None:
