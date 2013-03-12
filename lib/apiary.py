@@ -55,16 +55,11 @@ class ApiaryBot:
             print "Cannot open %s." % config_file
 
     def get_args(self):
-        parser = argparse.ArgumentParser(prog="Bumble Bee",
-                            description="retrieves usage and statistic information for WikiApiary")
-        parser.add_argument("-s", "--segment",
-                    help="only work on websites in defined segment")
-        parser.add_argument("-d", "--debug", action="store_true",
-                    help="do not write any changes to wiki or database")
-        parser.add_argument("--config", default="../apiary.cfg",
-                    help="use an alternative config file")
-        parser.add_argument("-v", "--verbose", action="count", default=0,
-                    help="increase output verbosity")
+        parser = argparse.ArgumentParser(prog="Bumble Bee", description="retrieves usage and statistic information for WikiApiary")
+        parser.add_argument("-s", "--segment", help="only work on websites in defined segment")
+        parser.add_argument("-d", "--debug", action="store_true", help="do not write any changes to wiki or database")
+        parser.add_argument("--config", default="../apiary.cfg", help="use an alternative config file")
+        parser.add_argument("-v", "--verbose", action="count", default=0, help="increase output verbosity")
         parser.add_argument("--version", action="version", version="%(prog)s 0.1")
 
         # All set, now get the arguments
@@ -123,19 +118,53 @@ class ApiaryBot:
             print curr_status
 
         try:
-            error_count = curr_status['query']['results'][sitename]['printouts']['Has error count'][0] + 1
+            in_error = (curr_status['query']['results'][sitename]['printouts']['In error'][0] == 't')
         except:
-            error_count = 1
+            in_error = False
+
+        if not in_error:    # This is a new error, reset things
+
+            c = self.apiary_wiki.call({
+                'action': 'sfautoedit',
+                'form': 'Website',
+                'target': sitename,
+                'Website[Error]': 'Yes',
+                'Website[Error date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
+                'Website[Error count]': '1',
+                'Website[Error message]': error_message,
+                'wpSummary': "recording error"})
+
+        else:       # This is the continuation of an existing error, update count and message but not date
+            try:
+                error_count = curr_status['query']['results'][sitename]['printouts']['Has error count'][0] + 1
+            except:
+                error_count = 1
+
+            c = self.apiary_wiki.call({
+                'action': 'sfautoedit',
+                'form': 'Website',
+                'target': sitename,
+                'Website[Error]': 'Yes',
+                'Website[Error count]': error_count,
+                'Website[Error message]': error_message,
+                'wpSummary': "incrementing error count to %d" % error_count})
+
+        if self.args.verbose >= 3:
+            print c
+
+    def clear_error(self, sitename):
+        # This function clears the error status of a meeting
+        socket.setdefaulttimeout(30)
+
+        if self.args.verbose >= 2:
+            print "Clearing error for %s" % sitename
 
         c = self.apiary_wiki.call({
             'action': 'sfautoedit',
             'form': 'Website',
             'target': sitename,
-            'Website[Error]': 'Yes',
-            'Website[Error date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
-            'Website[Error count]': error_count,
-            'Website[Error message]': error_message,
-            'wpSummary': "recording error %d" % error_count})
+            'Website[Error]': 'No',
+            'wpSummary': 'clearing error'})
         if self.args.verbose >= 3:
             print c
 
@@ -162,7 +191,8 @@ class ApiaryBot:
             segment_string = "[[Has bot segment::%d]]" % int(self.args.segment)
 
         # Build query for sites
-        my_query = ''.join(['[[Category:Website]]', '[[Is validated::True]][', '[[Is defunct::False]]', '[[Is active::True]]', segment_string,
+        my_query = ''.join([
+            '[[Category:Website]]', '[[Is validated::True]][', '[[Is defunct::False]]', '[[Is active::True]]', segment_string,
             '|?Has API URL', '|?Check every', '|?Creation date', '|?Has ID', '|?In error',
             '|?Collect general data', '|?Collect extension data', '|?Collect skin data',
             '|?Collect statistics|', '?Collect semantic statistics',

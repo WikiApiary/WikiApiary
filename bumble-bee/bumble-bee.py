@@ -115,14 +115,17 @@ class BumbleBee(ApiaryBot):
                 self.apiary_db.commit()
 
                 self.stats['statistics'] += 1
+                return True
             else:
                 self.record_error(site['pagename'], 'Statistics returned unexpected JSON.')
                 message = "[[%s]] Statistics returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
+                return False
 
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
+            return False
 
         # Update the status table that we did our work!
         self.update_status(site, 'statistics')
@@ -184,14 +187,17 @@ class BumbleBee(ApiaryBot):
                 self.apiary_db.commit()
 
                 self.stats['smwinfo'] += 1
+                return True
             else:
                 self.record_error(site['pagename'], 'SMWInfo returned unexpected JSON.')
                 message = "[[%s]] SMWInfo returned unexpected JSON." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
+                return False
 
         else:
             if self.args.verbose >= 3:
                 print "Did not receive valid data from %s" % (data_url)
+            return False
 
         # Update the status table that we did our work!
         # TODO: Commenting out. There is a bug that if this updates at the same time as the previous one
@@ -244,10 +250,12 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['general'] += 1
+                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when general info.')
                 message = "[[%s]] Returned unexpected JSON when general info." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
+                return False
 
         # Update the status table that we did our work! It doesn't matter if this was an error.
         self.update_status(site, 'general')
@@ -309,10 +317,12 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['extensions'] += 1
+                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when requesting extension data.')
                 message = "[[%s]] Returned unexpected JSON when requesting extension data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
+                return False
 
     def build_skins_template(self, ext_obj):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -342,10 +352,12 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print c
                 self.stats['skins'] += 1
+                return True
             else:
                 self.record_error(site['pagename'], 'Returned unexpected JSON when requesting skin data.')
                 message = "[[%s]] Returned unexpected JSON when requesting skin data." % site['pagename']
                 self.botlog(bot='Bumble Bee', type='warn', message=message)
+                return False
 
     def main(self):
         if self.args.segment is not None:
@@ -368,22 +380,39 @@ class BumbleBee(ApiaryBot):
             i += 1
             if self.args.verbose >= 1:
                 print "\n\n%d: Processing %s (ID %d)" % (i, site['pagename'], site['Has ID'])
+            if site['In error'] and self.args.verbose >= 1:
+                print "Site %s (ID %d) is flagged in error." % (site['pagename'], site['Has ID'])
             req_statistics = False
             req_general = False
             (req_statistics, req_general) = self.get_status(site)
             if req_statistics:
                 if site['Collect statistics']:
-                    self.record_statistics(site)
+                    status = self.record_statistics(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
                 if site['Collect semantic statistics']:
-                    self.record_smwinfo(site)
+                    status = self.record_smwinfo(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
             if req_general:
                 time.sleep(2)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
                 if site['Collect general data']:
-                    self.record_general(site)
+                    status = self.record_general(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
                 if site['Collect extension data']:
-                    self.record_extensions(site)
+                    status = self.record_extensions(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
                 if site['Collect skin data']:
-                    self.record_skins(site)
+                    status = self.record_skins(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
 
         duration = time.time() - start_time
         if self.args.segment is not None:
