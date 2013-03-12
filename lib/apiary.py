@@ -262,7 +262,7 @@ class ApiaryBot:
                 print "Delta from checks: stats %s general %s" % (stats_delta, general_delta)
 
             (check_stats, check_general) = (False, False)
-            if stats_delta > site['Check every'] and stats_delta > check_every_limit:
+            if stats_delta > (site['Check every'] + random.randint(0,15))  and stats_delta > check_every_limit:    # Add randomness to keep checks spread around
                 check_stats = True
             else:
                 if self.args.verbose >= 2:
