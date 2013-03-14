@@ -129,3 +129,31 @@ function showJobsGraph(targetDiv, siteID) {
     }
     );
 }
+
+function showEditsGraph(targetDiv, siteID) {
+  console.log("Displaying edits graph for " + siteID)
+  destroyOldGraph(targetDiv);
+  window.my_graph[targetDiv] = new Dygraph(
+    document.getElementById(targetDiv),
+    "http://wikiapiary.com/apiary/data/edits.php?id=" + siteID,
+    {
+      labels: [ 'Date', 'Edits'],
+      axes: {
+        y: {
+          labelsKMB: true
+        }
+      },
+      ylabel: 'Edits',
+      axisLabelFontSize: 10,
+      maxNumberWidth: 12,
+      title: 'Edit Count',
+      labelsDiv: document.getElementById("legend"),
+      yLabelWidth: 12,
+      fillGraph: true,
+      includeZero: true,
+      rightGap: 10
+    }
+    );
+}
+
+
