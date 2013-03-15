@@ -150,7 +150,6 @@ function showEditsGraph(targetDiv, siteID) {
       labelsDiv: document.getElementById("legend"),
       yLabelWidth: 12,
       fillGraph: true,
-      includeZero: true,
       rightGap: 10
     }
     );
