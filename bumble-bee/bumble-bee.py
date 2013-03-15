@@ -35,32 +35,41 @@ class BumbleBee(ApiaryBot):
     def parse_version(self, t):
         ver = {}
 
-        # Do we have a x.y.z
-        y = re.findall(r'^(?:(\d+)\.)?(?:(\d+)\.?)?(?:(\d+)\.?)?(?:(\d+)\.?)?', t)
-        if y:
-            if len(y[0][0]) > 0:
-                ver['major'] = y[0][0]
-            if len(y[0][1]) > 0:
-                ver['minor'] = y[0][1]
-            if len(y[0][2]) > 0:
-                ver['bugfix'] = y[0][2]
+        if self.args.verbose >= 3:
+            print "Getting version details for %s" % t
 
-        if not ver.get('major', None):
-            # Do we have a YYYY-MM-DD
-            if re.match(r'\d{4}-\d{2}-\d{2}', t):
-                y = re.findall(r'(\d+)', t)
-                (ver['major'], ver['minor'], ver['bugfix']) = y
+        try:
+            # Do we have a x.y.z
+            y = re.findall(r'^(?:(\d+)\.)?(?:(\d+)\.?)?(?:(\d+)\.?)?(?:(\d+)\.?)?', t)
+            if y:
+                if len(y[0][0]) > 0:
+                    ver['major'] = y[0][0]
+                if len(y[0][1]) > 0:
+                    ver['minor'] = y[0][1]
+                if len(y[0][2]) > 0:
+                    ver['bugfix'] = y[0][2]
 
-        if not ver.get('major', None):
-            # Do we have a YYYYMMDD
-            if re.match(r'\d{4}\d{2}\d{2}', t):
-                y = re.findall(r'(\d{4})(\d{2})(\d{2})', t)
-                (ver['major'], ver['minor'], ver['bugfix']) = y[0]
+            if not ver.get('major', None):
+                # Do we have a YYYY-MM-DD
+                if re.match(r'\d{4}-\d{2}-\d{2}', t):
+                    y = re.findall(r'(\d+)', t)
+                    (ver['major'], ver['minor'], ver['bugfix']) = y
 
-        # Do we have a flag
-        y = re.match(r'.*(alpha|beta|wmf|CLDR|MLEB).*', t)
-        if y:
-            ver['flag'] = y.group(1)
+            if not ver.get('major', None):
+                # Do we have a YYYYMMDD
+                if re.match(r'\d{4}\d{2}\d{2}', t):
+                    y = re.findall(r'(\d{4})(\d{2})(\d{2})', t)
+                    (ver['major'], ver['minor'], ver['bugfix']) = y[0]
+
+            # Do we have a flag
+            y = re.match(r'.*(alpha|beta|wmf|CLDR|MLEB).*', t)
+            if y:
+                ver['flag'] = y.group(1)
+        except Exception, e:
+            self.botlog(bot='Bumble Bee', type="warn", message="Exception %s while parsing version string %s" % (e, t))
+
+        if self.args.verbose >= 2:
+            print "Version details: ", ver
 
         return ver
 
@@ -308,11 +317,7 @@ class BumbleBee(ApiaryBot):
                     template_block += "|Extension version=%s\n" % (x['version'])
 
                     # Breakdown the version information for more detailed analysis
-                    if self.args.verbose >= 3:
-                        print "Getting version details for %s" % x['version']
                     ver_details = self.parse_version(x['version'])
-                    if self.args.verbose >= 2:
-                        print "Version details: ", ver_details
                     if 'major' in ver_details:
                         template_block += "|Extension version major=%s\n" % ver_details['major']
                     if 'minor' in ver_details:
