@@ -32,6 +32,38 @@ from apiary import ApiaryBot
 class BumbleBee(ApiaryBot):
     """Bot that collects statistics for sits."""
 
+    def parse_version(self, t):
+        ver = {}
+
+        # Do we have a x.y.z
+        y = re.findall(r'^(?:(\d+)\.)?(?:(\d+)\.?)?(?:(\d+)\.?)?(?:(\d+)\.?)?', t)
+        if y:
+            if len(y[0][0]) > 0:
+                ver['major'] = y[0][0]
+            if len(y[0][1]) > 0:
+                ver['minor'] = y[0][1]
+            if len(y[0][2]) > 0:
+                ver['bugfix'] = y[0][2]
+
+        if not ver.get('major', None):
+            # Do we have a YYYY-MM-DD
+            if re.match(r'\d{4}-\d{2}-\d{2}', t):
+                y = re.findall(r'(\d+)', t)
+                (ver['major'], ver['minor'], ver['bugfix']) = y
+
+        if not ver.get('major', None):
+            # Do we have a YYYYMMDD
+            if re.match(r'\d{4}\d{2}\d{2}', t):
+                y = re.findall(r'(\d{4})(\d{2})(\d{2})', t)
+                (ver['major'], ver['minor'], ver['bugfix']) = y[0]
+
+        # Do we have a flag
+        y = re.match(r'.*(alpha|beta|wmf|CLDR|MLEB).*', t)
+        if y:
+            ver['flag'] = y.group(1)
+
+        return ver
+
     def record_statistics(self, site):
         # Go out and get the statistic information
         data_url = site['Has API URL'] + '?action=query&meta=siteinfo&siprop=statistics&format=json'
@@ -205,6 +237,7 @@ class BumbleBee(ApiaryBot):
         # there is no change to the row, and my check for rows_affected in update_status will
         # not work as intended. Going to assume that smwinfo slaves off of regular statistics.
         #self.update_status(site, 'statistics')
+        return ret_value
 
     def build_general_template(self, x, server):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -273,6 +306,22 @@ class BumbleBee(ApiaryBot):
                 template_block += "|Extension name=%s\n" % (x['name'])
                 if 'version' in x:
                     template_block += "|Extension version=%s\n" % (x['version'])
+
+                    # Breakdown the version information for more detailed analysis
+                    if self.args.verbose >= 3:
+                        print "Getting version details for %s" % x['version']
+                    ver_details = self.parse_version(x['version'])
+                    if self.args.verbose >= 2:
+                        print "Version details: ", ver_details
+                    if 'major' in ver_details:
+                        template_block += "|Extension version major=%s\n" % ver_details['major']
+                    if 'minor' in ver_details:
+                        template_block += "|Extension version minor=%s\n" % ver_details['minor']
+                    if 'bugfix' in ver_details:
+                        template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
+                    if 'flag' in ver_details:
+                        template_block += "|Extension version flag=%s\n" % ver_details['flag']
+
                 if 'author' in x:
                     # Authors can have a lot of junk in them, wikitext and such.
                     # We'll try to clean that up.
