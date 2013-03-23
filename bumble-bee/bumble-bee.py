@@ -175,7 +175,7 @@ class BumbleBee(ApiaryBot):
 
     def record_smwusage(self, site):
         # Get the extended SMW usage
-        data_url = site['Has API URL'] + '?action=parse&page=WikiApiary:SMWExtInfo&prop=text&disablepp=1&format=json'
+        data_url = site['Has API URL'] + '?action=parse&page=Project:SMWExtInfo&prop=text&disablepp=1&format=json'
         if self.args.verbose >= 2:
             print "Pulling semantic usage info from %s." % data_url
         (status, data, duration) = self.pull_json(site['pagename'], data_url)
