@@ -20,6 +20,7 @@ import argparse
 import socket
 import MySQLdb as mdb
 import simplejson
+import yaml
 import urllib2
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
@@ -171,6 +172,89 @@ class BumbleBee(ApiaryBot):
         # Update the status table that we did our work!
         self.update_status(site, 'statistics')
         return ret_value
+
+    def record_smwusage(self, site):
+        # Get the extended SMW usage
+        data_url = site['Has API URL'] + '?action=parse&page=WikiApiary:SMWExtInfo&prop=text&disablepp=1&format=json'
+        if self.args.verbose >= 2:
+            print "Pulling semantic usage info from %s." % data_url
+        (status, data, duration) = self.pull_json(site['pagename'], data_url)
+
+        if status:
+            try:
+                data_block = data['parse']['text']['*']
+                data_block = data_block.replace('....', '    ')
+                data_block = data_block.replace('<p>', '')
+                data_block = data_block.replace('</p>', '')
+
+                y_data = yaml.load(data_block)
+            except:
+                self.record_error(site['pagename'], 'Semantic usage details could not be parsed.')
+                message = "[[%s]] Semantic usage details could not be parsed." % site['pagename']
+                self.botlog(bot='Bumble Bee', type='error', message=message)
+                return False
+
+            sql = """INSERT INTO smwextinfo
+        (website_id, capture_date, response_timer,
+         query_count, query_pages, query_concepts, query_pageslarge,
+         size1, size2, size3, size4, size5, size6, size7, size8, size9, size10plus,
+         format_broadtable, format_csv, format_category, format_count, format_dsv, format_debug, format_embedded,
+         format_feed, format_json, format_list, format_ol, format_rdf, format_table, format_template, format_ul)
+    VALUES
+        ( %d, '%s', %f,
+          %d, %d, %d, %d,
+          %d, %d, %d, %d, %d, %d, %d, %d, %d, %d,
+          %d, %d, %d, %d, %d, %d, %d,
+          %d, %d, %d, %d, %d, %d, %d, %d)"""
+
+            sql_command = sql % (
+                site['Has ID'],
+                self.sqlutcnow(),
+                duration,
+                y_data['smwqueries']['count'],
+                y_data['smwqueries']['pages'],
+                y_data['smwqueries']['concepts'],
+                y_data['smwqueries']['pageslarge'],
+                y_data['smwquerysizes']['Size 1'],
+                y_data['smwquerysizes']['Size 2'],
+                y_data['smwquerysizes']['Size 3'],
+                y_data['smwquerysizes']['Size 4'],
+                y_data['smwquerysizes']['Size 5'],
+                y_data['smwquerysizes']['Size 6'],
+                y_data['smwquerysizes']['Size 7'],
+                y_data['smwquerysizes']['Size 8'],
+                y_data['smwquerysizes']['Size 9'],
+                y_data['smwquerysizes']['Size 10+'],
+                y_data['smwformats']['broadtable'],
+                y_data['smwformats']['csv'],
+                y_data['smwformats']['category'],
+                y_data['smwformats']['count'],
+                y_data['smwformats']['dsv'],
+                y_data['smwformats']['debug'],
+                y_data['smwformats']['embedded'],
+                y_data['smwformats']['feed'],
+                y_data['smwformats']['json'],
+                y_data['smwformats']['list'],
+                y_data['smwformats']['ol'],
+                y_data['smwformats']['rdf'],
+                y_data['smwformats']['table'],
+                y_data['smwformats']['template'],
+                y_data['smwformats']['ul'])
+
+            if self.args.verbose >= 3:
+                print "SQL: %s" % sql_command
+
+            cur = self.apiary_db.cursor()
+            cur.execute(sql_command)
+            cur.close()
+            self.apiary_db.commit()
+
+            self.stats['smwusage'] += 1
+
+        else:
+            if self.args.verbose >= 3:
+                print "Did not receive valid data from %s" % (data_url)
+            return False
 
     def record_smwinfo(self, site):
         # Go out and get the statistic information
@@ -454,6 +538,11 @@ class BumbleBee(ApiaryBot):
                     if site['In error'] and status:
                         site['In error'] = False
                         self.clear_error(site['pagename'])
+                if site['Collect semantic usage']:
+                    status = self.record_smwusage(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
             if req_general:
                 time.sleep(2)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
                 if site['Collect general data']:
@@ -478,8 +567,8 @@ class BumbleBee(ApiaryBot):
         else:
             message = "Completed processing for all websites."
         message += " Processed %d websites." % i
-        message += " Counters statistics %d smwinfo %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
-            self.stats['statistics'], self.stats['smwinfo'], self.stats['general'],
+        message += " Counters statistics %d smwinfo %d smwusage %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
+            self.stats['statistics'], self.stats['smwinfo'], self.stats['smwusage'], self.stats['general'],
             self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'])
         self.botlog(bot='Bumble Bee', duration=float(duration), message=message)
 

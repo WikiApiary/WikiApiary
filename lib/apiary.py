@@ -42,6 +42,7 @@ class ApiaryBot:
         # Initialize stats
         self.stats['statistics'] = 0
         self.stats['smwinfo'] = 0
+        self.stats['smwusage'] = 0
         self.stats['general'] = 0
         self.stats['extensions'] = 0
         self.stats['skins'] = 0
@@ -193,11 +194,24 @@ class ApiaryBot:
 
         # Build query for sites
         my_query = ''.join([
-            '[[Category:Website]]', '[[Is validated::True]][', '[[Is defunct::False]]', '[[Is active::True]]', segment_string,
-            '|?Has API URL', '|?Check every', '|?Creation date', '|?Has ID', '|?In error',
-            '|?Collect general data', '|?Collect extension data', '|?Collect skin data',
-            '|?Collect statistics|', '?Collect semantic statistics',
-            '|sort=Creation date', '|order=rand', '|limit=1000'])
+            '[[Category:Website]]',
+            '[[Is defunct::False]]',
+            '[[Is active::True]]',
+            segment_string,
+            '|?Has API URL',
+            '|?Check every',
+            '|?Creation date',
+            '|?Has ID',
+            '|?In error',
+            '|?Collect general data',
+            '|?Collect extension data',
+            '|?Collect skin data',
+            '|?Collect statistics',
+            '|?Collect semantic statistics',
+            '|?Collect semantic usage',
+            '|sort=Creation date',
+            '|order=rand',
+            '|limit=1000'])
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
         sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
@@ -210,6 +224,38 @@ class ApiaryBot:
             for pagename, site in sites['query']['results'].items():
                 if self.args.verbose >= 3:
                     print "Adding %s." % pagename
+
+                # Initialize the flags but do it carefully in case there is no value in the wiki yet
+                try:
+                    collect_general_data = (site['printouts']['Collect general data'][0] == "t")
+                except:
+                    collect_general_data = False
+
+                try:
+                    collect_extension_data = (site['printouts']['Collect extension data'][0] == "t")
+                except:
+                    collect_extension_data = False
+
+                try:
+                    collect_skin_data = (site['printouts']['Collect skin data'][0] == "t")
+                except:
+                    collect_skin_data = False
+
+                try:
+                    collect_statistics = (site['printouts']['Collect statistics'][0] == "t")
+                except:
+                    collect_statistics = False
+
+                try:
+                    collect_semantic_statistics = (site['printouts']['Collect semantic statistics'][0] == "t")
+                except:
+                    collect_semantic_statistics = False
+
+                try:
+                    collect_semantic_usage = (site['printouts']['Collect semantic usage'][0] == "t")
+                except:
+                    collect_semantic_usage = False
+
                 my_sites.append({
                     'pagename': pagename,
                     'fullurl': site['fullurl'],
@@ -218,11 +264,12 @@ class ApiaryBot:
                     'Creation date': site['printouts']['Creation date'][0],
                     'Has ID': int(site['printouts']['Has ID'][0]),
                     'In error': (site['printouts']['In error'][0] == "t"),  # Boolean fields we'll convert from the strings we get back to real booleans
-                    'Collect general data': (site['printouts']['Collect general data'][0] == "t"),
-                    'Collect extension data': (site['printouts']['Collect extension data'][0] == "t"),
-                    'Collect skin data': (site['printouts']['Collect skin data'][0] == "t"),
-                    'Collect statistics': (site['printouts']['Collect statistics'][0] == "t"),
-                    'Collect semantic statistics': (site['printouts']['Collect semantic statistics'][0] == "t")
+                    'Collect general data': collect_general_data,
+                    'Collect extension data': collect_extension_data,
+                    'Collect skin data': collect_skin_data,
+                    'Collect statistics': collect_statistics,
+                    'Collect semantic statistics': collect_semantic_statistics,
+                    'Collect semantic usage': collect_semantic_usage
                 })
             return my_sites
         else:
