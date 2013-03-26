@@ -183,14 +183,18 @@ class BumbleBee(ApiaryBot):
         if status:
             try:
                 data_block = data['parse']['text']['*']
+                data_block = data_block.replace('; ', '\n')
                 data_block = data_block.replace('....', '    ')
                 data_block = data_block.replace('<p>', '')
                 data_block = data_block.replace('</p>', '')
+                data_block = re.sub(r'__\s+NOCACHE\s+__', '', data_block)
+                data_block = re.sub(r'<!--.*?-->', '', data_block)
 
-                y_data = yaml.load(data_block)
-            except:
-                self.record_error(site['pagename'], 'Semantic usage details could not be parsed.')
-                message = "[[%s]] Semantic usage details could not be parsed." % site['pagename']
+                # Use safe method to limit potential for YAML to do bad things
+                y_data = yaml.safe_load(data_block)
+            except Exception, e:
+                self.record_error(site['pagename'], "Semantic usage failed parsing: %s" % e)
+                message = "[[%s]] Semantic usage failed parsing: %s" % (site['pagename'], e)
                 self.botlog(bot='Bumble Bee', type='error', message=message)
                 return False
 
