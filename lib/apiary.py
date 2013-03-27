@@ -87,7 +87,7 @@ class ApiaryBot:
             f = opener.open(req)
             duration = (datetime.datetime.now() - t1).total_seconds()
         except Exception, e:
-            self.record_error(sitename, str(e))
+            self.record_error(sitename, "%s from %s" % (str(e), data_url))
             self.botlog(bot=bot, type="error", message="[[%s]] %s calling %s" % (sitename, str(e), data_url))
             return False, None, None
         else:
@@ -98,9 +98,16 @@ class ApiaryBot:
                 # The regex here is really simple, but it seems to work fine.
                 ret_string = f.read()
                 json_match = re.search(r"({.*})", ret_string, flags=re.MULTILINE)
-                data = simplejson.loads(json_match.group(1))
+                if json_match.group(1) != None:
+                    # Found JSON block
+                    data = simplejson.loads(json_match.group(1))
+                else:
+                    # No JSON content in the response
+                    self.record_error(sitename, "No JSON from %s." % data_url)
+                    self.botlog(bot=bot, type="error", message="[[%s]] No JSON from %s." % (sitename, data_url))
+                    return False, None, None
             except Exception, e:
-                self.record_error(sitename, str(e))
+                self.record_error(sitename, "%s from %s" % (str(e), data_url))
                 self.botlog(bot=bot, type="error", message="[[%s]] %s from %s" % (sitename, str(e), data_url))
                 return False, None, None
             return True, data, duration
