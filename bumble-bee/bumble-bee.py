@@ -26,6 +26,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
 import HTMLParser
+import BeautifulSoup
 sys.path.append('../lib')
 from apiary import ApiaryBot
 
@@ -183,15 +184,9 @@ class BumbleBee(ApiaryBot):
         if status:
             try:
                 data_block = data['parse']['text']['*']
-                data_block = data_block.replace('; ', '\n')
-                data_block = data_block.replace('....', '    ')
-                data_block = data_block.replace('<p>', '')
-                data_block = data_block.replace('</p>', '')
-                data_block = re.sub(r'__\s+NOCACHE\s+__', '', data_block)
-                data_block = re.sub(r'<!--.*?-->', '', data_block)
-
-                # Use safe method to limit potential for YAML to do bad things
-                y_data = yaml.safe_load(data_block)
+                data_soup = BeautifulSoup.BeautifulSoup(data_block)
+                json_block = data_soup.find("div", {"id": "wikiapiary-semantic-usage-data"})
+                json_data = simplejson.loads(json_block.text)
             except Exception, e:
                 self.record_error(site['pagename'], "Semantic usage failed parsing: %s" % e)
                 message = "[[%s]] Semantic usage failed parsing: %s" % (site['pagename'], e)
@@ -215,35 +210,35 @@ class BumbleBee(ApiaryBot):
                 site['Has ID'],
                 self.sqlutcnow(),
                 duration,
-                y_data['smwqueries']['count'],
-                y_data['smwqueries']['pages'],
-                y_data['smwqueries']['concepts'],
-                y_data['smwqueries']['pageslarge'],
-                y_data['smwquerysizes']['Size 1'],
-                y_data['smwquerysizes']['Size 2'],
-                y_data['smwquerysizes']['Size 3'],
-                y_data['smwquerysizes']['Size 4'],
-                y_data['smwquerysizes']['Size 5'],
-                y_data['smwquerysizes']['Size 6'],
-                y_data['smwquerysizes']['Size 7'],
-                y_data['smwquerysizes']['Size 8'],
-                y_data['smwquerysizes']['Size 9'],
-                y_data['smwquerysizes']['Size 10+'],
-                y_data['smwformats']['broadtable'],
-                y_data['smwformats']['csv'],
-                y_data['smwformats']['category'],
-                y_data['smwformats']['count'],
-                y_data['smwformats']['dsv'],
-                y_data['smwformats']['debug'],
-                y_data['smwformats']['embedded'],
-                y_data['smwformats']['feed'],
-                y_data['smwformats']['json'],
-                y_data['smwformats']['list'],
-                y_data['smwformats']['ol'],
-                y_data['smwformats']['rdf'],
-                y_data['smwformats']['table'],
-                y_data['smwformats']['template'],
-                y_data['smwformats']['ul'])
+                json_data['smwqueries']['count'],
+                json_data['smwqueries']['pages'],
+                json_data['smwqueries']['concepts'],
+                json_data['smwqueries']['pageslarge'],
+                json_data['smwquerysizes']['size-1'],
+                json_data['smwquerysizes']['size-2'],
+                json_data['smwquerysizes']['size-3'],
+                json_data['smwquerysizes']['size-4'],
+                json_data['smwquerysizes']['size-5'],
+                json_data['smwquerysizes']['size-6'],
+                json_data['smwquerysizes']['size-7'],
+                json_data['smwquerysizes']['size-8'],
+                json_data['smwquerysizes']['size-9'],
+                json_data['smwquerysizes']['size-10plus'],
+                json_data['smwformats']['broadtable'],
+                json_data['smwformats']['csv'],
+                json_data['smwformats']['category'],
+                json_data['smwformats']['count'],
+                json_data['smwformats']['dsv'],
+                json_data['smwformats']['debug'],
+                json_data['smwformats']['embedded'],
+                json_data['smwformats']['feed'],
+                json_data['smwformats']['json'],
+                json_data['smwformats']['list'],
+                json_data['smwformats']['ol'],
+                json_data['smwformats']['rdf'],
+                json_data['smwformats']['table'],
+                json_data['smwformats']['template'],
+                json_data['smwformats']['ul'])
 
             if self.args.verbose >= 3:
                 print "SQL: %s" % sql_command
