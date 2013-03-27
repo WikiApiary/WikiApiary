@@ -19,6 +19,7 @@ import MySQLdb as mdb
 import simplejson
 import urllib2
 import random
+import re
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 
@@ -92,7 +93,12 @@ class ApiaryBot:
         else:
             # It all worked!
             try:
-                data = simplejson.load(f)
+                # Clean the returned string before we parse it, sometimes there are junky error messages
+                # from PHP in here, or simply a newline that shouldn't be present
+                # The regex here is really simple, but it seems to work fine.
+                ret_string = f.read()
+                json_match = re.search(r"({.*})", ret_string, flags=re.MULTILINE)
+                data = simplejson.loads(json_match.group(1))
             except Exception, e:
                 self.record_error(sitename, str(e))
                 self.botlog(bot=bot, type="error", message="[[%s]] %s from %s" % (sitename, str(e), data_url))
