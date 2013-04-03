@@ -76,37 +76,47 @@ class AuditBee(ApiaryBot):
     def set_audit(self, site, data):
         # Get the major and minor version numbers of MediaWiki
         match = re.search(r'\s(\d+)\.(\d+)', data['generator'])
-        (mw_version_major, mw_version_minor) = (int(match.group(1)), int(match.group(2)))
+        if match != None:
+            (mw_version_major, mw_version_minor) = (int(match.group(1)), int(match.group(2)))
 
-        if self.args.verbose >= 2:
-            print "Website: %s  Generator: %s  Major: %d  Minor: %d" % (site[0], data['generator'], mw_version_major, mw_version_minor)
+            if self.args.verbose >= 2:
+                print "Website: %s  Generator: %s  Major: %d  Minor: %d" % (site[0], data['generator'], mw_version_major, mw_version_minor)
 
-        # General data requires MediaWiki 1.8 or later.
-        if (mw_version_major >= 1) and (mw_version_minor >= 8) and (site[1]['printouts']['Collect general data'][0] == "f"):
-            self.set_flag(site[0], 'Collect general data', 'Yes', "MediaWiki %d.%d supports general collection" % (mw_version_major, mw_version_minor))
+            # General data requires MediaWiki 1.8 or later.
+            if (mw_version_major >= 1) and (mw_version_minor >= 8) and (site[1]['printouts']['Collect general data'][0] == "f"):
+                self.set_flag(site[0], 'Collect general data', 'Yes', "MediaWiki %d.%d supports general collection" % (mw_version_major, mw_version_minor))
 
-        # Extension data requires MediaWiki 1.14 or later.
-        if (mw_version_major >= 1) and (mw_version_minor >= 14) and (site[1]['printouts']['Collect extension data'][0] == "f"):
-            self.set_flag(site[0], 'Collect extension data', 'Yes', "Enabling extension collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
-        if (mw_version_major >= 1) and (mw_version_minor < 14) and (site[1]['printouts']['Collect extension data'][0] == "t"):
-            self.set_flag(site[0], 'Collect extension data', 'No', "Disabling extensions collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            # Extension data requires MediaWiki 1.14 or later.
+            if (mw_version_major >= 1) and (mw_version_minor >= 14) and (site[1]['printouts']['Collect extension data'][0] == "f"):
+                self.set_flag(site[0], 'Collect extension data', 'Yes', "Enabling extension collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            if (mw_version_major >= 1) and (mw_version_minor < 14) and (site[1]['printouts']['Collect extension data'][0] == "t"):
+                self.set_flag(site[0], 'Collect extension data', 'No', "Disabling extensions collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
 
-        # Skin data requires MediaWiki 1.18 or later.
-        if (mw_version_major >= 1) and (mw_version_minor >= 18) and (site[1]['printouts']['Collect skin data'][0] == "f"):
-            self.set_flag(site[0], 'Collect skin data', 'Yes', "Enabling skin collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
-        if (mw_version_major >= 1) and (mw_version_minor < 18) and (site[1]['printouts']['Collect skin data'][0] == "t"):
-            self.set_flag(site[0], 'Collect skin data', 'No', "Disabling skin collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            # Skin data requires MediaWiki 1.18 or later.
+            if (mw_version_major >= 1) and (mw_version_minor >= 18) and (site[1]['printouts']['Collect skin data'][0] == "f"):
+                self.set_flag(site[0], 'Collect skin data', 'Yes', "Enabling skin collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            if (mw_version_major >= 1) and (mw_version_minor < 18) and (site[1]['printouts']['Collect skin data'][0] == "t"):
+                self.set_flag(site[0], 'Collect skin data', 'No', "Disabling skin collection for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
 
-        # General statistics requires MediaWiki 1.11 or later.
-        if (mw_version_major >= 1) and (mw_version_minor >= 11) and (site[1]['printouts']['Collect statistics'][0] == "f"):
-            self.set_flag(site[0], 'Collect statistics', 'Yes', "Enabling statistics for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
-        if (mw_version_major >= 1) and (mw_version_minor < 11) and (site[1]['printouts']['Collect statistics'][0] == "t"):
-            self.set_flag(site[0], 'Collect statistics', 'No', "Disabling statistics for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            # General statistics requires MediaWiki 1.11 or later.
+            if (mw_version_major >= 1) and (mw_version_minor >= 11) and (site[1]['printouts']['Collect statistics'][0] == "f"):
+                self.set_flag(site[0], 'Collect statistics', 'Yes', "Enabling statistics for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
+            if (mw_version_major >= 1) and (mw_version_minor < 11) and (site[1]['printouts']['Collect statistics'][0] == "t"):
+                self.set_flag(site[0], 'Collect statistics', 'No', "Disabling statistics for MediaWiki %d.%d." % (mw_version_major, mw_version_minor))
 
-        # Return if extension data is available to check as well
-        if (mw_version_major >= 1) and (mw_version_minor >= 14):
-            return True
+            # Return if extension data is available to check as well
+            if (mw_version_major >= 1) and (mw_version_minor >= 14):
+                return True
+            else:
+                return False
+
         else:
+            # Unable to determine the version of MediaWiki. This is probably because the
+            # wiki has been altered to hide its version.
+            if self.args.verbose >= 2:
+                print "%s returnd version %s which cannot be parsed." % (site[0], data['generator'])
+            message = "[[%s]] Unable to determine version from %s. Auditing without confirming any flags. Operator please check." % (site[0], data['generator'])
+            self.botlog(bot='Audit Bee', type='warn', message=message)
             return False
 
     def audit_site(self, site):
