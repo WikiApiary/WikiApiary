@@ -348,7 +348,8 @@ class BumbleBee(ApiaryBot):
         if 'phpversion' in x:
             template_block += "|PHP Version=%s\n" % (x['phpversion'])
         if 'lang' in x:
-            template_block += "|Language=%s\n" % (x['lang'])
+            # Make sure language is all lowercase, and try to standardize structure
+            template_block += "|Language=%s\n" % (x['lang'].lower().replace('_','-'))
         if 'dbtype' in x:
             template_block += "|Database type=%s\n" % (x['dbtype'])
         if 'dbversion' in x:
