@@ -68,6 +68,10 @@ class ApiaryBot:
         # All set, now get the arguments
         self.args = parser.parse_args()
 
+    def filter_illegal_chars(self, pre_filter):
+        # Utility function to make sure that strings are okay for page titles
+        return re.sub(r'[#<>\[\]\|{}]', '', pre_filter).replace('=', '-')
+
     def sqlutcnow(self):
         now = datetime.datetime.utcnow()
         now = now.replace(tzinfo=pytz.utc)

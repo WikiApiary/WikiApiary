@@ -349,7 +349,7 @@ class BumbleBee(ApiaryBot):
             template_block += "|PHP Version=%s\n" % (x['phpversion'])
         if 'lang' in x:
             # Make sure language is all lowercase, and try to standardize structure
-            template_block += "|Language=%s\n" % (x['lang'].lower().replace('_','-'))
+            template_block += "|Language=%s\n" % (x['lang'].lower().replace('_','-').replace(' ','-'))
         if 'dbtype' in x:
             template_block += "|Database type=%s\n" % (x['dbtype'])
         if 'dbversion' in x:
@@ -396,7 +396,7 @@ class BumbleBee(ApiaryBot):
         for x in ext_obj:
             if 'name' in x:
                 template_block += "{{Extension in use\n"
-                template_block += "|Extension name=%s\n" % (x['name'])
+                template_block += "|Extension name=%s\n" % self.filter_illegal_chars(x['name'])
                 if 'version' in x:
                     template_block += "|Extension version=%s\n" % (x['version'])
 
@@ -470,7 +470,7 @@ class BumbleBee(ApiaryBot):
 
         for x in ext_obj:
             template_block += "{{Skin in use\n"
-            template_block += "|Skin name=%s\n" % (x['*'])
+            template_block += "|Skin name=%s\n" % (self.filter_illegal_chars(x['*']))
             template_block += "|Skin code=%s\n" % (x['code'])
             template_block += "}}\n"
 
