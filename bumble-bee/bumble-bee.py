@@ -273,9 +273,10 @@ class BumbleBee(ApiaryBot):
                 # Record the data received to the database
                 sql_command = """
                     INSERT INTO smwinfo
-                        (website_id, capture_date, response_timer, propcount, proppagecount, usedpropcount, declaredpropcount)
+                        (website_id, capture_date, response_timer, propcount, proppagecount, usedpropcount, declaredpropcount,
+                            querycount, querysize, conceptcount, subobjectcount)
                     VALUES
-                        (%d, '%s', %s, %s, %s, %s, %s)
+                        (%d, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s)
                     """
 
                 if 'propcount' in data['info']:
@@ -295,6 +296,24 @@ class BumbleBee(ApiaryBot):
                 else:
                         declaredpropcount = 'null'
 
+                # Catch additional results returned in SMW 1.9
+                if 'querycount' in data['info']:
+                    querycount = data['info']['querycount']
+                else:
+                    querycount = 'null'
+                if 'querysize' in data['info']:
+                    querysize = data['info']['querysize']
+                else:
+                    querysize = 'null'
+                if 'conceptcount' in data['info']:
+                    conceptcount = data['info']['conceptcount']
+                else:
+                    conceptcount = 'null'
+                if 'subobjectcount' in data['info']:
+                    subobjectcount = data['info']['subobjectcount']
+                else:
+                    subobjectcount = 'null'
+
                 sql_command = sql_command % (
                     site['Has ID'],
                     self.sqlutcnow(),
@@ -302,7 +321,11 @@ class BumbleBee(ApiaryBot):
                     propcount,
                     proppagecount,
                     usedpropcount,
-                    declaredpropcount)
+                    declaredpropcount,
+                    querycount,
+                    querysize,
+                    conceptcount,
+                    subobjectcount)
 
                 if self.args.verbose >= 3:
                     print "SQL: %s" % sql_command
