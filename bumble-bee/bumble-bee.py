@@ -257,7 +257,10 @@ class BumbleBee(ApiaryBot):
 
     def record_smwinfo(self, site):
         # Go out and get the statistic information
-        data_url = site['Has API URL'] + '?action=smwinfo&info=propcount%7Cusedpropcount%7Cdeclaredpropcount%7Cproppagecount&format=json'
+        data_url = site['Has API URL'] + ''.join([
+            '?action=smwinfo',
+            '&info=propcount%7Cusedpropcount%7Cdeclaredpropcount%7Cproppagecount%7Cquerycount%7Cquerysize%7Cconceptcount%7Csubobjectcount',
+            '&format=json'])
         if self.args.verbose >= 2:
             print "Pulling SMW info from %s." % data_url
         (status, data, duration) = self.pull_json(site['pagename'], data_url)
