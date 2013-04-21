@@ -37,10 +37,11 @@ class BackupBee(ApiaryBot):
         self.stats['backup_success'] = 0
         self.stats['backup_failure'] = 0
 
-    def build_log_page(self, message, output, errors):
+    def build_log_page(self, message, output, errors, c_output, c_errors):
         template = """
 '''Status:''' %s
 
+== Backup ==
 === Output ===
 <pre>
 %s
@@ -50,10 +51,23 @@ class BackupBee(ApiaryBot):
 <pre>
 %s
 </pre>
-"""
-        return template % (message, output, errors)
 
-    def update_backup_status(self, pagename, message, output, errors):
+== Compression ==
+=== Output ===
+<pre>
+%s
+</pre>
+
+=== Errors ===
+<pre>
+%s
+</pre>
+
+__NOTOC__
+"""
+        return template % (message, output, errors, c_output, c_errors)
+
+    def update_backup_status(self, pagename, message, output, errors, c_output, c_errors):
         self.stats['backup_success'] += 1
         # Backup completed
         if self.args.verbose >= 2:
@@ -71,8 +85,18 @@ class BackupBee(ApiaryBot):
 
         logpage = "%s/Backup log" % pagename
         socket.setdefaulttimeout(30)
-        page_text = self.build_log_page(message, output, errors)
+        page_text = self.build_log_page(message, output, errors, c_output, c_errors)
         c = self.apiary_wiki.call({'action': 'edit', 'title': logpage, 'text': page_text, 'token': self.edit_token, 'bot': 'true'})
+
+    def getFolderSize(self, folder):
+        total_size = os.path.getsize(folder)
+        for item in os.listdir(folder):
+            itempath = os.path.join(folder, item)
+            if os.path.isfile(itempath):
+                total_size += os.path.getsize(itempath)
+            elif os.path.isdir(itempath):
+                total_size += self.getFolderSize(itempath)
+        return total_size
 
     def backup_site(self, site):
         if self.args.verbose >= 3:
@@ -87,10 +111,14 @@ class BackupBee(ApiaryBot):
 
         site_id = site[1]['printouts']['Has ID'][0]
         backup_type = site[1]['printouts']['Has backup type'][0]
-        backup_path = "%s/%d/%d/%s" % (
+        base_path = "%s/%d/%d" % (
             self.config.get('Backup Bee', 'dumppath'),
             site_id / 100,
-            site_id,
+            site_id)
+        if not os.path.exists(base_path):
+            os.makedirs(base_path)
+        backup_path = "%s/%s" % (
+            base_path,
             time.strftime('%Y%m%d-%H%M%S', time.gmtime()))
         if self.args.verbose >= 2:
             print "Backup path is %s" % backup_path
@@ -110,20 +138,30 @@ class BackupBee(ApiaryBot):
         output, errors = p.communicate()
 
         duration = time.time() - start_time
-        message = "Last backup at %s took %s minutes." % (
-            time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
-            float(duration/60))
-        self.update_backup_status(site[0], message, output, errors)
 
-        message = "[[%s]] Completed %s backup." % (site[0], backup_type)
+        # Get backup size
+        backup_size = self.getFolderSize(backup_path)
+
+        # Compress the backup
+        compress_cmd = "7z a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on %s.7s %s" % (backup_path, backup_path)
+        p = sub.Popen(shlex.split(compress_cmd), stdout=sub.PIPE, stderr=sub.PIPE)
+        c_output, c_errors = p.communicate()
+        compress_size = os.path.getsize("%s.7s" % backup_path)
+
+        message = "Last backup at %s took %.2f minutes. Compressed %s (orig %s) bytes." % (
+            time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
+            float(duration/60),
+            compress_size,
+            backup_size)
+        self.update_backup_status(site[0], message, output, errors, c_output, c_errors)
+
+        message = "[[%s]] Completed %s backup, %s (orig %s) bytes." % (site[0], backup_type, compress_size, backup_size)
         self.botlog(bot='Backup Bee', type='info', message=message, duration=duration)
 
     def get_backup_list(self, count=20):
         my_query = ''.join([
-            #"[[Has day segment:%s]]" % time.strftime('%w', time.gmtime()),
-            #"[[Has hour segment::%s]]" % time.strftime('%H', time.gmtime()),
-            #"[[Has farm::Farm:thingelstad.com]]",     # For debugging only use my sites
-            "[[wiki_thing]]",     # For debugging only one site
+            "[[Has day segment:%s]]" % time.strftime('%w', time.gmtime()),
+            "[[Has hour segment::%s]]" % time.strftime('%H', time.gmtime()),
             "[[Is active::True]]",
             "[[Is defunct::False]]",
             "[[Has backup type::+]]",
