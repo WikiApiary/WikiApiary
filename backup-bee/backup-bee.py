@@ -78,7 +78,7 @@ __NOTOC__
             'action': 'sfautoedit',
             'form': 'Website',
             'target': pagename,
-            'Website[Backup date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
+            'Website[Last backup date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
             'wpSummary': 'Backup completed.'})
         if self.args.verbose >= 3:
             print c
