@@ -160,8 +160,8 @@ __NOTOC__
 
     def get_backup_list(self, count=20):
         my_query = ''.join([
-            "[[Has day segment:%s]]" % time.strftime('%w', time.gmtime()),
-            "[[Has hour segment::%s]]" % time.strftime('%H', time.gmtime()),
+            "[[Has day segment::%d]]" % int(time.strftime('%w', time.gmtime())),
+            "[[Has hour segment::%d]]" % int(time.strftime('%H', time.gmtime())),
             "[[Is active::True]]",
             "[[Is defunct::False]]",
             "[[Has backup type::+]]",
