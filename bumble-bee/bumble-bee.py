@@ -64,7 +64,7 @@ class BumbleBee(ApiaryBot):
                     (ver['major'], ver['minor'], ver['bugfix']) = y[0]
 
             # Do we have a flag
-            y = re.match(r'.*(alpha|beta|wmf|CLDR|MLEB).*', t)
+            y = re.match(r'.*(alpha|beta|wmf|CLDR|MLEB|stable).*', t)
             if y:
                 ver['flag'] = y.group(1)
         except Exception, e:
