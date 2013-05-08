@@ -127,6 +127,7 @@ class ApiaryBot:
             "[[%s]]" % sitename,
             '|?In error',
             '|?Has error count',
+            '|?Has cumulative error count',
             '|?Has error date',
             '|?Has error message'])
         if self.args.verbose >= 3:
@@ -141,6 +142,11 @@ class ApiaryBot:
         except:
             in_error = False
 
+        try:
+            cumulative_error_count = curr_status['query']['results'][sitename]['printouts']['Has cumulative error count'][0] + 1
+        except:
+            cumulative_error_count = 1
+
         if not in_error:    # This is a new error, reset things
 
             c = self.apiary_wiki.call({
@@ -150,12 +156,15 @@ class ApiaryBot:
                 'Website[Error]': 'Yes',
                 'Website[Error date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
                 'Website[Error count]': '1',
+                'Website[Cumulative error count]': cumulative_error_count,
                 'Website[Error message]': error_message,
-                'wpSummary': "recording error"})
+                'wpSummary': "recording initial error (%d cumulative)" % cumulative_error_count})
 
         else:       # This is the continuation of an existing error, update count and message but not date
             try:
                 error_count = curr_status['query']['results'][sitename]['printouts']['Has error count'][0] + 1
+                if error_count > cumulative_error_count:
+                    cumulative_error_count = error_count
             except:
                 error_count = 1
 
@@ -165,8 +174,9 @@ class ApiaryBot:
                 'target': sitename,
                 'Website[Error]': 'Yes',
                 'Website[Error count]': error_count,
+                'Website[Cumulative error count]': cumulative_error_count,
                 'Website[Error message]': error_message,
-                'wpSummary': "incrementing error count to %d" % error_count})
+                'wpSummary': "incrementing error count to %d (%d cumulative)" % (error_count, cumulative_error_count)})
 
         if self.args.verbose >= 3:
             print c
