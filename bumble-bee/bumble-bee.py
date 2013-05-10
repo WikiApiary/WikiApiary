@@ -461,7 +461,12 @@ class BumbleBee(ApiaryBot):
                 if 'type' in x:
                     template_block += "|Extension type=%s\n" % (x['type'])
                 if 'url' in x:
-                    template_block += "|Extension URL=%s\n" % (x['url'])
+                    ext_url = x['url']
+                    # Seems some people really really love protocol agnostic URL's
+                    # We detect them and add a generic http: protocol to them
+                    if re.match(r'^\/\/', ext_url):
+                        ext_url = 'http:' + ext_url
+                    template_block += "|Extension URL=%s\n" % (ext_url)
                 template_block += "}}\n"
 
         template_block += "</includeonly>"
