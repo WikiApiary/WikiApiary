@@ -422,6 +422,18 @@ class BumbleBee(ApiaryBot):
         for x in ext_obj:
             if 'name' in x:
                 template_block += "{{Extension in use\n"
+
+                # Sometimes people make the name of the extension a hyperlink using
+                # wikitext links and this makes things ugly. So, let's detect that if present.
+                if re.match(r'\[(http[^\s]+)\s+([^\]]+)\]', x['name']):
+                    (possible_url, new_name) = re.findall(r'\[(http[^\s]+)\s+([^\]]+)\]', x['name'])[0]
+                    x['name'] = new_name
+                    # If a URL was given in the name, and not given as a formal part of the
+                    # extension definition (yes, this happens) then set the URL to what it
+                    # should be
+                    if 'url' not in x:
+                        x['url'] = possible_url
+
                 template_block += "|Extension name=%s\n" % self.filter_illegal_chars(x['name'])
                 if 'version' in x:
                     template_block += "|Extension version=%s\n" % (x['version'])
