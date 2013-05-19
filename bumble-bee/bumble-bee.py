@@ -27,6 +27,7 @@ from simplemediawiki import MediaWiki
 import re
 import HTMLParser
 import BeautifulSoup
+import operator
 sys.path.append('../lib')
 from apiary import ApiaryBot
 
@@ -511,7 +512,12 @@ class BumbleBee(ApiaryBot):
     def build_skins_template(self, ext_obj):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
-        for x in ext_obj:
+        # Skins are returned in random order so we need to sort them before
+        # making the template, otherwise we generate a lot of edits
+        # that are just different ordering
+        skins_sorted = sorted(ext_obj, key=operator.itemgetter('*'))
+
+        for x in skins_sorted:
             template_block += "{{Skin in use\n"
             template_block += "|Skin name=%s\n" % (self.filter_illegal_chars(x['*']))
             template_block += "|Skin code=%s\n" % (x['code'])
@@ -598,11 +604,11 @@ class BumbleBee(ApiaryBot):
                     if site['In error'] and status:
                         site['In error'] = False
                         self.clear_error(site['pagename'])
-                #if site['Collect skin data']:
-                    #status = self.record_skins(site)
-                    #if site['In error'] and status:
-                        #site['In error'] = False
-                        #self.clear_error(site['pagename'])
+                if site['Collect skin data']:
+                    status = self.record_skins(site)
+                    if site['In error'] and status:
+                        site['In error'] = False
+                        self.clear_error(site['pagename'])
 
         duration = time.time() - start_time
         if self.args.segment is not None:
