@@ -359,33 +359,45 @@ class BumbleBee(ApiaryBot):
         return ret_value
 
     def build_general_template(self, x, server):
+
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {
+            'dbtype': 'Database type',
+            'dbversion': 'Database version',
+            'generator': 'MediaWiki version',
+            'lang': 'Language',
+            'timezone': 'Timezone',
+            'timeoffset': 'Timeoffset',
+            'sitename': 'Sitename',
+            'rights': 'Rights',
+            'phpversion': 'PHP Version',
+            'phpsapi': 'PHP Server API',
+            'wikiid': 'Wiki ID'
+        }
+
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
         template_block += "{{General siteinfo\n"
         template_block += "|HTTP server=%s\n" % (server)
-        template_block += "|MediaWiki version=%s\n" % (x['generator'])
-        if 'timezone' in x:
-            template_block += "|Timezone=%s\n" % (x['timezone'])
-        if 'timeoffset' in x:
-            template_block += "|Timeoffset=%s\n" % (x['timeoffset'])
-        if 'sitename' in x:
-            template_block += "|Sitename=%s\n" % (x['sitename'])
-        if 'rights' in x:
-            template_block += "|Rights=%s\n" % (x['rights'])
-        if 'phpversion' in x:
-            template_block += "|PHP Version=%s\n" % (x['phpversion'])
-        if 'lang' in x:
-            # Make sure language is all lowercase, and try to standardize structure
-            template_block += "|Language=%s\n" % (x['lang'].lower().replace('_','-').replace(' ','-'))
-        if 'dbtype' in x:
-            template_block += "|Database type=%s\n" % (x['dbtype'])
-        if 'dbversion' in x:
-            template_block += "|Database version=%s\n" % (x['dbversion'])
-        if 'wikiid' in x:
-            template_block += "|Wiki ID=%s\n" % (x['wikiid'])
-        template_block += "}}\n"
 
-        template_block += "</includeonly>"
+        # Loop through all the keys provided and create the template block
+        for key in x:
+            # Make sure we aren't ignoring this key
+            if key not in ignore_keys:
+                # If we have a name for this key use that
+                name = key_names.get(key, key)
+                # For some items we may need to do some preprocessing,
+                # otherwise just pull the value provided
+                if key == 'lang':
+                    # Make sure language is all lowercase, and try to standardize structure
+                    value = x[key].lower().replace('_', '-').replace(' ', '-')
+                else:
+                    value = x[key]
+                template_block += "|%s=%s\n" % (name, value)
+
+        template_block += "}}\n</includeonly>"
 
         return template_block
 
