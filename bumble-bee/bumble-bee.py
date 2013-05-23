@@ -391,7 +391,8 @@ class BumbleBee(ApiaryBot):
                 value = x[key]
                 
                 # For some items we may need to do some preprocessing
-                value = value.replace('|', '-').replace('=', '-')
+                if isinstance(value, basestring):
+                    value = value.replace('|', '-').replace('=', '-')
                 if key == 'lang':
                     # Make sure language is all lowercase, and try to standardize structure
                     value = value.lower().replace('_', '-').replace(' ', '-')
