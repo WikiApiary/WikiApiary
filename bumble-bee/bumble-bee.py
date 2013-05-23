@@ -388,13 +388,17 @@ class BumbleBee(ApiaryBot):
             if key not in ignore_keys:
                 # If we have a name for this key use that
                 name = key_names.get(key, key)
-                # For some items we may need to do some preprocessing,
-                # otherwise just pull the value provided
+                value = x[key]
+                
+                # For some items we may need to do some preprocessing
+                value = value.replace('|', '-').replace('=', '-')
                 if key == 'lang':
                     # Make sure language is all lowercase, and try to standardize structure
-                    value = x[key].lower().replace('_', '-').replace(' ', '-')
-                else:
-                    value = x[key]
+                    value = value.lower().replace('_', '-').replace(' ', '-')
+                if key == 'sitename':
+                    # Sometimes a : appears in sitename and messes up semantics
+                    value = value.replace(':', '-')
+
                 template_block += "|%s=%s\n" % (name, value)
 
         template_block += "}}\n</includeonly>"
