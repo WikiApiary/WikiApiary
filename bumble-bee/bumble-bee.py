@@ -392,13 +392,15 @@ class BumbleBee(ApiaryBot):
                 
                 # For some items we may need to do some preprocessing
                 if isinstance(value, basestring):
-                    value = value.replace('|', '-').replace('=', '-')
+                    # A pipe will break the template, try HTML entity encoding it instead
+                    value = value.replace('|', '&#124;')
                 if key == 'lang':
                     # Make sure language is all lowercase, and try to standardize structure
                     value = value.lower().replace('_', '-').replace(' ', '-')
                 if key == 'sitename':
                     # Sometimes a : appears in sitename and messes up semantics
-                    value = value.replace(':', '-')
+                    # Try using an HTML entity instead
+                    value = value.replace(':', '&#58;')
 
                 template_block += "|%s=%s\n" % (name, value)
 
