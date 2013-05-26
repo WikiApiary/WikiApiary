@@ -438,7 +438,7 @@ class BumbleBee(ApiaryBot):
         h = HTMLParser.HTMLParser()
 
         # Some keys we do not want to store in WikiApiary
-        ignore_keys = []
+        ignore_keys = ['descriptionmsg']
         # Some keys we turn into more readable names for using inside of WikiApiary
         key_names = {
             'author': 'Extension author',
