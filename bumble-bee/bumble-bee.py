@@ -366,7 +366,7 @@ class BumbleBee(ApiaryBot):
 
         # First update the timestamp for seeing the current name/value
         cur = self.apiary_db.cursor()
-        temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurences = occurences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
+        temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
             self.sqlutcnow(),
             site_id,
             key,
@@ -378,7 +378,7 @@ class BumbleBee(ApiaryBot):
 
         # No rows returned, we need to create this value
         if rows_returned == 0:
-            temp_sql = "INSERT apiary_multiprops (website_id, t_name, t_value, first_date, last_date, occurences) VALUES (%d, \'%s\', \'%s\', \'%s\', \'%s\', %d)" % (
+            temp_sql = "INSERT apiary_multiprops (website_id, t_name, t_value, first_date, last_date, occurrences) VALUES (%d, \'%s\', \'%s\', \'%s\', \'%s\', %d)" % (
                 site_id,
                 key,
                 value,
@@ -391,7 +391,7 @@ class BumbleBee(ApiaryBot):
 
         # Now build the return value
         multivalue = ""
-        temp_sql = "SELECT t_value, last_date, occurences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' ORDER BY occurences DESC" % (
+        temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' ORDER BY occurrences DESC" % (
             site_id,
             '2013-04-26 18:23:01')
         cur.execute(temp_sql)
