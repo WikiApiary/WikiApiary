@@ -389,7 +389,7 @@ class BumbleBee(ApiaryBot):
                 # If we have a name for this key use that
                 name = key_names.get(key, key)
                 value = x[key]
-                
+
                 # For some items we may need to do some preprocessing
                 if isinstance(value, basestring):
                     # A pipe will break the template, try HTML entity encoding it instead
@@ -437,68 +437,80 @@ class BumbleBee(ApiaryBot):
     def build_extensions_template(self, ext_obj):
         h = HTMLParser.HTMLParser()
 
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = []
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {
+            'author': 'Extension author',
+            'name': 'Extension name',
+            'version': 'Extension version',
+            'type': 'Extension type',
+            'url': 'Extension URL'
+        }
+
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
         for x in ext_obj:
             if 'name' in x:
                 template_block += "{{Extension in use\n"
 
-                # Sometimes people make the name of the extension a hyperlink using
-                # wikitext links and this makes things ugly. So, let's detect that if present.
-                if re.match(r'\[(http[^\s]+)\s+([^\]]+)\]', x['name']):
-                    (possible_url, new_name) = re.findall(r'\[(http[^\s]+)\s+([^\]]+)\]', x['name'])[0]
-                    x['name'] = new_name
-                    # If a URL was given in the name, and not given as a formal part of the
-                    # extension definition (yes, this happens) then set the URL to what it
-                    # should be
-                    if 'url' not in x:
-                        x['url'] = possible_url
+                for item in x:
+                    if item not in ignore_keys:
 
-                template_block += "|Extension name=%s\n" % self.filter_illegal_chars(x['name'])
-                if 'version' in x:
-                    template_block += "|Extension version=%s\n" % (x['version'])
+                        name = key_names.get(item, item)
+                        value = x[item]
 
-                    # Breakdown the version information for more detailed analysis
-                    ver_details = self.parse_version(x['version'])
-                    if 'major' in ver_details:
-                        template_block += "|Extension version major=%s\n" % ver_details['major']
-                    if 'minor' in ver_details:
-                        template_block += "|Extension version minor=%s\n" % ver_details['minor']
-                    if 'bugfix' in ver_details:
-                        template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
-                    if 'flag' in ver_details:
-                        template_block += "|Extension version flag=%s\n" % ver_details['flag']
+                        if item == 'name':
+                            # Sometimes people make the name of the extension a hyperlink using
+                            # wikitext links and this makes things ugly. So, let's detect that if present.
+                            if re.match(r'\[(http[^\s]+)\s+([^\]]+)\]', value):
+                                (possible_url, value) = re.findall(r'\[(http[^\s]+)\s+([^\]]+)\]', value)[0]
+                                # If a URL was given in the name, and not given as a formal part of the
+                                # extension definition (yes, this happens) then add this to the template
+                                # it is up to the template to decide what to do with this
+                                template_block += "|URL Embedded in name=%s" % possible_url
 
-                if 'author' in x:
-                    # Authors can have a lot of junk in them, wikitext and such.
-                    # We'll try to clean that up.
-                    temp_author = x['author']
-                    # Wikilinks with names
-                    # "[[Foobar | Foo Bar]]"
-                    temp_author = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', temp_author)
-                    # Simple Wikilinks
-                    temp_author = re.sub(r'\[\[(.*)\]\]', r'\1', temp_author)
-                    # Hyperlinks as wikiext
-                    # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
-                    temp_author = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', temp_author)
-                    # Misc text
-                    temp_author = re.sub(r'\sand\s', r', ', temp_author)
-                    temp_author = re.sub(r'\.\.\.', r'', temp_author)
-                    temp_author = re.sub(r'&nbsp;', r' ', temp_author)
-                    # Lastly, there could be HTML encoded stuff in these
-                    temp_author = h.unescape(temp_author)
+                            value = self.filter_illegal_chars(value)
 
-                    template_block += "|Extension author=%s\n" % (temp_author)
+                        if item == 'version':
+                            # Breakdown the version information for more detailed analysis
+                            ver_details = self.parse_version(value)
+                            if 'major' in ver_details:
+                                template_block += "|Extension version major=%s\n" % ver_details['major']
+                            if 'minor' in ver_details:
+                                template_block += "|Extension version minor=%s\n" % ver_details['minor']
+                            if 'bugfix' in ver_details:
+                                template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
+                            if 'flag' in ver_details:
+                                template_block += "|Extension version flag=%s\n" % ver_details['flag']
 
-                if 'type' in x:
-                    template_block += "|Extension type=%s\n" % (x['type'])
-                if 'url' in x:
-                    ext_url = x['url']
-                    # Seems some people really really love protocol agnostic URL's
-                    # We detect them and add a generic http: protocol to them
-                    if re.match(r'^\/\/', ext_url):
-                        ext_url = 'http:' + ext_url
-                    template_block += "|Extension URL=%s\n" % (ext_url)
+                        if item == 'author':
+                            # Authors can have a lot of junk in them, wikitext and such.
+                            # We'll try to clean that up.
+
+                            # Wikilinks with names
+                            # "[[Foobar | Foo Bar]]"
+                            value = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', value)
+                            # Simple Wikilinks
+                            value = re.sub(r'\[\[(.*)\]\]', r'\1', value)
+                            # Hyperlinks as wikiext
+                            # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
+                            value = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', value)
+                            # Misc text
+                            value = re.sub(r'\sand\s', r', ', value)
+                            value = re.sub(r'\.\.\.', r'', value)
+                            value = re.sub(r'&nbsp;', r' ', value)
+                            # Lastly, there could be HTML encoded stuff in these
+                            value = h.unescape(value)
+
+                        if item == 'url':
+                            # Seems some people really really love protocol agnostic URL's
+                            # We detect them and add a generic http: protocol to them
+                            if re.match(r'^\/\/', value):
+                                value = 'http:' + value
+
+                        template_block += "|%s=%s\n" % (name, value)
+
                 template_block += "}}\n"
 
         template_block += "</includeonly>"
@@ -529,6 +541,15 @@ class BumbleBee(ApiaryBot):
         return ret_value
 
     def build_skins_template(self, ext_obj):
+
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = []
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {
+            '*': 'Skin name',
+            'code': 'Skin code'
+        }
+
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
         # Skins are returned in random order so we need to sort them before
@@ -537,10 +558,22 @@ class BumbleBee(ApiaryBot):
         skins_sorted = sorted(ext_obj, key=operator.itemgetter('*'))
 
         for x in skins_sorted:
-            template_block += "{{Skin in use\n"
-            template_block += "|Skin name=%s\n" % (self.filter_illegal_chars(x['*']))
-            template_block += "|Skin code=%s\n" % (x['code'])
-            template_block += "}}\n"
+            if '*' in x:
+                # Start the template instance
+                template_block += "{{Skin in use\n"
+                for item in x:
+                    # Loop through all the items in the skin data and build the instance
+                    if item not in ignore_keys:
+                        name = key_names.get(item, item)
+                        value = x[item]
+
+                        if item == '*':
+                            value = self.filter_illegal_chars(value)
+
+                        template_block += "|%s=%s\n" % (name, value)
+
+                # Now end the template instance
+                template_block += "}}\n"
 
         template_block += "</includeonly>"
 
