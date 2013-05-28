@@ -616,7 +616,8 @@ class BumbleBee(ApiaryBot):
         # Some keys we turn into more readable names for using inside of WikiApiary
         key_names = {
             '*': 'Skin name',
-            'code': 'Skin code'
+            'code': 'Skin code',
+            'default': 'Default skin'
         }
 
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -638,6 +639,10 @@ class BumbleBee(ApiaryBot):
 
                         if item == '*':
                             value = self.filter_illegal_chars(value)
+
+                        if item == 'default':
+                            # This parameter won't appear unless it is true
+                            value = True
 
                         template_block += "|%s=%s\n" % (name, value)
 
