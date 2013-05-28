@@ -35,3 +35,4 @@ nosetests.xml
 # My configuration file
 *.cfg
 *-config.php
+Geo*.dat

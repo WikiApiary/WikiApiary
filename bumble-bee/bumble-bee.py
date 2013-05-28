@@ -28,6 +28,8 @@ import re
 import HTMLParser
 import BeautifulSoup
 import operator
+import urlparse
+import pygeoip
 sys.path.append('../lib')
 from apiary import ApiaryBot
 
@@ -451,7 +453,21 @@ class BumbleBee(ApiaryBot):
 
                 template_block += "|%s=%s\n" % (name, value)
 
-        template_block += "}}\n</includeonly>"
+        template_block += "}}\n</includeonly>\n"
+
+        return template_block
+
+    def BuildNetworkTemplate(self, hostname):
+        template_block = "\n<includeonly>"
+        template_block += "{{Network info\n"
+
+        gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
+        data = gi.record_by_name(hostname)
+
+        for val in data:
+            template_block += "|%s=%s\n" % (val, data[val])
+
+        template_block += "}}\n</includeonly>\n"
 
         return template_block
 
@@ -466,6 +482,12 @@ class BumbleBee(ApiaryBot):
             if 'query' in data:
                 datapage = "%s/General" % site['pagename']
                 template_block = self.build_general_template(site['Has ID'], data['query']['general'], '')
+
+                # Shoe horning in the Geo data
+                hostname = urlparse.urlparse(site['Has API URL']).hostname
+                network_template = self.BuildNetworkTemplate(hostname)
+                template_block += network_template
+
                 socket.setdefaulttimeout(30)
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
                 if self.args.verbose >= 3:
