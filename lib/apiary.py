@@ -117,6 +117,10 @@ class ApiaryBot:
             return True, data, duration
 
     def record_error(self, sitename, error_message):
+        # TODO: This function is disabled. It generated too many edits.
+        # this will be moved into ApiaryDB shortly
+        return True
+
         # This function updates the error properties for a wiki
         socket.setdefaulttimeout(30)
 
@@ -203,7 +207,8 @@ class ApiaryBot:
             host=self.config.get('ApiaryDB', 'hostname'),
             db=self.config.get('ApiaryDB', 'database'),
             user=self.config.get('ApiaryDB', 'username'),
-            passwd=self.config.get('ApiaryDB', 'password'))
+            passwd=self.config.get('ApiaryDB', 'password'),
+            charset='utf8')
 
     def connectwiki(self, bot_name):
         self.apiary_wiki = MediaWiki(self.config.get('WikiApiary', 'API'))
