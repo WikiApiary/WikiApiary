@@ -617,7 +617,8 @@ class BumbleBee(ApiaryBot):
         key_names = {
             '*': 'Skin name',
             'code': 'Skin code',
-            'default': 'Default skin'
+            'default': 'Default skin',
+            'unusable': 'Skipped skin'
         }
 
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
@@ -642,6 +643,10 @@ class BumbleBee(ApiaryBot):
 
                         if item == 'default':
                             # This parameter won't appear unless it is true
+                            value = True
+
+                        if item == 'unusable':
+                            # This paramter won't appear unless it is true
                             value = True
 
                         template_block += "|%s=%s\n" % (name, value)
