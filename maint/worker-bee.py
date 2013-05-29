@@ -46,7 +46,7 @@ ON
         cur = self.apiary_db.cursor()
         cur.execute(sql_query)
         data = cur.fetchone()
-        if self.args.verbose >= 2:
+        if self.args.verbose >= 1:
             print "Total edits: %d" % data[0]
 
         # Update the wiki with the new value
@@ -64,12 +64,39 @@ ON
 
         return True
 
+    def DeleteOldBotLogs(self):
+        sql_query = """
+DELETE FROM
+    apiary_bot_log
+WHERE
+    log_date < '%s'
+"""
+        delete_before = datetime.datetime.utcnow() - datetime.timedelta(weeks=4)
+        delete_before_str = delete_before.strftime('%Y-%m-%d %H:%M:%S')
+        if self.args.verbose >= 1:
+            print "Deleting apiary_bot_log before %s." % delete_before_str
+        my_sql = sql_query % (delete_before_str)
+        if self.args.verbose >= 3:
+            print "SQL Debug: %s" % my_sql
+
+        cur = self.apiary_db.cursor()
+        cur.execute(my_sql)
+        rows_deleted = cur.rowcount
+
+        if self.args.verbose >= 1:
+            print "Deleted %d rows." % rows_deleted
+
+        return True
+
     def main(self):
         # Setup our connection to the wiki too
         self.connectwiki('Worker Bee')
 
         # Now perform our jobs
         self.UpdateTotalEdits()
+
+        # Delete old bot_log entries
+        self.DeleteOldBotLogs()
 
 # Run
 if __name__ == '__main__':
