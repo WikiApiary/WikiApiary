@@ -37,7 +37,7 @@ class SetRelated(ApiaryBot):
 
     def main(self):
         # Setup our connection to the wiki too
-        self.connectwiki('Bumble Bee')
+        self.connectwiki('Worker Bee')
 
         print "Loading data table..."
         data = Orange.data.Table("extrec-list.basket")
