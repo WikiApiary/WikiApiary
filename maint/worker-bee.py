@@ -81,7 +81,9 @@ WHERE
 
         cur = self.apiary_db.cursor()
         cur.execute(my_sql)
+        self.apiary_db.commit()
         rows_deleted = cur.rowcount
+        cur.close()
 
         if self.args.verbose >= 1:
             print "Deleted %d rows." % rows_deleted
