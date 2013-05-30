@@ -203,11 +203,12 @@ class ApiaryBot:
 
     def connectdb(self):
         # Setup our database connection
+        # Use the account that can also insert and delete from the database
         self.apiary_db = mdb.connect(
             host=self.config.get('ApiaryDB', 'hostname'),
             db=self.config.get('ApiaryDB', 'database'),
-            user=self.config.get('ApiaryDB', 'username'),
-            passwd=self.config.get('ApiaryDB', 'password'),
+            user=self.config.get('ApiaryDB RW', 'username'),
+            passwd=self.config.get('ApiaryDB RW', 'password'),
             charset='utf8')
 
     def connectwiki(self, bot_name):
