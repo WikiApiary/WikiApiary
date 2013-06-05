@@ -7,8 +7,12 @@ try {
     $db = sprintf('mysql:host=%s;dbname=%s', DB_HOST, DB_NAME);
     $conn = new PDO($db, DB_USER, DB_PASSWORD);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    $stmt = $conn->prepare('SELECT capture_date, propcount FROM smwinfo WHERE website_id = :id');
-    $stmt->execute(array('id' => $id));
+
+    date_default_timezone_set('America/Chicago');
+    $date_filter = date('Y-m-d H:i:s', strtotime('-3 months'));
+
+    $stmt = $conn->prepare('SELECT capture_date, propcount FROM smwinfo WHERE website_id = :id AND capture_date > :date_filter');
+    $stmt->execute(array('id' => $id, 'date_filter' => $date_filter));
     $result = $stmt->fetchAll();
     if ( count($result) ) {
         printf ("%s, %s\n",
