@@ -1,4 +1,4 @@
-/* http://meyerweb.com/eric/tools/css/reset/ 
+/* http://meyerweb.com/eric/tools/css/reset/
    v2.0 | 20110126
    License: none (public domain)
 */
@@ -31,28 +31,25 @@ body {
   padding-left: 45px;
   font-size: 30px;
 }
-#apiary_nav {
+
+#chart {
   position: absolute;
-  top: 5px;
-  left: 190px;
-  right: 5px;
-  height: 32px;
-  min-width: 365px;
-  text-align: right;
-  vertical-align: text-bottom;
-  font-size: 12px;
+  top: 40px;
+  bottom: 5px;
 }
-#apiary_nav ul {
-  list-style-type: none;
-  display: inline-block;
+
+.chart {
+  position: relative;
+  width: 100%;
+  margin: 5px;
+  height: 300px;
 }
-#apiary_nav ul li {
-  float: right;
+
+.nav {
+  height: 30px;
 }
-#apiary_nav ul a {
-  padding-left: 6px;
-}
-#graph {
+
+.graph {
   position: absolute;
   left: 5px;
   right: 5px;
@@ -61,12 +58,12 @@ body {
   min-width: 550px;
   min-height: 200px;
 }
-#legend {
-  position: absolute;
+.legend {
+  position: relative;
   left: 5px;
   right: 5px;
   height: 15px;
-  top: 40px;
+  top: 20px;
   min-width: 550px;
   text-align: center;
 }
