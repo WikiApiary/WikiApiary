@@ -31,10 +31,11 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     ];
 
   var _graphs = [
+    // Basic graphs
     {
       id: "pages",
       name: "Pages",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "basic",
       dygraphOpts: {
         labels: [ 'Date', 'Articles', 'Pages'],
@@ -67,7 +68,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     {
       id: "edits",
       name: "Edits",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "basic",
       dygraphOpts: {
         labels: [ 'Date', 'Edits'],
@@ -90,7 +91,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     {
       id: "users",
       name: "Users",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "basic",
       dygraphOpts: {
         labels: [ 'Date', 'Users', 'Active Users'],
@@ -123,7 +124,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     {
       id: "jobs",
       name: "Jobs",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "basic",
       dygraphOpts: {
         labels: [ 'Date', 'Jobs'],
@@ -145,9 +146,32 @@ window.Chart = function(targetDiv, id, defaultGraph) {
       path: "http://wikiapiary.com/apiary/data/jobs.php?id=" + _id
     },
     {
+      id: "images",
+      name: "Images",
+      freq: ["raw", "daily", "weekly"],
+      type: "basic",
+      dygraphOpts: {
+        labels: [ 'Date', 'Images'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Images',
+        axisLabelFontSize: 10,
+        maxNumberWidth: 12,
+        title: 'Images',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        fillGraph: true,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/images.php?id=" + _id
+    },
+    {
       id: "response-time",
       name: "Response Time",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "basic",
       dygraphOpts: {
         labels: [ 'Date', 'Response Time'],
@@ -167,10 +191,11 @@ window.Chart = function(targetDiv, id, defaultGraph) {
       },
       path: "http://wikiapiary.com/apiary/data/response_timer.php?id=" + _id
     },
+    // SMW Graphs
     {
       id: "propcount",
       name: "Property Count",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "smw",
       dygraphOpts: {
         labels: [ 'Date', 'Properties'],
@@ -193,7 +218,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     {
       id: "properties",
       name: "Properties",
-      freq: ["raw", "weekly", "daily"],
+      freq: ["raw", "daily", "weekly"],
       type: "smw",
       dygraphOpts: {
         labels: [ 'Date', 'Property Pages', 'Used Properties', 'Declared Properties'],
@@ -211,6 +236,101 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         rightGap: 10
       },
       path: "http://wikiapiary.com/apiary/data/properties.php?id=" + _id
+    },
+    // SMW Usage graphs
+    {
+      id: "queries",
+      name: "Properties",
+      freq: ["raw", "daily", "weekly"],
+      type: "smwusage",
+      dygraphOpts: {
+        labels: [ 'Date', 'Queries'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Queries',
+        axisLabelFontSize: 10,
+        fillGraph: true,
+        maxNumberWidth: 12,
+        title: 'Query Count',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/smwqueries.php?id=" + _id
+    },
+    {
+      id: "querypages",
+      name: "Query Pages",
+      freq: ["raw", "daily", "weekly"],
+      type: "smwusage",
+      dygraphOpts: {
+        labels: [ 'Date', 'Query Pages'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Pages',
+        axisLabelFontSize: 10,
+        fillGraph: true,
+        maxNumberWidth: 12,
+        title: 'Query Pages',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/smwquerypages.php?id=" + _id
+    },
+    {
+      id: "querysize",
+      name: "Query Sizes",
+      freq: ["raw", "daily", "weekly"],
+      type: "smwusage",
+      dygraphOpts: {
+        labels: [ 'Date', 'size1', 'size2', 'size3', 'size4', 'size5', 'size6', 'size7', 'size8', 'size9', 'size10plus'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Sizes',
+        axisLabelFontSize: 10,
+        maxNumberWidth: 12,
+        stackedGraph: true,
+        title: 'Query Sizes',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/smwquerysize.php?id=" + _id
+    },
+    {
+      id: "queryformat",
+      name: "Query Format",
+      freq: ["raw", "daily", "weekly"],
+      type: "smwusage",
+      dygraphOpts: {
+        labels: [ 'Date', 'broadtable', 'csv', 'category', 'count',
+                'dsv', 'debug', 'embedded', 'feed', 'json', 'list','ol',
+                'rdf','table', 'template', 'ul'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Formats',
+        axisLabelFontSize: 10,
+        maxNumberWidth: 12,
+        stackedGraph: true,
+        title: 'Query Formats',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/smwqueryformat.php?id=" + _id
     }
 
     ];

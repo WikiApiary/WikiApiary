@@ -15,8 +15,6 @@ try {
     $stmt->execute(array('id' => $id, 'date_filter' => $date_filter));
     $result = $stmt->fetchAll();
     if ( count($result) ) {
-        printf ("%s, %s, %s\n",
-		'capture_date', 'articles', 'pages');
         # Change the date to be 2009/07/12 12:34:56, currently 2013-03-06 11:15:26
         foreach($result as $row) {
             printf ("%s, %s, %s\n",

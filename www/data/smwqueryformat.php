@@ -15,10 +15,6 @@ try {
     $stmt->execute(array('id' => $id, 'date_filter' => $date_filter));
     $result = $stmt->fetchAll();
     if ( count($result) ) {
-        printf ("%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s\n",
-    		'capture_date', 'broadtable', 'csv', 'category', 'count',
-            'dsv', 'debug', 'embedded', 'feed', 'json', 'list','ol',
-            'rdf','table', 'template', 'ul');
         foreach($result as $row) {
             printf ("%s, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d, %d\n",
                 $row['capture_date'],

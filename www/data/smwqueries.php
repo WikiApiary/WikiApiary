@@ -15,8 +15,6 @@ try {
     $stmt->execute(array('id' => $id, 'date_filter' => $date_filter));
     $result = $stmt->fetchAll();
     if ( count($result) ) {
-        printf ("%s, %s\n",
-		'capture_date', 'query_count');
         foreach($result as $row) {
             printf ("%s, %s\n",
 		$row['capture_date'], $row['query_count']);
