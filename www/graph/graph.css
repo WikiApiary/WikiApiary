@@ -21,7 +21,7 @@ body {
 }
 
 #apiary_branding {
-  position: absolute;
+  position: relative;
   top: 3px;
   left: 5px;
   width: 180px;
@@ -35,35 +35,51 @@ body {
 #chart {
   position: absolute;
   top: 40px;
-  bottom: 5px;
+  right: 10px;
+  left: 10px;
+  bottom: 100px;
+}
+
+#chart .graph {
+  margin-right: 10px;
 }
 
 .chart {
   position: relative;
   width: 100%;
-  margin: 5px;
-  height: 300px;
+  height: 330px;
+  min-width: 300px;
+  margin-bottom: 30px;
 }
 
-.nav {
-  height: 30px;
-}
-
-.graph {
-  position: absolute;
-  left: 5px;
-  right: 5px;
-  top: 58px;
-  bottom: 5px;
-  min-width: 550px;
-  min-height: 200px;
-}
-.legend {
+.chart .nav {
   position: relative;
+  height: 20px;
   left: 5px;
-  right: 5px;
-  height: 15px;
-  top: 20px;
-  min-width: 550px;
-  text-align: center;
+  top: 5px;
+}
+
+.chart .nav label {
+  font-size: 10pt;
+  font-weight: bold;
+  margin-right: 3px;
+}
+
+.chart .nav select {
+  margin-right: 10px;
+}
+
+.chart .graph {
+  position: relative;
+  height: 300px;
+  min-width: 300px;
+}
+
+.chart .legend {
+  position: relative;
+  margin-right: 20px;
+  margin-top: -10px;
+  text-align: right;
+  font-size: 10pt;
+  height: 20px;
 }
