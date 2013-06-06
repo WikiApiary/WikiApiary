@@ -79,7 +79,9 @@ body {
   position: relative;
   margin-right: 20px;
   margin-top: -10px;
+  margin-left: 460px;
   text-align: right;
   font-size: 10pt;
   height: 20px;
+  overflow: hidden;
 }
