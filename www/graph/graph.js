@@ -166,6 +166,51 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         rightGap: 10
       },
       path: "http://wikiapiary.com/apiary/data/response_timer.php?id=" + _id
+    },
+    {
+      id: "propcount",
+      name: "Property Count",
+      freq: ["raw", "weekly", "daily"],
+      type: "smw",
+      dygraphOpts: {
+        labels: [ 'Date', 'Properties'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Properties',
+        axisLabelFontSize: 10,
+        fillGraph: true,
+        maxNumberWidth: 12,
+        title: 'Property Count',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/propcount.php?id=" + _id
+    },
+    {
+      id: "properties",
+      name: "Properties",
+      freq: ["raw", "weekly", "daily"],
+      type: "smw",
+      dygraphOpts: {
+        labels: [ 'Date', 'Property Pages', 'Used Properties', 'Declared Properties'],
+        axes: {
+          y: {
+            labelsKMB: true
+          }
+        },
+        ylabel: 'Properties',
+        axisLabelFontSize: 10,
+        maxNumberWidth: 12,
+        title: 'Properties',
+        labelsDiv: _legendDiv,
+        yLabelWidth: 12,
+        rightGap: 10
+      },
+      path: "http://wikiapiary.com/apiary/data/properties.php?id=" + _id
     }
 
     ];
