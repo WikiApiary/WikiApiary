@@ -240,7 +240,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     // SMW Usage graphs
     {
       id: "queries",
-      name: "Properties",
+      name: "Query Count",
       freq: ["raw", "daily", "weekly"],
       type: "smwusage",
       dygraphOpts: {
@@ -309,7 +309,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
     },
     {
       id: "queryformat",
-      name: "Query Format",
+      name: "Query Formats",
       freq: ["raw", "daily", "weekly"],
       type: "smwusage",
       dygraphOpts: {
