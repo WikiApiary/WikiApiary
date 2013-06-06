@@ -1,11 +1,19 @@
 window.Chart = function(targetDiv, id, defaultGraph) {
   var _id = id;
   var _defaultGraph = defaultGraph;
+  var _defaultDuration = '2m';
   var _parentDiv = $(targetDiv)[0],
     _targetDiv = $(targetDiv+" .graph")[0],
     _legendDiv = $(targetDiv+" .legend")[0],
     _navDiv = $(targetDiv+" .nav")[0],
     _selectedGraph;
+
+  // TODO: Use these nicer names in the drop down menu for frequency
+  var _freqNames = {
+    raw: "Raw",
+    daily: "Daily",
+    weekly: "Weekly"
+  };
 
   var _durations = [
       {
@@ -388,8 +396,12 @@ window.Chart = function(targetDiv, id, defaultGraph) {
   var i=0,
   glen = _durations.length;
   for(i=0;i<glen;i++) {
-    var opt = $("<option>" + _durations[i].name + "</option>");
-    opt[0].duration = _durations[i];
+    var duration = _durations[i];
+    var opt = $("<option>" + duration.name + "</option>");
+    opt[0].duration = duration;
+    if(_defaultDuration==duration.param) {
+      opt.attr("selected", "true");
+    }
     opt.appendTo(_durationChoiceNav);
   }
 
