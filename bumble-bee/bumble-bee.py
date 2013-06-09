@@ -751,7 +751,7 @@ class BumbleBee(ApiaryBot):
                             site['In error'] = False
                             self.clear_error(site['pagename'])
             except Exception, e:
-                print "Exception during %s data for %s.%s" % (process, site['pagename'])
+                print "Exception during %s data for %s." % (process, site['pagename'])
                 print "Exception details: %s" % str(e)
 
         duration = time.time() - start_time
