@@ -78,12 +78,55 @@ class BumbleBee(ApiaryBot):
 
         return ver
 
-    def record_statistics(self, site):
-        # Go out and get the statistic information
-        data_url = site['Has API URL'] + '?action=query&meta=siteinfo&siprop=statistics&format=json'
-        if self.args.verbose >= 2:
-            print "Pulling statistics info from %s." % data_url
-        (status, data, duration) = self.pull_json(site['pagename'], data_url)
+    def record_statistics(self, site, method):
+        if method == 'API':
+            # Go out and get the statistic information
+            data_url = site['Has API URL'] + '?action=query&meta=siteinfo&siprop=statistics&format=json'
+            if self.args.verbose >= 2:
+                print "Pulling statistics info from %s." % data_url
+            (status, data, duration) = self.pull_json(site['pagename'], data_url)
+        elif method == 'Statistics':
+            # Get stats the old fashioned way
+            data_url = site['Has statistics URL']
+            if "?" in data_url:
+                data_url += "&action=raw"
+            else:
+                data_url += "?action=raw"
+            if self.args.verbose >= 2:
+                print "Pulling statistics from %s." % data_url
+
+            # This is terrible and should be put into pull_json somewhow
+            socket.setdefaulttimeout(15)
+
+            # Get CSV data via raw Statistics call
+            req = urllib2.Request(data_url)
+            req.add_header('User-Agent', self.config.get('Bumble Bee', 'User-Agent'))
+            opener = urllib2.build_opener()
+
+            try:
+                t1 = datetime.datetime.now()
+                f = opener.open(req)
+                duration = (datetime.datetime.now() - t1).total_seconds()
+            except Exception, e:
+                self.botlog(bot='Bumble Bee', type="error", message="%s calling %s" % (str(e), data_url))
+            else:
+                # Create an object that is the same as that returned by the API
+                ret_string = f.read()
+                ret_string = ret_string.strip()
+                status = True # Pretend this was set so we can continue
+                data = {}
+                data['query'] = {}
+                data['query']['statistics'] = {}
+                items = ret_string.split(";")
+                for item in items:
+                    (name, value) = item.split("=")
+                    if name == "total":
+                        name = "pages"
+                    if name == "good":
+                        name = "articles"
+                    if self.args.verbose >= 3:
+                        print "Transforming %s to %s" % (name, value)
+                    data['query']['statistics'][name] = value
 
         ret_value = True
         if status:
@@ -682,8 +725,10 @@ class BumbleBee(ApiaryBot):
         return ret_value
 
     def main(self):
-        if self.args.segment is not None:
-            message = "Starting processing for segment %d." % int(self.args.segment)
+        if self.args.site is not None:
+            message = "Starting processing for site %d." % int(self.args.site)
+        elif self.args.segment is not None:
+            message = "Starting processing for segement %d." % int(self.args.segment)
         else:
             message = "Starting processing for all websites."
         self.botlog(bot='Bumble Bee', message=message)
@@ -695,7 +740,7 @@ class BumbleBee(ApiaryBot):
         self.connectwiki('Bumble Bee')
 
         # Get list of websites to work on
-        sites = self.get_websites(self.args.segment)
+        sites = self.get_websites(self.args.segment, self.args.site)
 
         i = 0
         for site in sites:
@@ -713,8 +758,14 @@ class BumbleBee(ApiaryBot):
                 process = "unknown"
                 if req_statistics:
                     if site['Collect statistics']:
-                        process = "collect statistics"
-                        status = self.record_statistics(site)
+                        process = "collect statistics (API)"
+                        status = self.record_statistics(site, 'API')
+                        if site['In error'] and status:
+                            site['In error'] = False
+                            self.clear_error(site['pagename'])
+                    if site['Collect statistics stats']:
+                        process = "collect statistics (Statistics)"
+                        status = self.record_statistics(site, 'Statistics')
                         if site['In error'] and status:
                             site['In error'] = False
                             self.clear_error(site['pagename'])

@@ -60,6 +60,7 @@ class ApiaryBot:
     def get_args(self):
         parser = argparse.ArgumentParser(prog="Bumble Bee", description="retrieves usage and statistic information for WikiApiary")
         parser.add_argument("-s", "--segment", help="only work on websites in defined segment")
+        parser.add_argument("--site", help="only work on this specific site id")
         parser.add_argument("-d", "--debug", action="store_true", help="do not write any changes to wiki or database")
         parser.add_argument("--config", default="../apiary.cfg", help="use an alternative config file")
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase output verbosity")
@@ -218,20 +219,25 @@ class ApiaryBot:
         c = self.apiary_wiki.call({'action': 'query', 'titles': 'Foo', 'prop': 'info', 'intoken': 'edit'})
         self.edit_token = c['query']['pages']['-1']['edittoken']
 
-    def get_websites(self, segment):
-        segment_string = ""
-        if segment is not None:
+    def get_websites(self, segment, site):
+        filter_string = ""
+        if site is not None:
             if self.args.verbose >= 1:
-                print "Only retrieving segment %s." % self.args.segment
-            segment_string = "[[Has bot segment::%d]]" % int(self.args.segment)
+                print "Processing site %d." % int(site)
+            filter_string = "[[Has ID::%d]]" % int(site)
+        elif segment is not None:
+            if self.args.verbose >= 1:
+                print "Only retrieving segment %d." % int(self.args.segment)
+            filter_string = "[[Has bot segment::%d]]" % int(self.args.segment)
 
         # Build query for sites
         my_query = ''.join([
             '[[Category:Website]]',
             '[[Is defunct::False]]',
             '[[Is active::True]]',
-            segment_string,
+            filter_string,
             '|?Has API URL',
+            '|?Has statistics URL',
             '|?Check every',
             '|?Creation date',
             '|?Has ID',
@@ -242,6 +248,9 @@ class ApiaryBot:
             '|?Collect statistics',
             '|?Collect semantic statistics',
             '|?Collect semantic usage',
+            '|?Collect logs',
+            '|?Collect recent changes',
+            '|?Collect statistics stats',
             '|sort=Creation date',
             '|order=rand',
             '|limit=1000'])
@@ -289,10 +298,31 @@ class ApiaryBot:
                 except:
                     collect_semantic_usage = False
 
+                try:
+                    collect_statistics_stats = (site['printouts']['Collect statistics stats'][0] == "t")
+                except:
+                    collect_statistics_stats = False
+
+                try:
+                    collect_logs = (site['printouts']['Collect logs'][0] == "t")
+                except:
+                    collect_logs = False
+
+                try:
+                    collect_recent_changes = (site['printouts']['Collect recent changes'][0] == "t")
+                except:
+                    collect_recent_changes = False
+
+                try:
+                    has_statistics_url = site['printouts']['Has statistics URL'][0]
+                except:
+                    has_statistics_url = ''
+
                 my_sites.append({
                     'pagename': pagename,
                     'fullurl': site['fullurl'],
                     'Has API URL': site['printouts']['Has API URL'][0],
+                    'Has statistics URL': has_statistics_url,
                     'Check every': int(site['printouts']['Check every'][0]),
                     'Creation date': site['printouts']['Creation date'][0],
                     'Has ID': int(site['printouts']['Has ID'][0]),
@@ -302,7 +332,10 @@ class ApiaryBot:
                     'Collect skin data': collect_skin_data,
                     'Collect statistics': collect_statistics,
                     'Collect semantic statistics': collect_semantic_statistics,
-                    'Collect semantic usage': collect_semantic_usage
+                    'Collect semantic usage': collect_semantic_usage,
+                    'Collect statistics stats': collect_statistics_stats,
+                    'Collect logs': collect_logs,
+                    'Collect recent changes': collect_recent_changes
                 })
             return my_sites
         else:
