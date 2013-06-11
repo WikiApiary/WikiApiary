@@ -109,6 +109,7 @@ class BumbleBee(ApiaryBot):
                 duration = (datetime.datetime.now() - t1).total_seconds()
             except Exception, e:
                 self.botlog(bot='Bumble Bee', type="error", message="%s calling %s" % (str(e), data_url))
+                status = False
             else:
                 # Create an object that is the same as that returned by the API
                 ret_string = f.read()
