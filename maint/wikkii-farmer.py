@@ -149,7 +149,7 @@ class wikkii:
         self.getList()
 
         for site in self.sites:
-            if self.create_counter > 100:
+            if self.create_counter > 300:
                 break
             print "\nProcessing %s" % site[0]
             # Use a guess of the API domain to see if

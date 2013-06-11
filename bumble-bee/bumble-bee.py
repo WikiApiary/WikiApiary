@@ -120,13 +120,19 @@ class BumbleBee(ApiaryBot):
                 items = ret_string.split(";")
                 for item in items:
                     (name, value) = item.split("=")
-                    if name == "total":
-                        name = "pages"
-                    if name == "good":
-                        name = "articles"
-                    if self.args.verbose >= 3:
-                        print "Transforming %s to %s" % (name, value)
-                    data['query']['statistics'][name] = value
+                    try:
+                        # Convert the value to an int, if this fails we skip it
+                        value = int(value)
+                        if name == "total":
+                            name = "pages"
+                        if name == "good":
+                            name = "articles"
+                        if self.args.verbose >= 3:
+                            print "Transforming %s to %s" % (name, value)
+                        data['query']['statistics'][name] = value
+                    except:
+                        if self.args.verbose >= 3:
+                            print "Illegal value '%s' for %s." % (value, name)
 
         ret_value = True
         if status:
