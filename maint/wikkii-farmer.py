@@ -55,7 +55,7 @@ class wikkii:
         try:
             result = requests.get(my_url).text
             values = result.split(';')
-            if len(values) > 3:
+            if len(values) == 9:
                 print "Got %d values from stats" % len(values)
                 return True
             else:
@@ -95,6 +95,19 @@ class wikkii:
 """
         api_url = "%sw/api.php" % url
         statistics_url = "%swiki/Special:Statistics" % url
+
+        # Make sure a page doesn't exist with this name already
+        c = self.wikiapiary.call({
+            'action': 'query',
+            'titles': name
+        })
+        try:
+            if c['query']['pages']['-1']:
+                print "No duplicate name detected."
+        except:
+            # Duplicate detected
+            name = "%s (Wikkii)" % name
+
         my_template = siteTemplate % (name, url, api_url, statistics_url)
         print my_template
 
@@ -136,7 +149,7 @@ class wikkii:
         self.getList()
 
         for site in self.sites:
-            if self.create_counter > 5:
+            if self.create_counter > 100:
                 break
             print "\nProcessing %s" % site[0]
             # Use a guess of the API domain to see if
