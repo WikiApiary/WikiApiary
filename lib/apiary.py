@@ -316,12 +316,17 @@ class ApiaryBot:
                 try:
                     has_statistics_url = site['printouts']['Has statistics URL'][0]
                 except:
-                    has_statistics_url = ''
+                    has_statistics_url = None
+
+                try:
+                    has_api_url = site['printouts']['Has API URL'][0]
+                except:
+                    has_api_url = None
 
                 my_sites.append({
                     'pagename': pagename,
                     'fullurl': site['fullurl'],
-                    'Has API URL': site['printouts']['Has API URL'][0],
+                    'Has API URL': has_api_url,
                     'Has statistics URL': has_statistics_url,
                     'Check every': int(site['printouts']['Check every'][0]),
                     'Creation date': site['printouts']['Creation date'][0],
