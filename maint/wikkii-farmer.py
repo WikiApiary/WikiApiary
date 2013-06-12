@@ -8,6 +8,7 @@ Pull configuration files from WikiMedia to update WikiApiary.
 import requests
 from BeautifulSoup import BeautifulSoup
 import ConfigParser
+import time
 from simplemediawiki import MediaWiki
 
 
@@ -160,6 +161,7 @@ class wikkii:
                     print "%s is not in WikiApiary." % site[0]
                     # Now add it to WikiApiary
                     self.createSite(site[0], site[1])
+                    time.sleep(3)
                 elif siteCount == 1:
                     print "%s already exists." % site[0]
                 elif siteCount > 1:
