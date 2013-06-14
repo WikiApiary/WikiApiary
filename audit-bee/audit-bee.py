@@ -158,10 +158,11 @@ class AuditBee(ApiaryBot):
             # Activate and validate the site, but only if the site has not been audited before
             # if this is a re-audit, leave these flags alone.
             if site[1]['printouts']['Is audited'][0] == "f":
-                if site[1]['printouts']['Is validated'][0] == "f":
-                    if self.args.verbose >= 2:
-                        print "Validating %s." % site[0]
-                    self.set_flag(site[0], 'Validated', 'Yes', "Validated.")
+                # No longer validating, deprecated
+                #if site[1]['printouts']['Is validated'][0] == "f":
+                    #if self.args.verbose >= 2:
+                        #print "Validating %s." % site[0]
+                    #self.set_flag(site[0], 'Validated', 'Yes', "Validated.")
                 if site[1]['printouts']['Is active'][0] == "f":
                     if self.args.verbose >= 2:
                         print "Activating %s." % site[0]
@@ -175,6 +176,7 @@ class AuditBee(ApiaryBot):
     def get_audit_list(self, group, count=20):
         my_query = ''.join([
             "[[Concept:%s]]" % group,
+            "[[Has farm::!Wikkii]]",
             '|?Has API URL',
             '|?Collect general data',
             '|?Collect extension data',
@@ -211,14 +213,20 @@ class AuditBee(ApiaryBot):
         if site_count > 0:
             for site in sites:
                 self.stats['audit_count'] += 1
-                self.audit_site(site)
+                try:
+                    self.audit_site(site)
+                except Exception, e:
+                    print "Exception %s during audit of %s." % (e, site)
 
         # Do re-audits
         (site_count, sites) = self.get_audit_list(group='Websites expired audit', count=20)
         if site_count > 0:
             for site in sites:
                 self.stats['audit_count'] += 1
-                self.audit_site(site)
+                try:
+                    self.audit_site(site)
+                except Exception, e:
+                    print "Exception %s during audit of %s." % (e, site)
 
         duration = time.time() - start_time
         if self.stats['audit_count'] > 0:

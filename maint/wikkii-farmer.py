@@ -54,7 +54,7 @@ class wikkii:
     def validateStats(self, url):
         my_url = "%s/wiki/Special:Statistics?action=raw" % url
         try:
-            result = requests.get(my_url).text
+            result = requests.get(my_url, timeout=10).text
             values = result.split(';')
             if len(values) == 9:
                 print "Got %d values from stats" % len(values)
@@ -124,50 +124,47 @@ class wikkii:
         self.create_counter += 1
 
     def checkSite(self, site):
-        print "Testing %s" % site[1]
+        print "Checking %s" % site[1]
 
-        # First see if this is a valid API URL before we query WikiApiary
-        isValid = self.validateStats(site[1])
+        # Construct Ask query for WikiApiary
+        my_query = ''.join([
+            "[[Has statistics URL::%swiki/Special:Statistics]]" % site[1]
+        ])
+        # Execute the query against WikiApiary
+        c = self.wikiapiary.call({
+            'action': 'ask',
+            'query': my_query
+        })
 
-        if isValid:
-            # Construct Ask query for WikiApiary
-            my_query = ''.join([
-                "[[Has statistics URL::%swiki/Special:Statistics]]" % site[1]
-            ])
-            # Execute the query against WikiApiary
-            c = self.wikiapiary.call({
-                'action': 'ask',
-                'query': my_query
-            })
-
-            # Return the count of results for the query
-            return True, int(c['query']['meta']['count'])
-        else:
-            return False, 0
+        # Return the count of results for the query
+        return int(c['query']['meta']['count'])
 
     def main(self):
         # Get the list of tokens from the config file
         self.getList()
 
         for site in self.sites:
-            if self.create_counter > 300:
+            # Limit the number of sites we make per run
+            if self.create_counter > 1000:
                 break
-            print "\nProcessing %s" % site[0]
-            # Use a guess of the API domain to see if
-            (valid, siteCount) = self.checkSite(site)
 
-            if valid:
-                if siteCount == 0:
-                    print "%s is not in WikiApiary." % site[0]
+            print "\nProcessing %s" % site[0]
+
+            # Use a guess of the API domain to see if we have it already
+            siteCount = self.checkSite(site)
+
+            if siteCount == 0:
+                print "%s is not in WikiApiary, validating stats." % site[0]
+                if self.validateStats(site[1]):
                     # Now add it to WikiApiary
                     self.createSite(site[0], site[1])
                     time.sleep(3)
-                elif siteCount == 1:
-                    print "%s already exists." % site[0]
-                elif siteCount > 1:
-                    print "%s found %d websites, which should never happen." % (site[0], siteCount)
-            else:
-                print "%s did not resolve to a valid API URL." % site[0]
+                else:
+                    print "%s did not resolve to a valid API URL." % site[0]
+            elif siteCount == 1:
+                print "%s already exists, skipping." % site[0]
+            elif siteCount > 1:
+                print "ERROR: %s found %d websites, which should never happen." % (site[0], siteCount)
 
 # Run
 if __name__ == '__main__':
