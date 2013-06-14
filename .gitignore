@@ -36,3 +36,4 @@ nosetests.xml
 *.cfg
 *-config.php
 Geo*.dat
+*.basket
