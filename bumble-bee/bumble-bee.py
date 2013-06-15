@@ -108,32 +108,39 @@ class BumbleBee(ApiaryBot):
                 f = opener.open(req)
                 duration = (datetime.datetime.now() - t1).total_seconds()
             except Exception, e:
-                self.botlog(bot='Bumble Bee', type="error", message="%s calling %s" % (str(e), data_url))
+                self.botlog(bot='Bumble Bee', type="error", message="[[%s]] %s calling %s" % (site['pagename'], str(e), data_url))
                 status = False
             else:
                 # Create an object that is the same as that returned by the API
                 ret_string = f.read()
                 ret_string = ret_string.strip()
-                status = True # Pretend this was set so we can continue
-                data = {}
-                data['query'] = {}
-                data['query']['statistics'] = {}
-                items = ret_string.split(";")
-                for item in items:
-                    (name, value) = item.split("=")
-                    try:
-                        # Convert the value to an int, if this fails we skip it
-                        value = int(value)
-                        if name == "total":
-                            name = "pages"
-                        if name == "good":
-                            name = "articles"
-                        if self.args.verbose >= 3:
-                            print "Transforming %s to %s" % (name, value)
-                        data['query']['statistics'][name] = value
-                    except:
-                        if self.args.verbose >= 3:
-                            print "Illegal value '%s' for %s." % (value, name)
+                if re.match(r'(\w+=\d+)\;?', ret_string):
+                    # The return value looks as we expected
+                    status = True
+                    data = {}
+                    data['query'] = {}
+                    data['query']['statistics'] = {}
+                    items = ret_string.split(";")
+                    for item in items:
+                        (name, value) = item.split("=")
+                        try:
+                            # Convert the value to an int, if this fails we skip it
+                            value = int(value)
+                            if name == "total":
+                                name = "pages"
+                            if name == "good":
+                                name = "articles"
+                            if self.args.verbose >= 3:
+                                print "Transforming %s to %s" % (name, value)
+                            data['query']['statistics'][name] = value
+                        except:
+                            if self.args.verbose >= 3:
+                                print "Illegal value '%s' for %s." % (value, name)
+                else:
+                    status = False # The result didn't match the pattern expected
+                    self.botlog(bot='Bumble Bee', type="error", message="[[%s]] Unexpected response to statistics call %s" % (site['pagename'], ret_string))
+                    if self.args.verbose >= 3:
+                        print "Result from statistics was not formatted as expected:\n%s" % ret_string
 
         ret_value = True
         if status:
@@ -173,6 +180,8 @@ class BumbleBee(ApiaryBot):
                 else:
                         edits = 'null'
                 if 'activeusers' in data:
+                        if data['activeusers'] < 0:
+                            data['activeusers'] = 0
                         activeusers = "%s" % data['activeusers']
                 else:
                         activeusers = 'null'
