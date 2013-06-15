@@ -767,7 +767,10 @@ class BumbleBee(ApiaryBot):
                 print "Site %s (ID %d) is flagged in error." % (site['pagename'], site['Has ID'])
             req_statistics = False
             req_general = False
-            (req_statistics, req_general) = self.get_status(site)
+            if self.args.force:
+                (req_statistics, req_general) = (True, True)
+            else:
+                (req_statistics, req_general) = self.get_status(site)
 
             # Put this section in a try/catch so that we can proceed even if a single site causes a problem
             try:

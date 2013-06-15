@@ -14,6 +14,7 @@ import socket
 import MySQLdb as mdb
 import simplejson
 import urllib2
+import dateutil.parser
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
@@ -41,7 +42,7 @@ class AuditBee(ApiaryBot):
             'form': 'Website',
             'target': pagename,
             'Website[Audited]': 'Yes',
-            'Website[Audited date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
+            'Website[Audited date]': time.strftime('%Y/%m/%d %I:%M:%S %p', time.gmtime()),
             'wpSummary': 'Audit completed.'})
         if self.args.verbose >= 3:
             print c
@@ -135,6 +136,19 @@ class AuditBee(ApiaryBot):
             if 'query' in data:
                 do_audit_extensions = self.set_audit(site, data['query']['general'])
                 audit_complete = True
+            elif 'error' in data:
+                if 'code' in data['error']:
+                    if data['error']['code'] == 'readapidenied':
+                        # This website will not let us talk to it, defunct it.
+                        self.set_flag(site[0], 'Defunct', 'Yes', 'Marking defunct because readapidenied')
+                        message = "[[%s]] readapidenied, marking defunct." % site[0]
+                        self.botlog(bot='Audit Bee', type='info', message=message)
+                    else:
+                        message = "[[%s]] Returned error %s while requesting site info (%s)." % (site[0], data['error']['code'], data_url)
+                        self.botlog(bot='Audit Bee', type='warn', message=message)
+                else:
+                    message = "[[%s]] An unknown error was returned from site info (%s)." % (site[0], data_url)
+                    self.botlog(bot='Audit Bee', type='warn', message=message)
             else:
                 message = "[[%s]] Returned unexpected JSON while requesting general site info (%s)." % (site[0], data_url)
                 self.botlog(bot='Audit Bee', type='warn', message=message)
@@ -154,15 +168,51 @@ class AuditBee(ApiaryBot):
                     message = "[[%s]] Returned unexpected JSON while requesting extensions (%s)." % (site[0], data_url)
                     self.botlog(bot='Audit Bee', type='warn', message=message)
 
+        if (audit_complete):
+            # Let's see if we need to update the Founded date
+            my_query = ''.join([
+                "[[%s]]" % site[0],
+                '|?Founded date'
+            ])
+
+            if self.args.verbose >= 3:
+                print "Query: %s" % my_query
+
+            socket.setdefaulttimeout(30)
+            check_date = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
+
+            if self.args.verbose >= 3:
+                print "Response: %s" % check_date
+
+            if len(check_date['query']['results'][site[0]]['printouts']['Founded date']) > 0:
+                update_founded_date = False
+            else:
+                update_founded_date = True
+
+            if (update_founded_date):
+                # ?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json
+                first_date_url = site[1]['printouts']['Has API URL'][0] + "?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json"
+                (success, first_change, duration) = self.pull_json(site[0], first_date_url, bot='Audit Bee')
+                if success:
+                    try:
+                        timestamp = first_change['query']['pages']['1']['revisions'][0]['timestamp']
+                        # timestamp is ISO 8601 format
+                        first_edit = dateutil.parser.parse(timestamp)
+                        self.set_flag(site[0], 'Founded date', first_edit.strftime('%Y/%m/%d %I:%M:%S %p'), 'Setting founded date to timestamp of first edit')
+                    except:
+                        message = "[[%s]] Failed to get timestamp of first revision to wiki." % site[0]
+                        self.botlog(bot='Audit Bee', type='warn', message=message)
+                else:
+                    message = "[[%s]] Failed to get timestamp for first edit." % site[0]
+                    self.botlog(bot='Audit Bee', type='warn', message=message)
+            else:
+                if self.args.verbose >= 2:
+                    print "Date founded is already set, not checking."
+
         if (audit_complete) and (do_audit_extensions == audit_extensions_complete):
-            # Activate and validate the site, but only if the site has not been audited before
+            # Activate the site, but only if the site has not been audited before
             # if this is a re-audit, leave these flags alone.
             if site[1]['printouts']['Is audited'][0] == "f":
-                # No longer validating, deprecated
-                #if site[1]['printouts']['Is validated'][0] == "f":
-                    #if self.args.verbose >= 2:
-                        #print "Validating %s." % site[0]
-                    #self.set_flag(site[0], 'Validated', 'Yes', "Validated.")
                 if site[1]['printouts']['Is active'][0] == "f":
                     if self.args.verbose >= 2:
                         print "Activating %s." % site[0]
@@ -176,7 +226,6 @@ class AuditBee(ApiaryBot):
     def get_audit_list(self, group, count=20):
         my_query = ''.join([
             "[[Concept:%s]]" % group,
-            "[[Has farm::!Wikkii]]",
             '|?Has API URL',
             '|?Collect general data',
             '|?Collect extension data',
@@ -184,7 +233,6 @@ class AuditBee(ApiaryBot):
             '|?Collect statistics',
             '|?Collect semantic statistics',
             '|?Is audited',
-            '|?Is validated',
             '|?Is active',
             '|?In error',
             '|sort=Creation date',
@@ -213,10 +261,10 @@ class AuditBee(ApiaryBot):
         if site_count > 0:
             for site in sites:
                 self.stats['audit_count'] += 1
-                try:
-                    self.audit_site(site)
-                except Exception, e:
-                    print "Exception %s during audit of %s." % (e, site)
+                #try:
+                self.audit_site(site)
+                #except Exception, e:
+                #    print "Exception %s during audit of %s." % (e, site)
 
         # Do re-audits
         (site_count, sites) = self.get_audit_list(group='Websites expired audit', count=20)

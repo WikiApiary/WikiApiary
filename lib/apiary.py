@@ -61,6 +61,7 @@ class ApiaryBot:
         parser = argparse.ArgumentParser(prog="Bumble Bee", description="retrieves usage and statistic information for WikiApiary")
         parser.add_argument("-s", "--segment", help="only work on websites in defined segment")
         parser.add_argument("--site", help="only work on this specific site id")
+        parser.add_argument("-f", "--force", action="store_true", help="run regardless of when the last time data was updated")
         parser.add_argument("-d", "--debug", action="store_true", help="do not write any changes to wiki or database")
         parser.add_argument("--config", default="../apiary.cfg", help="use an alternative config file")
         parser.add_argument("-v", "--verbose", action="count", default=0, help="increase output verbosity")
