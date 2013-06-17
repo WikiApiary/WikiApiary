@@ -273,6 +273,7 @@ class AuditBee(ApiaryBot):
     def get_audit_list(self, group, count=20):
         my_query = ''.join([
             "[[Concept:%s]]" % group,
+            '|?Has ID',
             '|?Has API URL',
             '|?Collect general data',
             '|?Collect extension data',
