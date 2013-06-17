@@ -28,7 +28,9 @@ class WorkerBee(ApiaryBot):
     def UpdateTotalEdits(self):
         sql_query = """
 SELECT
-    SUM(a.edits) AS total_edits
+    SUM(a.edits) AS total_edits,
+    SUM(a.activeusers) AS total_active_users,
+    SUM(a.pages) AS total_pages
 FROM statistics a
 INNER JOIN (
     SELECT
@@ -48,12 +50,40 @@ ON
         data = cur.fetchone()
         if self.args.verbose >= 1:
             print "Total edits: %d" % data[0]
+            print "Total active users: %d" % data[1]
+            print "Total pages: %d" % data[2]
 
         # Update the wiki with the new value
         c = self.apiary_wiki.call({
             'action': 'edit',
             'title': 'WikiApiary:Total edits',
             'text': data[0],
+            'bot': True,
+            'summary': 'Updating total edit count.',
+            'minor': True,
+            'token': self.edit_token
+        })
+        if self.args.verbose >= 3:
+            print c
+
+        # Update the wiki with the new value
+        c = self.apiary_wiki.call({
+            'action': 'edit',
+            'title': 'WikiApiary:Total active users',
+            'text': data[1],
+            'bot': True,
+            'summary': 'Updating total edit count.',
+            'minor': True,
+            'token': self.edit_token
+        })
+        if self.args.verbose >= 3:
+            print c
+
+        # Update the wiki with the new value
+        c = self.apiary_wiki.call({
+            'action': 'edit',
+            'title': 'WikiApiary:Total pages',
+            'text': data[2],
             'bot': True,
             'summary': 'Updating total edit count.',
             'minor': True,
