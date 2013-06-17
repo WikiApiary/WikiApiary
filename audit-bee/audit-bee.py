@@ -116,8 +116,13 @@ class AuditBee(ApiaryBot):
             # wiki has been altered to hide its version.
             if self.args.verbose >= 2:
                 print "%s returnd version %s which cannot be parsed." % (site[0], data['generator'])
-            message = "[[%s]] Unable to determine version from %s. Auditing without confirming any flags. Operator please check." % (site[0], data['generator'])
-            self.botlog(bot='Audit Bee', type='warn', message=message)
+            self.record_error(
+                site=site[1]['printouts'],
+                log_message="Unable to determine version from %s. Auditing without confirming any flags. Operator please check." % data['generator'],
+                log_type='info',
+                log_severity='normal',
+                log_bot='Bumble Bee'
+            )
             return False
 
     def audit_site(self, site):
@@ -126,7 +131,7 @@ class AuditBee(ApiaryBot):
         data_url = site[1]['printouts']['Has API URL'][0] + "?action=query&meta=siteinfo&siprop=general&format=json"
         if self.args.verbose >= 2:
             print "Pulling general info info from %s." % data_url
-        (success, data, duration) = self.pull_json(site[0], data_url, bot='Audit Bee')
+        (success, data, duration) = self.pull_json(site, data_url, bot='Audit Bee')
 
         audit_complete = False
         audit_extensions_complete = False
@@ -141,17 +146,41 @@ class AuditBee(ApiaryBot):
                     if data['error']['code'] == 'readapidenied':
                         # This website will not let us talk to it, defunct it.
                         self.set_flag(site[0], 'Defunct', 'Yes', 'Marking defunct because readapidenied')
-                        message = "[[%s]] readapidenied, marking defunct." % site[0]
-                        self.botlog(bot='Audit Bee', type='info', message=message)
+                        self.record_error(
+                            site=site[1]['printouts'],
+                            log_message="readapidenied, marking defunct",
+                            log_type='warn',
+                            log_severity='important',
+                            log_bot='Audit Bee',
+                            log_url=data_url
+                        )
                     else:
-                        message = "[[%s]] Returned error %s while requesting site info (%s)." % (site[0], data['error']['code'], data_url)
-                        self.botlog(bot='Audit Bee', type='warn', message=message)
+                        self.record_error(
+                            site=site[1]['printouts'],
+                            log_message="Returned error %s" % data['error']['code'],
+                            log_type='warn',
+                            log_severity='important',
+                            log_bot='Audit Bee',
+                            log_url=data_url
+                        )
                 else:
-                    message = "[[%s]] An unknown error was returned from site info (%s)." % (site[0], data_url)
-                    self.botlog(bot='Audit Bee', type='warn', message=message)
+                    self.record_error(
+                        site=site[1]['printouts'],
+                        log_message="An unknown error was returned from site info",
+                        log_type='warn',
+                        log_severity='important',
+                        log_bot='Audit Bee',
+                        log_url=data_url
+                    )
             else:
-                message = "[[%s]] Returned unexpected JSON while requesting general site info (%s)." % (site[0], data_url)
-                self.botlog(bot='Audit Bee', type='warn', message=message)
+                self.record_error(
+                    site=site[1]['printouts'],
+                    log_message="Returned unexpected JSON while requesting general site info",
+                    log_type='warn',
+                    log_severity='important',
+                    log_bot='Audit Bee',
+                    log_url=data_url
+                )
 
         # Pull extension information for audit too!
         if do_audit_extensions:
@@ -165,8 +194,14 @@ class AuditBee(ApiaryBot):
                     self.set_audit_extensions(site, data['query']['extensions'])
                     audit_extensions_complete = True
                 else:
-                    message = "[[%s]] Returned unexpected JSON while requesting extensions (%s)." % (site[0], data_url)
-                    self.botlog(bot='Audit Bee', type='warn', message=message)
+                    self.record_error(
+                        site=site,
+                        log_message="Returned unexpected JSON while requesting extensions",
+                        log_type='warn',
+                        log_severity='important',
+                        log_bot='Audit Bee',
+                        log_url=data_url
+                    )
 
         if (audit_complete):
             # Let's see if we need to update the Founded date
@@ -192,7 +227,7 @@ class AuditBee(ApiaryBot):
             if (update_founded_date):
                 # ?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json
                 first_date_url = site[1]['printouts']['Has API URL'][0] + "?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json"
-                (success, first_change, duration) = self.pull_json(site[0], first_date_url, bot='Audit Bee')
+                (success, first_change, duration) = self.pull_json(site, first_date_url, bot='Audit Bee')
                 if success:
                     try:
                         timestamp = first_change['query']['pages']['1']['revisions'][0]['timestamp']
@@ -200,11 +235,23 @@ class AuditBee(ApiaryBot):
                         first_edit = dateutil.parser.parse(timestamp)
                         self.set_flag(site[0], 'Founded date', first_edit.strftime('%Y/%m/%d %I:%M:%S %p'), 'Setting founded date to timestamp of first edit')
                     except:
-                        message = "[[%s]] Failed to get timestamp of first revision to wiki." % site[0]
-                        self.botlog(bot='Audit Bee', type='warn', message=message)
+                        self.record_error(
+                            site=site[1]['printouts'],
+                            log_message="Failed to get timestamp of first revision to wiki.",
+                            log_type='warn',
+                            log_severity='important',
+                            log_bot='Audit Bee',
+                            log_url=first_date_url
+                        )
                 else:
-                    message = "[[%s]] Failed to get timestamp for first edit." % site[0]
-                    self.botlog(bot='Audit Bee', type='warn', message=message)
+                    self.record_error(
+                        site=site[1]['printouts'],
+                        log_message="Failed to get timestamp for first edit.",
+                        log_type='warn',
+                        log_severity='important',
+                        log_bot='Audit Bee',
+                        log_url=first_date_url
+                    )
             else:
                 if self.args.verbose >= 2:
                     print "Date founded is already set, not checking."
@@ -261,10 +308,10 @@ class AuditBee(ApiaryBot):
         if site_count > 0:
             for site in sites:
                 self.stats['audit_count'] += 1
-                #try:
-                self.audit_site(site)
-                #except Exception, e:
-                #    print "Exception %s during audit of %s." % (e, site)
+                try:
+                    self.audit_site(site)
+                except Exception, e:
+                    print "Exception %s during audit of %s." % (e, site)
 
         # Do re-audits
         (site_count, sites) = self.get_audit_list(group='Websites expired audit', count=20)

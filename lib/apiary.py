@@ -80,7 +80,7 @@ class ApiaryBot:
         now = now.replace(microsecond=0)
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
-    def pull_json(self, sitename, data_url, bot='Bumble Bee'):
+    def pull_json(self, site, data_url, bot='Bumble Bee'):
         socket.setdefaulttimeout(15)
 
         # Get JSON data via API and return the JSON structure parsed
@@ -93,8 +93,14 @@ class ApiaryBot:
             f = opener.open(req)
             duration = (datetime.datetime.now() - t1).total_seconds()
         except Exception, e:
-            self.record_error(sitename, "%s from %s" % (str(e), data_url))
-            self.botlog(bot=bot, type="error", message="[[%s]] %s calling %s" % (sitename, str(e), data_url))
+            self.record_error(
+                site=site,
+                log_message="%s" % str(e),
+                log_type='info',
+                log_severity='normal',
+                log_bot='Bumble Bee',
+                log_url=data_url
+            )
             return False, None, None
         else:
             # It all worked!
@@ -109,83 +115,75 @@ class ApiaryBot:
                     data = simplejson.loads(json_match.group(1))
                 else:
                     # No JSON content in the response
-                    self.record_error(sitename, "No JSON from %s." % data_url)
-                    self.botlog(bot=bot, type="error", message="[[%s]] No JSON from %s." % (sitename, data_url))
+                    self.record_error(
+                        site=site,
+                        log_message="No JSON found",
+                        log_type='info',
+                        log_severity='normal',
+                        log_bot='Bumble Bee',
+                        log_url=data_url
+                    )
                     return False, None, None
             except Exception, e:
-                self.record_error(sitename, "%s from %s" % (str(e), data_url))
-                self.botlog(bot=bot, type="error", message="[[%s]] %s from %s" % (sitename, str(e), data_url))
+                self.record_error(
+                    site=site,
+                    log_message="%s" % str(e),
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 return False, None, None
             return True, data, duration
 
-    def record_error(self, sitename, error_message):
-        # TODO: This function is disabled. It generated too many edits.
-        # this will be moved into ApiaryDB shortly
-        return True
+    def runSql(self, sql_command):
+        if self.args.verbose >= 3:
+            print "SQL: %s" % sql_command
+        try:
+            cur = self.apiary_db.cursor()
+            cur.execute(sql_command)
+            cur.close()
+            self.apiary_db.commit()
+            return True, cur.rowcount
+        except Exception, e:
+            print "Exception generated while running SQL command."
+            print "Command: %s" % sql_command
+            print "Exception: %s" % e
+            return False, 0
 
-        # This function updates the error properties for a wiki
-        socket.setdefaulttimeout(30)
-
+    def record_error(self, site, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
         if self.args.verbose >= 2:
-            print "Updating error information for %s" % sitename
+            print "New log message for %s" % site['pagename']
 
-        my_query = ''.join([
-            "[[%s]]" % sitename,
-            '|?In error',
-            '|?Has error count',
-            '|?Has cumulative error count',
-            '|?Has error date',
-            '|?Has error message'])
-        if self.args.verbose >= 3:
-            print "Get current error info: %s" % my_query
+        if self.args.verbose >= 1:
+            print log_message
 
-        curr_status = self.apiary_wiki.call({'action': 'ask', 'query': my_query})
-        if self.args.verbose >= 3:
-            print curr_status
+        if log_bot is None:
+            log_bot = "null"
+        else:
+            log_bot = "'%s'" % log_bot
 
-        try:
-            in_error = (curr_status['query']['results'][sitename]['printouts']['In error'][0] == 't')
-        except:
-            in_error = False
+        if log_url is None:
+            log_url = "null"
+        else:
+            log_url = "'%s'" % log_url
 
-        try:
-            cumulative_error_count = curr_status['query']['results'][sitename]['printouts']['Has cumulative error count'][0] + 1
-        except:
-            cumulative_error_count = 1
-
-        if not in_error:    # This is a new error, reset things
-
-            c = self.apiary_wiki.call({
-                'action': 'sfautoedit',
-                'form': 'Website',
-                'target': sitename,
-                'Website[Error]': 'Yes',
-                'Website[Error date]': time.strftime('%B %d, %Y %I:%M:%S %p', time.gmtime()),
-                'Website[Error count]': '1',
-                'Website[Cumulative error count]': cumulative_error_count,
-                'Website[Error message]': error_message,
-                'wpSummary': "recording initial error (%d cumulative)" % cumulative_error_count})
-
-        else:       # This is the continuation of an existing error, update count and message but not date
-            try:
-                error_count = curr_status['query']['results'][sitename]['printouts']['Has error count'][0] + 1
-                if error_count > cumulative_error_count:
-                    cumulative_error_count = error_count
-            except:
-                error_count = 1
-
-            c = self.apiary_wiki.call({
-                'action': 'sfautoedit',
-                'form': 'Website',
-                'target': sitename,
-                'Website[Error]': 'Yes',
-                'Website[Error count]': error_count,
-                'Website[Cumulative error count]': cumulative_error_count,
-                'Website[Error message]': error_message,
-                'wpSummary': "incrementing error count to %d (%d cumulative)" % (error_count, cumulative_error_count)})
+        temp_sql = "INSERT  apiary_website_logs (website_id, log_date, website_name, log_type, log_severity, log_message, log_bot, log_url) "
+        temp_sql += "VALUES (%d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s)" % (
+            site['Has ID'],
+            self.sqlutcnow(),
+            site['pagename'],
+            log_type,
+            log_severity,
+            log_message,
+            log_bot,
+            log_url
+        )
 
         if self.args.verbose >= 3:
-            print c
+            print "SQL: %s" % temp_sql
+
+        self.runSql(temp_sql)
 
     def clear_error(self, sitename):
         # This function clears the error status of a meeting
@@ -381,14 +379,14 @@ class ApiaryBot:
                 print "Delta from checks: stats %s general %s" % (stats_delta, general_delta)
 
             (check_stats, check_general) = (False, False)
-            if stats_delta > (site['Check every'] + random.randint(0,15))  and stats_delta > check_every_limit:    # Add randomness to keep checks spread around
+            if stats_delta > (site['Check every'] + random.randint(0, 15))  and stats_delta > check_every_limit:    # Add randomness to keep checks spread around
                 check_stats = True
             else:
                 if self.args.verbose >= 2:
                     print "Skipping stats..."
                 self.stats['skippedstatistics'] += 1
 
-            if general_delta > ((24 + random.randint(0,24)) * 60):   # General checks are always bound to 24 hours, plus a random offset to keep checks evenly distributed
+            if general_delta > ((24 + random.randint(0, 24)) * 60):   # General checks are always bound to 24 hours, plus a random offset to keep checks evenly distributed
                 check_general = True
             else:
                 if self.args.verbose >= 2:
@@ -408,8 +406,6 @@ class ApiaryBot:
             raise Exception("Status check returned multiple rows.")
 
     def update_status(self, site, checktype):
-        cur = self.apiary_db.cursor()
-
         # Update the website_status table
         my_now = self.sqlutcnow()
 
@@ -419,34 +415,21 @@ class ApiaryBot:
         if checktype == "general":
             temp_sql = "UPDATE website_status SET last_general = '%s' WHERE website_id = %d" % (my_now, site['Has ID'])
 
-        if self.args.verbose >= 3:
-            print "SQL: %s" % temp_sql
+        (success, rows_affected) = self.runSql(temp_sql)
 
-        cur.execute(temp_sql)
-        rows_affected = cur.rowcount
         if rows_affected == 0:
             # No rows were updated, this website likely didn't exist before, so we need to insert the first time
             if self.args.verbose >= 2:
                 print "No website_status record exists for ID %d, creating one" % site['Has ID']
             temp_sql = "INSERT website_status (website_id, last_statistics, last_general, check_every_limit) "
             temp_sql += "VALUES (%d, \"%s\", \"%s\", %d)" % (site['Has ID'], my_now, my_now, 240)
-            if self.args.verbose >= 3:
-                print "SQL: %s" % temp_sql
-            cur.execute(temp_sql)
-
-        cur.close()
-        self.apiary_db.commit()
+            self.runSql(temp_sql)
 
     def botlog(self, bot, message, type='info', duration=0):
         if self.args.verbose >= 1:
             print message
-        cur = self.apiary_db.cursor()
 
         temp_sql = "INSERT  apiary_bot_log (log_date, log_type, bot, duration, message) "
         temp_sql += "VALUES (\"%s\", \"%s\", \"%s\", %f, \"%s\")" % (self.sqlutcnow(), type, bot, duration, message)
 
-        if self.args.verbose >= 3:
-            print "SQL: %s" % temp_sql
-        cur.execute(temp_sql)
-        cur.close()
-        self.apiary_db.commit()
+        self.runSql(temp_sql)

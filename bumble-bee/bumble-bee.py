@@ -35,7 +35,7 @@ from apiary import ApiaryBot
 
 
 class BumbleBee(ApiaryBot):
-    """Bot that collects statistics for sits."""
+    """Bot that collects statistics for sites."""
 
     def parse_version(self, t):
         ver = {}
@@ -84,7 +84,7 @@ class BumbleBee(ApiaryBot):
             data_url = site['Has API URL'] + '?action=query&meta=siteinfo&siprop=statistics&format=json'
             if self.args.verbose >= 2:
                 print "Pulling statistics info from %s." % data_url
-            (status, data, duration) = self.pull_json(site['pagename'], data_url)
+            (status, data, duration) = self.pull_json(site, data_url)
         elif method == 'Statistics':
             # Get stats the old fashioned way
             data_url = site['Has statistics URL']
@@ -108,7 +108,14 @@ class BumbleBee(ApiaryBot):
                 f = opener.open(req)
                 duration = (datetime.datetime.now() - t1).total_seconds()
             except Exception, e:
-                self.botlog(bot='Bumble Bee', type="error", message="[[%s]] %s calling %s" % (site['pagename'], str(e), data_url))
+                self.record_error(
+                    site=site,
+                    log_message="%s" % e,
+                    log_type='error',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 status = False
             else:
                 # Create an object that is the same as that returned by the API
@@ -138,7 +145,14 @@ class BumbleBee(ApiaryBot):
                                 print "Illegal value '%s' for %s." % (value, name)
                 else:
                     status = False # The result didn't match the pattern expected
-                    self.botlog(bot='Bumble Bee', type="error", message="[[%s]] Unexpected response to statistics call %s" % (site['pagename'], ret_string))
+                    self.record_error(
+                        site=site,
+                        log_message="Unexpected response to statistics call",
+                        log_type='error',
+                        log_severity='normal',
+                        log_bot='Bumble Bee',
+                        log_url=data_url
+                    )
                     if self.args.verbose >= 3:
                         print "Result from statistics was not formatted as expected:\n%s" % ret_string
 
@@ -215,16 +229,17 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print "SQL: %s" % sql_command
 
-                cur = self.apiary_db.cursor()
-                cur.execute(sql_command)
-                cur.close()
-                self.apiary_db.commit()
-
+                self.runSql(sql_command)
                 self.stats['statistics'] += 1
             else:
-                self.record_error(site['pagename'], 'Statistics returned unexpected JSON.')
-                message = "[[%s]] Statistics returned unexpected JSON." % site['pagename']
-                self.botlog(bot='Bumble Bee', type='warn', message=message)
+                self.record_error(
+                    site=site,
+                    log_message='Statistics returned unexpected JSON.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 ret_value = False
 
         else:
@@ -241,7 +256,7 @@ class BumbleBee(ApiaryBot):
         data_url = site['Has API URL'] + '?action=parse&page=Project:SMWExtInfo&prop=text&disablepp=1&format=json'
         if self.args.verbose >= 2:
             print "Pulling semantic usage info from %s." % data_url
-        (status, data, duration) = self.pull_json(site['pagename'], data_url)
+        (status, data, duration) = self.pull_json(site, data_url)
 
         if status:
             try:
@@ -250,9 +265,14 @@ class BumbleBee(ApiaryBot):
                 json_block = data_soup.find("div", {"id": "wikiapiary-semantic-usage-data"})
                 json_data = simplejson.loads(json_block.text)
             except Exception, e:
-                self.record_error(site['pagename'], "Semantic usage failed parsing: %s" % e)
-                message = "[[%s]] Semantic usage failed parsing: %s" % (site['pagename'], e)
-                self.botlog(bot='Bumble Bee', type='error', message=message)
+                self.record_error(
+                    site=site,
+                    log_message="Semantic usage failed parsing: %s" % e,
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 return False
 
             sql = """INSERT INTO smwextinfo
@@ -305,11 +325,7 @@ class BumbleBee(ApiaryBot):
             if self.args.verbose >= 3:
                 print "SQL: %s" % sql_command
 
-            cur = self.apiary_db.cursor()
-            cur.execute(sql_command)
-            cur.close()
-            self.apiary_db.commit()
-
+            self.runSql(sql_command)
             self.stats['smwusage'] += 1
 
         else:
@@ -325,7 +341,7 @@ class BumbleBee(ApiaryBot):
             '&format=json'])
         if self.args.verbose >= 2:
             print "Pulling SMW info from %s." % data_url
-        (status, data, duration) = self.pull_json(site['pagename'], data_url)
+        (status, data, duration) = self.pull_json(site, data_url)
 
         ret_value = True
         if status:
@@ -395,16 +411,17 @@ class BumbleBee(ApiaryBot):
                 if self.args.verbose >= 3:
                     print "SQL: %s" % sql_command
 
-                cur = self.apiary_db.cursor()
-                cur.execute(sql_command)
-                cur.close()
-                self.apiary_db.commit()
-
+                self.runSql(sql_command)
                 self.stats['smwinfo'] += 1
             else:
-                self.record_error(site['pagename'], 'SMWInfo returned unexpected JSON.')
-                message = "[[%s]] SMWInfo returned unexpected JSON." % site['pagename']
-                self.botlog(bot='Bumble Bee', type='warn', message=message)
+                self.record_error(
+                    site=site,
+                    log_message='SMWInfo returned unexpected JSON.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 ret_value = False
 
         else:
@@ -534,7 +551,7 @@ class BumbleBee(ApiaryBot):
         data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=general&format=json"
         if self.args.verbose >= 2:
             print "Pulling general info info from %s." % data_url
-        (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        (success, data, duration) = self.pull_json(site, data_url)
         ret_value = True
         if success:
             # Successfully pulled data
@@ -553,9 +570,14 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['general'] += 1
             else:
-                self.record_error(site['pagename'], 'Returned unexpected JSON when general info.')
-                message = "[[%s]] Returned unexpected JSON when general info." % site['pagename']
-                self.botlog(bot='Bumble Bee', type='warn', message=message)
+                self.record_error(
+                    site=site,
+                    log_message='Returned unexpected JSON when general info.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 ret_value = False
 
         # Update the status table that we did our work! It doesn't matter if this was an error.
@@ -649,7 +671,7 @@ class BumbleBee(ApiaryBot):
         data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=extensions&format=json"
         if self.args.verbose >= 2:
             print "Pulling extensions from %s." % data_url
-        (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        (success, data, duration) = self.pull_json(site, data_url)
         ret_value = True
         if success:
             # Successfully pulled data
@@ -662,9 +684,14 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['extensions'] += 1
             else:
-                self.record_error(site['pagename'], 'Returned unexpected JSON when requesting extension data.')
-                message = "[[%s]] Returned unexpected JSON when requesting extension data." % site['pagename']
-                self.botlog(bot='Bumble Bee', type='warn', message=message)
+                self.record_error(
+                    site=site,
+                    log_message='Returned unexpected JSON when requesting extension data.',
+                    log_type='warn',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 ret_value = False
         return ret_value
 
@@ -721,7 +748,7 @@ class BumbleBee(ApiaryBot):
         data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=skins&format=json"
         if self.args.verbose >= 2:
             print "Pulling skin info from %s." % data_url
-        (success, data, duration) = self.pull_json(site['pagename'], data_url)
+        (success, data, duration) = self.pull_json(site, data_url)
         ret_value = True
         if success:
             # Successfully pulled data
@@ -734,9 +761,14 @@ class BumbleBee(ApiaryBot):
                     print c
                 self.stats['skins'] += 1
             else:
-                self.record_error(site['pagename'], 'Returned unexpected JSON when requesting skin data.')
-                message = "[[%s]] Returned unexpected JSON when requesting skin data." % site['pagename']
-                self.botlog(bot='Bumble Bee', type='warn', message=message)
+                self.record_error(
+                    site=site,
+                    log_message='Returned unexpected JSON when requesting skin data.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
                 ret_value = False
         return ret_value
 
