@@ -853,8 +853,13 @@ class BumbleBee(ApiaryBot):
                             site['In error'] = False
                             self.clear_error(site['pagename'])
             except Exception, e:
-                print "Exception during %s data for %s." % (process, site['pagename'])
-                print "Exception details: %s" % str(e)
+                self.record_error(
+                    site=site,
+                    log_message='Unhandled exception %s during %s' % (str(e), process),
+                    log_type='error',
+                    log_severity='normal',
+                    log_bot='Bumble Bee'
+                )
 
         duration = time.time() - start_time
         if self.args.segment is not None:
