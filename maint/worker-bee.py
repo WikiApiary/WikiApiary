@@ -106,14 +106,28 @@ WHERE
         if self.args.verbose >= 1:
             print "Deleting apiary_bot_log before %s." % delete_before_str
         my_sql = sql_query % (delete_before_str)
-        if self.args.verbose >= 3:
-            print "SQL Debug: %s" % my_sql
 
-        cur = self.apiary_db.cursor()
-        cur.execute(my_sql)
-        self.apiary_db.commit()
-        rows_deleted = cur.rowcount
-        cur.close()
+        (success, rows_deleted) = self.runSql(my_sql)
+
+        if self.args.verbose >= 1:
+            print "Deleted %d rows." % rows_deleted
+
+        return True
+
+    def DeleteOldWebsiteLogs(self):
+        sql_query = """
+DELETE FROM
+   apiary_website_logs
+WHERE
+   log_date < '%s'
+"""
+        delete_before = datetime.datetime.utcnow() - datetime.timedelta(weeks=8)
+        delete_before_str = delete_before.strftime('%Y-%m-%d %H:%M:%S')
+        if self.args.verbose >= 1:
+            print "Deleting apiary_website_logs before %s." % delete_before_str
+        my_sql = sql_query % (delete_before_str)
+
+        (success, rows_deleted) = self.runSql(my_sql)
 
         if self.args.verbose >= 1:
             print "Deleted %d rows." % rows_deleted
@@ -129,6 +143,9 @@ WHERE
 
         # Delete old bot_log entries
         self.DeleteOldBotLogs()
+
+        # Delete old website_logs entries
+        self.DeleteOldWebsiteLogs()
 
 # Run
 if __name__ == '__main__':
