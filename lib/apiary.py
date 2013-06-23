@@ -81,7 +81,7 @@ class ApiaryBot:
         return now.strftime('%Y-%m-%d %H:%M:%S')
 
     def pull_json(self, site, data_url, bot='Bumble Bee'):
-        socket.setdefaulttimeout(15)
+        socket.setdefaulttimeout(10)
 
         # Get JSON data via API and return the JSON structure parsed
         req = urllib2.Request(data_url)
@@ -316,32 +316,38 @@ class ApiaryBot:
                 try:
                     has_statistics_url = site['printouts']['Has statistics URL'][0]
                 except:
-                    has_statistics_url = None
+                    has_statistics_url = ''
 
                 try:
                     has_api_url = site['printouts']['Has API URL'][0]
                 except:
-                    has_api_url = None
+                    has_api_url = ''
 
-                my_sites.append({
-                    'pagename': pagename,
-                    'fullurl': site['fullurl'],
-                    'Has API URL': has_api_url,
-                    'Has statistics URL': has_statistics_url,
-                    'Check every': int(site['printouts']['Check every'][0]),
-                    'Creation date': site['printouts']['Creation date'][0],
-                    'Has ID': int(site['printouts']['Has ID'][0]),
-                    'In error': (site['printouts']['In error'][0] == "t"),  # Boolean fields we'll convert from the strings we get back to real booleans
-                    'Collect general data': collect_general_data,
-                    'Collect extension data': collect_extension_data,
-                    'Collect skin data': collect_skin_data,
-                    'Collect statistics': collect_statistics,
-                    'Collect semantic statistics': collect_semantic_statistics,
-                    'Collect semantic usage': collect_semantic_usage,
-                    'Collect statistics stats': collect_statistics_stats,
-                    'Collect logs': collect_logs,
-                    'Collect recent changes': collect_recent_changes
-                })
+                if has_statistics_url.find('wikkii.com') > 0:
+                    # Temporary filter out all Farm:Wikkii sites
+                    if self.args.verbose >= 2:
+                        print "Skipping %s (%s)" % (pagename, site['fullurl'])
+                else:
+                    my_sites.append({
+                        'pagename': pagename,
+                        'fullurl': site['fullurl'],
+                        'Has API URL': has_api_url,
+                        'Has statistics URL': has_statistics_url,
+                        'Check every': int(site['printouts']['Check every'][0]),
+                        'Creation date': site['printouts']['Creation date'][0],
+                        'Has ID': int(site['printouts']['Has ID'][0]),
+                        'In error': (site['printouts']['In error'][0] == "t"),  # Boolean fields we'll convert from the strings we get back to real booleans
+                        'Collect general data': collect_general_data,
+                        'Collect extension data': collect_extension_data,
+                        'Collect skin data': collect_skin_data,
+                        'Collect statistics': collect_statistics,
+                        'Collect semantic statistics': collect_semantic_statistics,
+                        'Collect semantic usage': collect_semantic_usage,
+                        'Collect statistics stats': collect_statistics_stats,
+                        'Collect logs': collect_logs,
+                        'Collect recent changes': collect_recent_changes
+                    })
+
             return my_sites
         else:
             raise Exception("No sites were returned to work on.")
