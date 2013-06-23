@@ -31,10 +31,8 @@ class AuditBee(ApiaryBot):
         self.stats['audit_failure'] = 0
 
     def update_audit_status(self, pagename):
-        self.stats['audit_success'] += 1
-        # Audit completed
         if self.args.verbose >= 2:
-            print "%s audit completed, updating audit status." % pagename
+            print "%s audit completed, updating audit date." % pagename
 
         socket.setdefaulttimeout(30)
         c = self.apiary_wiki.call({
@@ -43,7 +41,7 @@ class AuditBee(ApiaryBot):
             'target': pagename,
             'Website[Audited]': 'Yes',
             'Website[Audited date]': time.strftime('%Y/%m/%d %I:%M:%S %p', time.gmtime()),
-            'wpSummary': 'Audit completed.'})
+            'wpSummary': 'audited'})
         if self.args.verbose >= 3:
             print c
 
@@ -265,10 +263,12 @@ class AuditBee(ApiaryBot):
                         print "Activating %s." % site['pagename']
                     self.set_flag(site['pagename'], 'Active', 'Yes', "Activated.")
 
-            # Update audit status
-            self.update_audit_status(site['pagename'])
+            self.stats['audit_success'] += 1
         else:
             self.stats['audit_failure'] += 1
+
+        # Update audit status, wether success or failure
+        self.update_audit_status(site['pagename'])
 
     def get_audit_list(self, group, count=20):
         my_query = ''.join([
