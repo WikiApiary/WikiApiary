@@ -252,7 +252,7 @@ class ApiaryBot:
             '|?Collect recent changes',
             '|?Collect statistics stats',
             '|sort=Creation date',
-            '|order=rand',
+            '|order=asc',
             '|limit=1000'])
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
@@ -261,11 +261,13 @@ class ApiaryBot:
         # We could just return the raw JSON object from the API, however instead we are going to clean it up into an
         # easier to deal with array of dictionary objects.
         # To keep things sensible, we'll use the same name as the properties
+        i = 0
         if len(sites['query']['results']) > 0:
             my_sites = []
             for pagename, site in sites['query']['results'].items():
+                i += 1
                 if self.args.verbose >= 3:
-                    print "Adding %s." % pagename
+                    print "[%d] Adding %s." % (i, pagename)
 
                 # Initialize the flags but do it carefully in case there is no value in the wiki yet
                 try:

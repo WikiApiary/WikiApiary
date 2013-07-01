@@ -226,9 +226,6 @@ class BumbleBee(ApiaryBot):
                     pages,
                     views)
 
-                if self.args.verbose >= 3:
-                    print "SQL: %s" % sql_command
-
                 self.runSql(sql_command)
                 self.stats['statistics'] += 1
             else:
@@ -322,9 +319,6 @@ class BumbleBee(ApiaryBot):
                 json_data['smwformats']['template'],
                 json_data['smwformats']['ul'])
 
-            if self.args.verbose >= 3:
-                print "SQL: %s" % sql_command
-
             self.runSql(sql_command)
             self.stats['smwusage'] += 1
 
@@ -407,9 +401,6 @@ class BumbleBee(ApiaryBot):
                     querysize,
                     conceptcount,
                     subobjectcount)
-
-                if self.args.verbose >= 3:
-                    print "SQL: %s" % sql_command
 
                 self.runSql(sql_command)
                 self.stats['smwinfo'] += 1
