@@ -612,6 +612,9 @@ class BumbleBee(ApiaryBot):
                                 template_block += "|URL Embedded in name=%s" % possible_url
 
                             value = self.filter_illegal_chars(value)
+                            # Before unescaping 'regular' unicode characters, first deal with spaces
+                            # because they cause problems when converted to unicode non-breaking spaces
+                            value = value.replace('&nbsp;', ' ').replace('&#160;', ' ').replace('&160;', ' ')
                             value = h.unescape(value)
 
                         if item == 'version':
