@@ -612,7 +612,7 @@ class BumbleBee(ApiaryBot):
                                 template_block += "|URL Embedded in name=%s" % possible_url
 
                             value = self.filter_illegal_chars(value)
-                            value = value.replace('&nbsp;', ' ')
+                            value = h.unescape(value)
 
                         if item == 'version':
                             # Breakdown the version information for more detailed analysis
