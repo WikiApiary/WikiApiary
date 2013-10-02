@@ -496,10 +496,16 @@ class BumbleBee(ApiaryBot):
 
         template_block += "{{General siteinfo\n"
         template_block += "|HTTP server=%s\n" % (server)
-        template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
+        try:
+            template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
+        except:
+            pass
 
-        reverse_host = socket.gethostbyaddr(addr)[0]
-        template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site_id, 'reverse_host', reverse_host))
+        try:
+            reverse_host = socket.gethostbyaddr(addr)[0]
+            template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site_id, 'reverse_host', reverse_host))
+        except:
+            pass
 
         # Loop through all the keys provided and create the template block
         for key in x:
