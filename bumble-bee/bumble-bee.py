@@ -498,6 +498,9 @@ class BumbleBee(ApiaryBot):
         template_block += "|HTTP server=%s\n" % (server)
         template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
 
+        reverse_host = socket.gethostbyaddr(addr)[0]
+        template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site_id, 'reverse_host', reverse_host))
+
         # Loop through all the keys provided and create the template block
         for key in x:
             # Make sure we aren't ignoring this key
