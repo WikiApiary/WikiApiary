@@ -460,9 +460,10 @@ class BumbleBee(ApiaryBot):
 
         # Now build the return value
         multivalue = ""
-        temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' ORDER BY occurrences DESC" % (
+        temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' AND t_name = \'%s\' ORDER BY occurrences DESC" % (
             site_id,
-            '2013-04-26 18:23:01')
+            '2013-04-26 18:23:01',
+            key)
         cur.execute(temp_sql)
         rows = cur.fetchall()
         for row in rows:
@@ -472,7 +473,7 @@ class BumbleBee(ApiaryBot):
 
         return multivalue
 
-    def build_general_template(self, site_id, x, server):
+    def build_general_template(self, site_id, x, server, addr):
 
         # Some keys we do not want to store in WikiApiary
         ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
@@ -495,6 +496,7 @@ class BumbleBee(ApiaryBot):
 
         template_block += "{{General siteinfo\n"
         template_block += "|HTTP server=%s\n" % (server)
+        template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
 
         # Loop through all the keys provided and create the template block
         for key in x:
@@ -547,11 +549,15 @@ class BumbleBee(ApiaryBot):
         if success:
             # Successfully pulled data
             if 'query' in data:
+                # THIS IS A TOTAL HACK
+                # Now that we successfully got the data, we can make a quick query to get the server info
+                hostname = urlparse.urlparse(site['Has API URL']).hostname
+                addr = socket.gethostbyname(hostname)
+
                 datapage = "%s/General" % site['pagename']
-                template_block = self.build_general_template(site['Has ID'], data['query']['general'], '')
+                template_block = self.build_general_template(site['Has ID'], data['query']['general'], '', addr)
 
                 # Shoe horning in the Geo data
-                hostname = urlparse.urlparse(site['Has API URL']).hostname
                 network_template = self.BuildNetworkTemplate(hostname)
                 template_block += network_template
 
