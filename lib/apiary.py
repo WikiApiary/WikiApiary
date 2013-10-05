@@ -49,6 +49,8 @@ class ApiaryBot:
         self.stats['skins'] = 0
         self.stats['skippedstatistics'] = 0
         self.stats['skippedgeneral'] = 0
+        self.stats['whois'] = 0
+        self.stats['maxmind'] = 0
 
     def get_config(self, config_file='../apiary.cfg'):
         try:

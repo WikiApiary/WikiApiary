@@ -474,7 +474,7 @@ class BumbleBee(ApiaryBot):
 
         return multivalue
 
-    def build_general_template(self, site_id, x, server, addr):
+    def build_general_template(self, site_id, x):
 
         # Some keys we do not want to store in WikiApiary
         ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
@@ -496,27 +496,6 @@ class BumbleBee(ApiaryBot):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
         template_block += "{{General siteinfo\n"
-        template_block += "|HTTP server=%s\n" % (server)
-        try:
-            template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
-        except:
-            pass
-
-        try:
-            reverse_host = socket.gethostbyaddr(addr)[0]
-            template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site_id, 'reverse_host', reverse_host))
-        except:
-            pass
-
-        # Now lets get the netblock information
-        try:
-            whois = Whois()
-            netblock_owner = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@name']
-            netblock_owner_handle = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@handle']
-            template_block += "|Netblock organization=%s\n" % (netblock_owner)
-            template_block += "|Netblock organization handle=%s\n" % netblock_owner_handle
-        except:
-            pass
 
         # Loop through all the keys provided and create the template block
         for key in x:
@@ -546,9 +525,9 @@ class BumbleBee(ApiaryBot):
 
         return template_block
 
-    def BuildNetworkTemplate(self, hostname):
-        template_block = "\n<includeonly>"
-        template_block += "{{Network info\n"
+    def BuildMaxmindTemplate(self, hostname):
+        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block += "{{Maxmind\n"
 
         gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
         data = gi.record_by_name(hostname)
@@ -569,17 +548,8 @@ class BumbleBee(ApiaryBot):
         if success:
             # Successfully pulled data
             if 'query' in data:
-                # THIS IS A TOTAL HACK
-                # Now that we successfully got the data, we can make a quick query to get the server info
-                hostname = urlparse.urlparse(site['Has API URL']).hostname
-                addr = socket.gethostbyname(hostname)
-
                 datapage = "%s/General" % site['pagename']
-                template_block = self.build_general_template(site['Has ID'], data['query']['general'], '', addr)
-
-                # Shoe horning in the Geo data
-                network_template = self.BuildNetworkTemplate(hostname)
-                template_block += network_template
+                template_block = self.build_general_template(site['Has ID'], data['query']['general'])
 
                 socket.setdefaulttimeout(30)
                 c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
@@ -600,6 +570,59 @@ class BumbleBee(ApiaryBot):
         # Update the status table that we did our work! It doesn't matter if this was an error.
         self.update_status(site, 'general')
         return ret_value
+
+    def record_whois(self, site):
+        # Now that we successfully got the data, we can make a quick query to get the server info
+        hostname = urlparse.urlparse(site['Has API URL']).hostname
+        addr = socket.gethostbyname(hostname)
+
+        datapage = "%s/Whois" % site['pagename']
+        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block += "{{Whois\n"
+
+        template_block += "|HTTP server=%s\n" % ('')
+        try:
+            template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site['Has ID'], 'addr', addr))
+        except:
+            pass
+
+        try:
+            reverse_host = socket.gethostbyaddr(addr)[0]
+            template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site['Has ID'], 'reverse_host', reverse_host))
+        except:
+            pass
+
+        # Now lets get the netblock information
+        try:
+            whois = Whois()
+            netblock_owner = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@name']
+            netblock_owner_handle = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@handle']
+            template_block += "|Netblock organization=%s\n" % (netblock_owner)
+            template_block += "|Netblock organization handle=%s\n" % netblock_owner_handle
+        except:
+            pass
+
+        template_block += "}}\n</includeonly>\n"
+
+        socket.setdefaulttimeout(30)
+        c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+        if self.args.verbose >= 3:
+            print c
+        self.stats['whois'] += 1
+
+
+    def record_maxmind(self, site):
+        # Create the Maxmind page to put all the geographic data in
+        datapage = "%s/Maxmind" % site['pagename']
+        hostname = urlparse.urlparse(site['Has API URL']).hostname
+        template_block = self.BuildMaxmindTemplate(hostname)
+
+        socket.setdefaulttimeout(30)
+        c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+        if self.args.verbose >= 3:
+            print c
+        self.stats['maxmind'] += 1
+
 
     def build_extensions_template(self, ext_obj):
         h = HTMLParser.HTMLParser()
@@ -843,6 +866,8 @@ class BumbleBee(ApiaryBot):
                         status = self.record_smwusage(site)
                 if req_general:
                     time.sleep(2)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
+                    self.record_whois(site)
+                    self.record_maxmind(site)
                     if site['Collect general data']:
                         process = "collect general data"
                         status = self.record_general(site)
@@ -867,9 +892,10 @@ class BumbleBee(ApiaryBot):
         else:
             message = "Completed processing for all websites."
         message += " Processed %d websites." % i
-        message += " Counters statistics %d smwinfo %d smwusage %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d" % (
+        message += " Counters statistics %d smwinfo %d smwusage %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d whois: %d maxmind: %d" % (
             self.stats['statistics'], self.stats['smwinfo'], self.stats['smwusage'], self.stats['general'],
-            self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'])
+            self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'],
+            self.stats['whois'], self.stats['maxmind'])
         self.botlog(bot='Bumble Bee', duration=float(duration), message=message)
 
 
