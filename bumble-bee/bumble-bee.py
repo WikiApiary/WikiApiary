@@ -832,47 +832,26 @@ class BumbleBee(ApiaryBot):
                     if site['Collect statistics']:
                         process = "collect statistics (API)"
                         status = self.record_statistics(site, 'API')
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                     if site['Collect statistics stats']:
                         process = "collect statistics (Statistics)"
                         status = self.record_statistics(site, 'Statistics')
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                     if site['Collect semantic statistics']:
                         process = "collect semantic statistics"
                         status = self.record_smwinfo(site)
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                     if site['Collect semantic usage']:
                         process = "collect semantic usage"
                         status = self.record_smwusage(site)
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                 if req_general:
                     time.sleep(2)  # TODO: this is dumb, doing to not trigger a problem with update_status again due to no rows being modified if the timestamp is the same. Forcing the timestamp to be +1 second
                     if site['Collect general data']:
                         process = "collect general data"
                         status = self.record_general(site)
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                     if site['Collect extension data']:
                         process = "collect extension data"
                         status = self.record_extensions(site)
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
                     if site['Collect skin data']:
                         process = "collect skin data"
                         status = self.record_skins(site)
-                        if site['In error'] and status:
-                            site['In error'] = False
-                            self.clear_error(site['pagename'])
             except Exception, e:
                 self.record_error(
                     site=site,
