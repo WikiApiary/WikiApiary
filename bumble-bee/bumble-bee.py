@@ -839,8 +839,6 @@ class BumbleBee(ApiaryBot):
             i += 1
             if self.args.verbose >= 1:
                 print "\n\n%d: Processing %s (ID %d)" % (i, site['pagename'], site['Has ID'])
-            if site['In error'] and self.args.verbose >= 1:
-                print "Site %s (ID %d) is flagged in error." % (site['pagename'], site['Has ID'])
             req_statistics = False
             req_general = False
             if self.args.force:

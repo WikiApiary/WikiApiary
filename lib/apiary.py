@@ -243,7 +243,6 @@ class ApiaryBot:
             '|?Check every',
             '|?Creation date',
             '|?Has ID',
-            '|?In error',
             '|?Collect general data',
             '|?Collect extension data',
             '|?Collect skin data',
@@ -340,7 +339,6 @@ class ApiaryBot:
                         'Check every': int(site['printouts']['Check every'][0]),
                         'Creation date': site['printouts']['Creation date'][0],
                         'Has ID': int(site['printouts']['Has ID'][0]),
-                        'In error': (site['printouts']['In error'][0] == "t"),  # Boolean fields we'll convert from the strings we get back to real booleans
                         'Collect general data': collect_general_data,
                         'Collect extension data': collect_extension_data,
                         'Collect skin data': collect_skin_data,
