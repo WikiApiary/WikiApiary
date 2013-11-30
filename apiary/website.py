@@ -8,7 +8,7 @@ import MySQLdb as mdb
 import simplejson
 import re
 import HTMLParser
-import BeautifulSoup
+from bs4 import BeautifulSoup
 import operator
 import urlparse
 import pygeoip
