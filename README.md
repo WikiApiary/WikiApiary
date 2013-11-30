@@ -2,6 +2,8 @@
 
 [WikiApiary](http://wikiapiary.com/) is a wiki that tracks the performance and activity on hundreds of other MediaWiki websites. WikiApiary is largely powered by MediaWiki itself along with Semantic MediaWiki and dozens of related extensions. Additionally, there are bots that work in conjunction with the wiki to provide all of the additional services.
 
+[![Build Status](https://travis-ci.org/thingles/WikiApiary.png)](https://travis-ci.org/thingles/WikiApiary) [![Coverage Status](https://coveralls.io/repos/thingles/WikiApiary/badge.png?branch=refactor-class)](https://coveralls.io/r/thingles/WikiApiary?branch=refactor-class)
+
 ## Bots
 
 There are multiple bots powering WikiApiary.
