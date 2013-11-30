@@ -1,18 +1,20 @@
+# Get Python setup properly in cron
+PYTHONIOENCODING=utf-8
+
 # Bumble Bee
 # This bot runs in parallel across multiple bot segments
-# Batch 1
 0,15,30,45  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 0)
 1,16,31,46  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 1)
 2,17,32,47  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 2)
-# Batch 
 5,20,35,50  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 3)
 6,21,36,51  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 4)
 7,22,37,52  * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 5)
-# Batch 3
 10,25,40,55 * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 6)
 11,26,41,56 * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 7)
 12,27,42,57 * * * *     (cd ~/wikibots/WikiApiary/bumble-bee/; nice -n 10 ./bumble-bee.py -s 8)
+
 # Audit Bee
 0 * * * *     (cd ~/wikibots/WikiApiary/audit-bee/; nice -n 10 ./audit-bee.py)
+
 # Backup Bee
 1 * * * *        (cd ~/wikibots/WikiApiary/backup-bee/; nice -n 19 ./backup-bee.py)
