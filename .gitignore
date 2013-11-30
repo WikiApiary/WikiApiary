@@ -37,3 +37,5 @@ nosetests.xml
 *-config.php
 Geo*.dat
 *.basket
+
+.DS_Store
