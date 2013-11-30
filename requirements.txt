@@ -3,3 +3,6 @@ mysql-python
 pygeoip
 simplemediawiki
 beautifulsoup4
+simplejson
+kitchen
+pywhois

@@ -20,22 +20,20 @@ import argparse
 import socket
 import MySQLdb as mdb
 import simplejson
-import yaml
 import urllib2
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
 import HTMLParser
-import BeautifulSoup
+from bs4 import BeautifulSoup
 import operator
 import urlparse
 import pygeoip
 sys.path.append('../lib')
-from apiary import ApiaryBot
-from PyWhoisAPI import *
+from apiary import bot
 
 
-class BumbleBee(ApiaryBot):
+class BumbleBee(Bot):
     """Bot that collects statistics for sites."""
 
     def parse_version(self, t):

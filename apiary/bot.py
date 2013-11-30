@@ -24,7 +24,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 
 
-class ApiaryBot:
+class Bot:
 
     args = []
     config = []

@@ -12,6 +12,8 @@ There are multiple bots powering WikiApiary.
 
 General information on versions and extensions being used are pulled and recorded directly into wiki pages in WikiApiary.
 
-### (No Name)
+### Audit Bee
+
+### Notify Bee
 
 Bot that handles email notifications.

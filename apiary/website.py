@@ -4,31 +4,31 @@ Base class for WikiApiary websites.
 
 import os
 import sys
-#import MySQLdb as mdb
-#import simplejson
+import MySQLdb as mdb
+import simplejson
 import re
 import HTMLParser
-#import BeautifulSoup
+import BeautifulSoup
 import operator
 import urlparse
 import pygeoip
-#from simplemediawiki import MediaWiki
+from simplemediawiki import MediaWiki
 #from PyWhoisAPI import *
 
 
 class Website:
-    
+
     def __init__(self, website_id, website_name, api_url):
         self.website_id = website_id
         self.name = website_name
         self.api_url = api_url
-    
+
     def status(self):
         print "%d %s %s" % (self.website_id, self.name, self.api_url)
-        
+
     def get_id(self):
         return self.website_id
-        
+
     def record_statistics(self, site, method):
         if method == 'API':
             # Go out and get the statistic information
