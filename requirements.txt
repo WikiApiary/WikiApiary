@@ -21,3 +21,6 @@ beautifulsoup4
 
 # Parse JSON easier
 simplejson
+
+# Coveralls for code coverage
+python-coveralls
