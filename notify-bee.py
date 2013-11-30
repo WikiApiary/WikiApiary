@@ -6,22 +6,17 @@ This bot sends emails to users who have requested them.
 
 """
 
-import os
 import sys
 import time
 import datetime
 import pytz
 import ConfigParser
-import argparse
 import socket
 import MySQLdb as mdb
 import simplejson
 import urllib2
-from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
-import re
-sys.path.append('../lib')
-from apiary import ApiaryBot
+from apiary import bot
 
 
 class NotifyBee(ApiaryBot):
