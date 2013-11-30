@@ -7,7 +7,6 @@ http://wikiapiary.com/wiki/User:Thingles
 http://thingelstad.com/
 """
 
-import os
 import sys
 import time
 import datetime
@@ -24,7 +23,8 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 
 
-class Bot:
+class Bot(object):
+    """Base class for all WikiApiary bots."""
 
     args = []
     config = []
@@ -73,7 +73,7 @@ class Bot:
         self.args = parser.parse_args()
 
     def filter_illegal_chars(self, pre_filter):
-        # Utility function to make sure that strings are okay for page titles
+        """Utility function to make sure that strings are okay for page titles"""
         return re.sub(r'[#<>\[\]\|{}]', '', pre_filter).replace('=', '-')
 
     def sqlutcnow(self):

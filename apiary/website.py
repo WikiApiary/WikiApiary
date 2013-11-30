@@ -2,8 +2,6 @@
 Base class for WikiApiary websites.
 """
 
-import os
-import sys
 import MySQLdb as mdb
 import simplejson
 import re
@@ -13,10 +11,10 @@ import operator
 import urlparse
 import pygeoip
 from simplemediawiki import MediaWiki
-#from PyWhoisAPI import *
 
 
-class Website:
+class Website(object):
+    """Class for websites in WikiApiary."""
 
     def __init__(self, website_id, website_name, api_url):
         self.website_id = website_id
@@ -24,9 +22,11 @@ class Website:
         self.api_url = api_url
 
     def status(self):
+        """Display the status of a website."""
         print "%d %s %s" % (self.website_id, self.name, self.api_url)
 
     def get_id(self):
+        """Return the ID for a website."""
         return self.website_id
 
     def record_statistics(self, site, method):

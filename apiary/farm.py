@@ -2,11 +2,9 @@
 Base class for WikiApiary farmer bots.
 """
 
-import os
-import sys
 
-
-class Farm:
+class Farm(object):
+	"""Main class for WikiApiary farms."""
 
     def __init__(self):
         pass
