@@ -1,8 +1,23 @@
-requests
+# Install WikiApiary requirements easily with
+# sudo pip install -r requirements.txt
+
+# We need to connect to mysql
 mysql-python
-pygeoip
+
+# Use requests to make it easier to do things with URLs
+requests
+
+# This is the library the bots use to talk to wikiapiary.com
 simplemediawiki
-beautifulsoup4
-simplejson
 kitchen
-pywhois
+
+# We use this to get data from MaxMind and store information
+# into wikiapiary.com from MaxMind database
+pygeoip
+
+# This is used during audit process to find things like the
+# logo for the wiki
+beautifulsoup4
+
+# Parse JSON easier
+simplejson
