@@ -125,43 +125,43 @@ class Website(object):
 
                 data = data['query']['statistics']
                 if 'articles' in data:
-                        articles = "%s" % data['articles']
+                    articles = "%s" % data['articles']
                 else:
-                        articles = 'null'
+                    articles = 'null'
                 if 'jobs' in data:
-                        jobs = "%s" % data['jobs']
+                    jobs = "%s" % data['jobs']
                 else:
-                        jobs = 'null'
+                    jobs = 'null'
                 if 'users' in data:
-                        users = "%s" % data['users']
+                    users = "%s" % data['users']
                 else:
-                        users = 'null'
+                    users = 'null'
                 if 'admins' in data:
-                        admins = "%s" % data['admins']
+                    admins = "%s" % data['admins']
                 else:
-                        admins = 'null'
+                    admins = 'null'
                 if 'edits' in data:
-                        edits = "%s" % data['edits']
+                    edits = "%s" % data['edits']
                 else:
-                        edits = 'null'
+                    edits = 'null'
                 if 'activeusers' in data:
-                        if data['activeusers'] < 0:
-                            data['activeusers'] = 0
-                        activeusers = "%s" % data['activeusers']
+                    if data['activeusers'] < 0:
+                        data['activeusers'] = 0
+                    activeusers = "%s" % data['activeusers']
                 else:
-                        activeusers = 'null'
+                    activeusers = 'null'
                 if 'images' in data:
-                        images = "%s" % data['images']
+                    images = "%s" % data['images']
                 else:
-                        images = 'null'
+                    images = 'null'
                 if 'pages' in data:
-                        pages = "%s" % data['pages']
+                    pages = "%s" % data['pages']
                 else:
-                        pages = 'null'
+                    pages = 'null'
                 if 'views' in data:
-                        views = "%s" % data['views']
+                    views = "%s" % data['views']
                 else:
-                        views = 'null'
+                    views = 'null'
 
                 sql_command = sql_command % (
                     site['Has ID'],
@@ -306,21 +306,21 @@ class Website(object):
                     """
 
                 if 'propcount' in data['info']:
-                        propcount = data['info']['propcount']
+                    propcount = data['info']['propcount']
                 else:
-                        propcount = 'null'
+                    propcount = 'null'
                 if 'proppagecount' in data['info']:
-                        proppagecount = data['info']['proppagecount']
+                    proppagecount = data['info']['proppagecount']
                 else:
-                        proppagecount = 'null'
+                    proppagecount = 'null'
                 if 'usedpropcount' in data['info']:
-                        usedpropcount = data['info']['usedpropcount']
+                    usedpropcount = data['info']['usedpropcount']
                 else:
-                        usedpropcount = 'null'
+                    usedpropcount = 'null'
                 if 'declaredpropcount' in data['info']:
-                        declaredpropcount = data['info']['declaredpropcount']
+                    declaredpropcount = data['info']['declaredpropcount']
                 else:
-                        declaredpropcount = 'null'
+                    declaredpropcount = 'null'
 
                 # Catch additional results returned in SMW 1.9
                 if 'querycount' in data['info']:
