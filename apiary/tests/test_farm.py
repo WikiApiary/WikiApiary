@@ -5,7 +5,7 @@ Run tests on farm class.
 import unittest
 if __name__ == "__main__" and __package__ is None:
     __package__ = "WikiApiary.apiary.tests"
-from WikiApiary.apiary import farm
+from apiary import farm
 
 
 class test_farm(unittest.TestCase):
