@@ -49,13 +49,13 @@ class AuditBee(ApiaryBot):
         if self.args.verbose >= 2:
             print "%s setting %s to %s (%s)." % (pagename, name, value, comment)
 
-        property = "Website[%s]" % name
+        property_name = "Website[%s]" % name
         socket.setdefaulttimeout(30)
         c = self.apiary_wiki.call({
             'action': 'sfautoedit',
             'form': 'Website',
             'target': pagename,
-            property: value,
+            property_name: value,
             'wpSummary': comment})
         if self.args.verbose >= 3:
             print c
