@@ -1,5 +1,8 @@
 #!/usr/bin/python
 """
+Maintenance script that performs various routine tasks
+to keep the database maintained and update the wiki
+with some calculations.
 """
 
 import os
@@ -26,6 +29,7 @@ class WorkerBee(ApiaryBot):
         ApiaryBot.__init__(self)
 
     def UpdateTotalEdits(self):
+        """Find total queries in database and update wiki value."""
         sql_query = """
 SELECT
     SUM(a.edits) AS total_edits,
@@ -95,6 +99,7 @@ ON
         return True
 
     def DeleteOldBotLogs(self):
+        """Delete old records from the SQL log table."""
         sql_query = """
 DELETE FROM
     apiary_bot_log
@@ -115,6 +120,7 @@ WHERE
         return True
 
     def DeleteOldWebsiteLogs(self):
+        """Delete old records for the SQL log table for websites."""
         sql_query = """
 DELETE FROM
    apiary_website_logs
@@ -135,6 +141,7 @@ WHERE
         return True
 
     def main(self):
+        """Do the work..."""
         # Setup our connection to the wiki too
         self.connectwiki('Worker Bee')
 

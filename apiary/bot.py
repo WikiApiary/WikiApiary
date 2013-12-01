@@ -434,11 +434,11 @@ class Bot(object):
             temp_sql += "VALUES (%d, \"%s\", \"%s\", %d)" % (site['Has ID'], my_now, my_now, 240)
             self.runSql(temp_sql)
 
-    def botlog(self, bot, message, type='info', duration=0):
+    def botlog(self, bot, message, log_type='info', duration=0):
         if self.args.verbose >= 1:
             print message
 
         temp_sql = "INSERT  apiary_bot_log (log_date, log_type, bot, duration, message) "
-        temp_sql += "VALUES (\"%s\", \"%s\", \"%s\", %f, \"%s\")" % (self.sqlutcnow(), type, bot, duration, message)
+        temp_sql += "VALUES (\"%s\", \"%s\", \"%s\", %f, \"%s\")" % (self.sqlutcnow(), log_type, bot, duration, message)
 
         self.runSql(temp_sql)

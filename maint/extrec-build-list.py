@@ -29,13 +29,13 @@ class RelatedExtensions(ApiaryBot):
         if self.args.verbose >= 2:
             print "%s setting %s to %s (%s)." % (pagename, name, value, comment)
 
-        property = "Website[%s]" % name
+        property_name = "Website[%s]" % name
         socket.setdefaulttimeout(30)
         c = self.apiary_wiki.call({
             'action': 'sfautoedit',
             'form': 'Website',
             'target': pagename,
-            property: value,
+            property_name: value,
             'wpSummary': comment})
         if self.args.verbose >= 3:
             print c
@@ -52,7 +52,7 @@ class RelatedExtensions(ApiaryBot):
         if len(extensions['query']['results']) > 0:
             return len(extensions['query']['results']), extensions['query']['results'].items()
         else:
-            return 0, None          
+            return 0, None
 
     def build_list(self, start, limit):
         my_query = ''.join([
