@@ -20,13 +20,12 @@ import string
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
-sys.path.append('../lib')
-from apiary import ApiaryBot
+from apiary import bot
 
 
-class WorkerBee(ApiaryBot):
+class WorkerBee(Bot):
     def __init__(self):
-        ApiaryBot.__init__(self)
+        Bot.__init__(self)
 
     def UpdateTotalEdits(self):
         """Find total queries in database and update wiki value."""

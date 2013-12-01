@@ -19,9 +19,9 @@ from simplemediawiki import MediaWiki
 from apiary import bot
 
 
-class NotifyBee(ApiaryBot):
+class NotifyBee(Bot):
     def __init__(self):
-        ApiaryBot.__init__(self)
+        Bot.__init__(self)
         # Initialize stats
         self.stats['notify_count'] = 0
         self.stats['notify_admin_count'] = 0

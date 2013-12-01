@@ -17,13 +17,12 @@ import string
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
-sys.path.append('../lib')
-from apiary import ApiaryBot
+from apiary import bot
 
 
-class RelatedExtensions(ApiaryBot):
+class RelatedExtensions(Bot):
     def __init__(self):
-        ApiaryBot.__init__(self)
+        Bot.__init__(self)
 
     def set_related(self, pagename, name, value, comment):
         if self.args.verbose >= 2:

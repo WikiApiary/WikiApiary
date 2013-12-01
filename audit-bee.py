@@ -18,13 +18,12 @@ import dateutil.parser
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
-sys.path.append('../lib')
 from apiary import bot
 
 
-class AuditBee(ApiaryBot):
+class AuditBee(Bot):
     def __init__(self):
-        ApiaryBot.__init__(self)
+        Bot.__init__(self)
         # Initialize stats
         self.stats['audit_count'] = 0
         self.stats['audit_success'] = 0

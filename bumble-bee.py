@@ -29,7 +29,6 @@ from bs4 import BeautifulSoup
 import operator
 import urlparse
 import pygeoip
-sys.path.append('../lib')
 from apiary import bot
 
 

@@ -14,16 +14,15 @@ import simplejson
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
-sys.path.append('../lib')
-from apiary import ApiaryBot
+from apiary import bot
 import Orange
 
 
-class SetRelated(ApiaryBot):
+class SetRelated(Bot):
     ext = {}
 
     def __init__(self):
-        ApiaryBot.__init__(self)
+        Bot.__init__(self)
 
     def set_related(self, extension, related):
         ext_page = "Extension:%s" % extension
