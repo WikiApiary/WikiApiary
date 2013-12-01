@@ -5,15 +5,19 @@ Pull configuration files from WikiMedia to update WikiApiary.
 
 """
 
+import sys
 import requests
-from BeautifulSoup import BeautifulSoup
+from bs4 import BeautifulSoup
 import ConfigParser
 import time
 from simplemediawiki import MediaWiki
+sys.path.append('../')
+sys.path.append('.')
 from apiary import farm
 
 
-class wikkii(Farm):
+class WikkiiFarmer(farm.Farm):
+    """Farmer bot for Wikkii"""
 
     # Array to append sites to
     sites = []
@@ -169,5 +173,5 @@ class wikkii(Farm):
 
 # Run
 if __name__ == '__main__':
-    myClass = wikkii()
+    myClass = WikkiiFarmer()
     myClass.main()

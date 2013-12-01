@@ -9,8 +9,8 @@ class Farm(object):
     def __init__(self, farm_id):
         self.farm_id = farm_id
 
-    def status(self):
-        """Get status for farm."""
+    def get_id(self):
+        """Get the id for farm."""
         return self.farm_id
 
     def get_websites(self):

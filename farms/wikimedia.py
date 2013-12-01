@@ -5,14 +5,18 @@ Pull configuration files from WikiMedia to update WikiApiary.
 
 """
 
+import sys
 import re
 import requests
 import ConfigParser
 from simplemediawiki import MediaWiki
+sys.path.append('../')
+sys.path.append('.')
 from apiary import farm
 
 
-class wmbot(Farm):
+class WikimediaFarmer(farm.Farm):
+    """Farmer bot for Wikimedia."""
 
     # Array to append sites to
     sites = []
@@ -216,5 +220,5 @@ class wmbot(Farm):
 
 # Run
 if __name__ == '__main__':
-    myClass = wmbot()
+    myClass = WikimediaFarmer()
     myClass.main()

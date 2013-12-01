@@ -20,6 +20,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
 sys.path.append('../')
+sys.path.append('.')
 from apiary import bot
 
 
