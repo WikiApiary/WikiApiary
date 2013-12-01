@@ -14,11 +14,12 @@ import simplejson
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
+sys.path.append('../')
 from apiary import bot
 import Orange
 
 
-class SetRelated(Bot):
+class SetRelated(bot.Bot):
     ext = {}
 
     def __init__(self):

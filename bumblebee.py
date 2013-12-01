@@ -1,5 +1,4 @@
-#! /usr/bin/env python
-
+#!/usr/bin/python
 """
 Bumble Bee is responsible for collecting statistics and other information from
 sites registered on WikiApiary. See http://wikiapiary.com/wiki/User:Bumble_Bee
@@ -10,7 +9,6 @@ http://wikiapiary.com/wiki/User:Thingles
 http://thingelstad.com/
 """
 
-import os
 import sys
 import time
 import datetime
@@ -32,8 +30,10 @@ import pygeoip
 from apiary import bot
 
 
-class BumbleBee(Bot):
+class BumbleBee(bot.Bot):
     """Bot that collects statistics for sites."""
+    def __init__(self):
+        super(BumbleBee, self).__init__()
 
     def parse_version(self, t):
         ver = {}
@@ -102,9 +102,9 @@ class BumbleBee(Bot):
             opener = urllib2.build_opener()
 
             try:
-                t1 = datetime.datetime.now()
+                start_time = datetime.datetime.now()
                 f = opener.open(req)
-                duration = (datetime.datetime.now() - t1).total_seconds()
+                duration = (datetime.datetime.now() - start_time).total_seconds()
             except Exception, e:
                 self.record_error(
                     site=site,

@@ -21,9 +21,10 @@ import re
 from apiary import bot
 
 
-class AuditBee(Bot):
+class AuditBee(bot.Bot):
+    """Audit websites"""
     def __init__(self):
-        Bot.__init__(self)
+        super(AuditBee, self).__init__()
         # Initialize stats
         self.stats['audit_count'] = 0
         self.stats['audit_success'] = 0

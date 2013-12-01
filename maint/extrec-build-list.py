@@ -17,10 +17,10 @@ import string
 from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
+sys.path.append('../')
 from apiary import bot
 
-
-class RelatedExtensions(Bot):
+class RelatedExtensions(bot.Bot):
     def __init__(self):
         Bot.__init__(self)
 

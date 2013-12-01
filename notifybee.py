@@ -19,9 +19,11 @@ from simplemediawiki import MediaWiki
 from apiary import bot
 
 
-class NotifyBee(Bot):
+class NotifyBee(bot.Bot):
+    """Send notifications to users that have requested."""
+
     def __init__(self):
-        Bot.__init__(self)
+        super(NotifyBee, self).__init__()
         # Initialize stats
         self.stats['notify_count'] = 0
         self.stats['notify_admin_count'] = 0
