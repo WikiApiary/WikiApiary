@@ -10,9 +10,10 @@ from BeautifulSoup import BeautifulSoup
 import ConfigParser
 import time
 from simplemediawiki import MediaWiki
+from apiary import farm
 
 
-class wikkii:
+class wikkii(Farm):
 
     # Array to append sites to
     sites = []

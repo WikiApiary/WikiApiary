@@ -19,7 +19,7 @@ from urllib2 import Request, urlopen, URLError, HTTPError
 from simplemediawiki import MediaWiki
 import re
 sys.path.append('../lib')
-from apiary import ApiaryBot
+from apiary import bot
 
 
 class AuditBee(ApiaryBot):

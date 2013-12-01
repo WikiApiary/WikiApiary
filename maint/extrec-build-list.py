@@ -99,7 +99,7 @@ class RelatedExtensions(ApiaryBot):
                         print "%d (%d): [%s] Found %d extensions." % (site_total_ext, site_total, site[0], ext_count)
                         comma = False
                         for ext in extensions:
-			    ext_name = "%s" % ext[1]['printouts']['Has extension'][0]['fulltext']
+                            ext_name = "%s" % ext[1]['printouts']['Has extension'][0]['fulltext']
                             ext_name = string.replace(ext_name, 'Extension:', '')
                             if comma:
                                 ext_name = ', ' + ext_name

@@ -9,9 +9,10 @@ import re
 import requests
 import ConfigParser
 from simplemediawiki import MediaWiki
+from apiary import farm
 
 
-class wmbot:
+class wmbot(Farm):
 
     # Array to append sites to
     sites = []
