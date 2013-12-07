@@ -13,3 +13,12 @@ script:
 
 after_success:
   - coveralls
+
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#wikiapiary"
+  email:
+    recipients:
+      - wikiapiary-dev@lists.thingelstad.com
+
