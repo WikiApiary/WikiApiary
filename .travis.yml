@@ -18,6 +18,8 @@ notifications:
   irc:
     channels:
       - "chat.freenode.net#wikiapiary"
+    use_notice: true
+    skip_join: true
   email:
     recipients:
       - wikiapiary-dev@lists.thingelstad.com
