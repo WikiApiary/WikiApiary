@@ -3,9 +3,17 @@ language: python
 python:
   - "2.7"
 
+# We will use MySQL for testing
+services:
+  - mysql
+
 # command to install dependencies
 install:
   - pip install -r requirements.txt
+
+before_script:
+  - mysql -e 'create database apiary;'
+  - mysql -u travis apiary < "./sql/apiary-001.sql"
 
 # command to run tests
 script:
