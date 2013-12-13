@@ -26,6 +26,8 @@ from simplemediawiki import MediaWiki
 class Bot(object):
     """Base class for all WikiApiary bots."""
 
+    STATISTICS_API_CALL = '?action=query&meta=siteinfo&siprop=statistics&format=json'
+
     args = []
     config = []
     apiary_wiki = []

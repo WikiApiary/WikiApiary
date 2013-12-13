@@ -9,25 +9,30 @@ http://wikiapiary.com/wiki/User:Thingles
 http://thingelstad.com/
 """
 
-import sys
-import time
-import datetime
-import pytz
-import ConfigParser
-import argparse
-import socket
-import MySQLdb as mdb
-import simplejson
-import urllib2
-from urllib2 import Request, urlopen, URLError, HTTPError
-from simplemediawiki import MediaWiki
-import re
-import HTMLParser
-from bs4 import BeautifulSoup
-import operator
-import urlparse
-import pygeoip
 from apiary import bot
+from apiary import website
+
+
+# Code snippet for what this *should* look like
+# when it is refactored right
+# bot = new Bot(
+#     name="Bumble Bee",
+#     api_url="http://wikiapiary.com/w/api.php",
+#     username="Bumble Bee",
+#     password="1234",
+#     debug=True)
+
+# bot.log(
+#     message="Starting run for segment 1",
+#     severity="Info")
+
+# segment = bot.get-segment(1)
+
+# for website in segment:
+#     website.get-data()
+#     website.update-information()
+
+# bot.log("Completed run for segment 1")
 
 
 class BumbleBee(bot.Bot):
