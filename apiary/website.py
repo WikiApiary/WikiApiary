@@ -29,6 +29,38 @@ class Website(object):
         """Return the ID for a website."""
         return self.website_id
 
+    def fetch_statistics(self):
+        """Method calls the website API and retrieves site statistics, storing them in the class."""
+        if self.has_API():
+            return self.fetch_statistics_API()
+        elif self.has_StatisticsURL():
+            return self.fetch_statistics_statistics()
+        else:
+            self.log("Website has neither API or Statistics URLs.")
+            return False
+
+    def has_API(self):
+        """Test if the website has an API URL."""
+        if self.api_url is not None:
+            return True
+        else:
+            return False
+
+    def has_StatisticsURL(self):
+        """Test if the website has a Statistics URL."""
+        if self.statistics_url is not None:
+            return True
+        else:
+            return False
+
+    def fetch_statisitcs_API(self):
+        """Get site statistics via the API."""
+        stats_url = self.api_url + bot.STATISTICS_API_CALL
+
+    def fetch_statistics_statistics(self):
+        """Get the site statistics using the Special:Statistics page."""
+        stats_url = self.statistics_url + '&action=raw'
+
     def record_statistics(self, site, method):
         if method == 'API':
             # Go out and get the statistic information

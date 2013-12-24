@@ -1,5 +1,6 @@
 """
-Run tests on website class.
+Exercise the Website class to insure the methods operate
+as expected.
 """
 
 import unittest
@@ -18,6 +19,14 @@ class test_website(unittest.TestCase):
         """ Test website ID method"""
         site = website.Website(18, 'WikiApiary', 'http://wikiapiary.com/w/api.url')
         self.assertEqual(site.get_id(), 18, "Site ID is not correct.")
+
+    def test_has_API(self):
+        """Test if check for API URL works."""
+        site = website.Website(18, 'WikiApiary', '')
+        self.assertEqual(site.has_API(), False, "API URL is not set, but has_API thought it did.")
+
+        site = website.Website(18, 'WikiApiary', 'http://wikiapiary.com/w/api.url')
+        self.assertEqual(site.has_API(), True, "API URL is set but is not being detected.")
 
 
 if __name__ == '__main__':

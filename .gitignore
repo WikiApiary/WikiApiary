@@ -39,3 +39,4 @@ Geo*.dat
 *.basket
 
 .DS_Store
+*.sublime-workspace
