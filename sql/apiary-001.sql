@@ -146,13 +146,11 @@ CREATE TABLE `statistics` (
   `jobs` bigint(20) DEFAULT NULL,
   `pages` bigint(20) NOT NULL,
   `views` bigint(20) DEFAULT NULL,
-  `smw_propcount` bigint(20) DEFAULT NULL,
-  `smw_proppagecount` int(11) DEFAULT NULL,
-  `smw_usedpropcount` int(11) DEFAULT NULL,
-  `smw_declaredpropcount` int(11) DEFAULT NULL,
   PRIMARY KEY (`website_id`,`capture_date`),
   KEY `idx_capture_date` (`capture_date`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+/*!50100 PARTITION BY HASH (website_id)
+PARTITIONS 15 */;
 
 -- ----------------------------
 --  Table structure for `statistics_daily`
