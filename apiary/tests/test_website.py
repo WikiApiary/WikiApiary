@@ -52,7 +52,8 @@ class test_website(unittest.TestCase):
         website.Website(100, 'Wikipedia (en)', 'https://en.wikipedia.org/w/api.php').get_siteinfo_general()
         website.Website(54, 'Planet Kubb Wiki', 'http://wiki.planetkubb.com/w/api.php').get_siteinfo_general()
 
-        # site.get_siteinfo_general()
+    def test_record_extensions(self):
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_extensions()
 
 if __name__ == '__main__':
     unittest.main()
