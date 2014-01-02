@@ -6,6 +6,7 @@ python:
 # We will use MySQL for testing
 services:
   - mysql
+  - redis-server
 
 # command to install dependencies
 install:

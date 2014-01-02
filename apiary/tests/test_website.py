@@ -6,7 +6,7 @@ as expected.
 import unittest
 if __name__ == "__main__" and __package__ is None:
     __package__ = "WikiApiary.apiary.tests"
-from apiary import website
+from WikiApiary.apiary import website
 
 
 class test_website(unittest.TestCase):
@@ -17,17 +17,42 @@ class test_website(unittest.TestCase):
 
     def test_website_id(self):
         """ Test website ID method"""
-        site = website.Website(18, 'WikiApiary', 'http://wikiapiary.com/w/api.url')
+        site = website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
         self.assertEqual(site.get_id(), 18, "Site ID is not correct.")
 
-    def test_has_API(self):
-        """Test if check for API URL works."""
+    def get_siteinfo_general(self):
+        """Test retreival of siteinfo/general."""
         site = website.Website(18, 'WikiApiary', '')
-        self.assertEqual(site.has_API(), False, "API URL is not set, but has_API thought it did.")
+        self.assertEqual(
+            site.get_siteinfo_general(),
+            False,
+            "API URL is not set so this should fail.")
 
-        site = website.Website(18, 'WikiApiary', 'http://wikiapiary.com/w/api.url')
-        self.assertEqual(site.has_API(), True, "API URL is set but is not being detected.")
+        site = website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        self.assertEqual(
+            site.get_siteinfo_general(),
+            True,
+            "API URL is set but failed call to get siteinfo/general.")
 
+    # def test_wikiapiary_version(self):
+    #     """Pull the version from WikiApiary."""
+    #     site = website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+    #     #site = website.Website(100, 'Wikipedia (en)', 'https://en.wikipedia.org/w/api.php')
+    #     self.assertEqual(
+    #         site.get_siteinfo_general(),
+    #         True,
+    #         "Pulled siteinfo from WikiApiary but failed.")
+    #     self.assertEqual(
+    #         site.retrieve_siteinfo_general()['generator'],
+    #         'MediaWiki 1.22.0rc2',
+    #         "Returned invalid value for WikiApiary MediaWiki version.")
+
+    def test_parallel_data(self):
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').get_siteinfo_general()
+        website.Website(100, 'Wikipedia (en)', 'https://en.wikipedia.org/w/api.php').get_siteinfo_general()
+        website.Website(54, 'Planet Kubb Wiki', 'http://wiki.planetkubb.com/w/api.php').get_siteinfo_general()
+
+        # site.get_siteinfo_general()
 
 if __name__ == '__main__':
     unittest.main()

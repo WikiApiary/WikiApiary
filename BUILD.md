@@ -2,6 +2,10 @@
 
 Thank you for your interest in contributing to the WikiApiary codebase. This document is intended to provide an overview of the project structure to make it easier for others to contibute.
 
+## Running Locally
+
+You must have `mysqld` and `redis-server` running to work on the bots.
+
 ## Data collection bots
 
 ### Classes

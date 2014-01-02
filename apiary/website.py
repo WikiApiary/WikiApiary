@@ -10,16 +10,41 @@ from bs4 import BeautifulSoup
 import operator
 import urlparse
 import pygeoip
+import requests
 from simplemediawiki import MediaWiki
+from WikiApiary import tasks
+
+from celery.task import Task
+
+class Siteinfo(Task):
+    def run(self, has_api_url, has_id):
+        """Async task to get siteinfo/general"""
+        query_param = '?action=query&meta=siteinfo&siprop=general&format=json'
+
+        try:
+            req = requests.get(
+                has_api_url + query_param,
+                timeout = 10)
+            if req.status_code == 200:
+                print "SUCCESS!\n%s\n" % req.json()['query']['general']
+                return True
+            else:
+                return False
+        except Exception, err:
+            print err
+            return False
 
 
 class Website(object):
     """Class for websites in WikiApiary."""
 
+    __data = {} #Private dictionary to store data from website
+    __has_api_url = None; #Store the API URL
+
     def __init__(self, website_id, website_name, api_url):
-        self.website_id = website_id
-        self.name = website_name
-        self.api_url = api_url
+        self.__has_id = website_id
+        self.__website_name = website_name
+        self.__has_api_url = api_url
 
     def status(self):
         """Display the status of a website."""
@@ -27,7 +52,7 @@ class Website(object):
 
     def get_id(self):
         """Return the ID for a website."""
-        return self.website_id
+        return self.__has_id
 
     def fetch_statistics(self):
         """Method calls the website API and retrieves site statistics, storing them in the class."""
@@ -39,12 +64,15 @@ class Website(object):
             self.log("Website has neither API or Statistics URLs.")
             return False
 
-    def has_API(self):
-        """Test if the website has an API URL."""
-        if self.api_url is not None:
-            return True
-        else:
-            return False
+    def get_siteinfo_general(self):
+        """Get the siteinfo/general data."""
+        tasks.siteinfo.delay(self.__has_api_url)
+
+    def retrieve_siteinfo_general(self):
+        """Return the data stored for siteinfo/general."""
+        if 'general' not in self.__data:
+            raise Exception("There is no data for siteinfo.")
+        return self.__data['general']
 
     def has_StatisticsURL(self):
         """Test if the website has a Statistics URL."""

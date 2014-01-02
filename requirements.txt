@@ -1,5 +1,8 @@
 # Install WikiApiary requirements easily with
 # sudo pip install -r requirements.txt
+# sudo pip install --upgrade -r requirements.txt
+#
+# External requirements are mysqld and redis-server
 
 # We need to connect to mysql
 mysql-python
@@ -24,3 +27,7 @@ simplejson
 
 # Coveralls for code coverage
 python-coveralls
+
+# We use Celery to manage our queue, with redis as the backend
+redis
+celery[redis]
