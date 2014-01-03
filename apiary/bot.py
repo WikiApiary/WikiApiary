@@ -74,12 +74,6 @@ class Bot(object):
         # All set, now get the arguments
         self.args = parser.parse_args()
 
-    def sqlutcnow(self):
-        now = datetime.datetime.utcnow()
-        now = now.replace(tzinfo=pytz.utc)
-        now = now.replace(microsecond=0)
-        return now.strftime('%Y-%m-%d %H:%M:%S')
-
     def pull_json(self, site, data_url, bot='Bumble Bee'):
         socket.setdefaulttimeout(10)
 

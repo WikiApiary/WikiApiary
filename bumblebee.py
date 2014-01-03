@@ -430,52 +430,6 @@ class BumbleBee(bot.Bot):
         #self.update_status(site, 'statistics')
         return ret_value
 
-    def ProcessMultiprops(self, site_id, key, value):
-        # Here we deal with properties that change frequently and we care about all of them.
-        # For example, dbversion in a wiki farm will often have multiple values
-        # and we will get different values each time, rotating between a set.
-        # This function will take the value and return a more complex data structure.
-
-        # First update the timestamp for seeing the current name/value
-        cur = self.apiary_db.cursor()
-        temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
-            self.sqlutcnow(),
-            site_id,
-            key,
-            value)
-        if self.args.verbose >= 3:
-            print "SQL Debug: %s" % temp_sql
-        cur.execute(temp_sql)
-        rows_returned = cur.rowcount
-
-        # No rows returned, we need to create this value
-        if rows_returned == 0:
-            temp_sql = "INSERT apiary_multiprops (website_id, t_name, t_value, first_date, last_date, occurrences) VALUES (%d, \'%s\', \'%s\', \'%s\', \'%s\', %d)" % (
-                site_id,
-                key,
-                value,
-                self.sqlutcnow(),
-                self.sqlutcnow(),
-                1)
-            if self.args.verbose >= 3:
-                print "SQL Debug: %s" % temp_sql
-            cur.execute(temp_sql)
-
-        # Now build the return value
-        multivalue = ""
-        temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' AND t_name = \'%s\' ORDER BY occurrences DESC" % (
-            site_id,
-            '2013-04-26 18:23:01',
-            key)
-        cur.execute(temp_sql)
-        rows = cur.fetchall()
-        for row in rows:
-            if len(multivalue) > 0:
-                multivalue += ","
-            multivalue += "%s" % row[0]
-
-        return multivalue
-
     def build_general_template(self, site_id, x):
 
         # Some keys we do not want to store in WikiApiary

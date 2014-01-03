@@ -48,12 +48,22 @@ class test_website(unittest.TestCase):
     #         "Returned invalid value for WikiApiary MediaWiki version.")
 
     def test_parallel_data(self):
-        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').get_siteinfo_general()
-        website.Website(100, 'Wikipedia (en)', 'https://en.wikipedia.org/w/api.php').get_siteinfo_general()
-        website.Website(54, 'Planet Kubb Wiki', 'http://wiki.planetkubb.com/w/api.php').get_siteinfo_general()
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_general()
+        website.Website(100, 'Wikipedia (en)', 'https://en.wikipedia.org/w/api.php').record_general()
+        website.Website(54, 'Planet Kubb Wiki', 'http://wiki.planetkubb.com/w/api.php').record_general()
+
+    def test_record_general(self):
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_general()
 
     def test_record_extensions(self):
         website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_extensions()
+
+    def test_record_extensions(self):
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_skins()
+
+    def test_record_extensions(self):
+        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_smwinfo()
+
 
 if __name__ == '__main__':
     unittest.main()

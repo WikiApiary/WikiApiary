@@ -1,13 +1,68 @@
+"""Utils for WikiApiary."""
+
+# pylint: disable=C0301
+
 import HTMLParser
 import re
+import datetime
+import pytz
 
 
 def filter_illegal_chars(pre_filter):
     """Utility function to make sure that strings are okay for page titles"""
     return re.sub(r'[#<>\[\]\|{}]', '', pre_filter).replace('=', '-')
 
+def sqlutcnow():
+    """Returns the UTC time in format SQL likes."""
+    now = datetime.datetime.utcnow()
+    now = now.replace(tzinfo=pytz.utc)
+    now = now.replace(microsecond=0)
+    return now.strftime('%Y-%m-%d %H:%M:%S')
 
-def build_skins_template(self, ext_obj):
+def ProcessMultiprops(site_id, key, value):
+    # Here we deal with properties that change frequently and we care about all of them.
+    # For example, dbversion in a wiki farm will often have multiple values
+    # and we will get different values each time, rotating between a set.
+    # This function will take the value and return a more complex data structure.
+
+    # First update the timestamp for seeing the current name/value
+    cur = apiary_db.cursor()
+    temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
+        self.sqlutcnow(),
+        site_id,
+        key,
+        value)
+    cur.execute(temp_sql)
+    rows_returned = cur.rowcount
+
+    # No rows returned, we need to create this value
+    if rows_returned == 0:
+        temp_sql = "INSERT apiary_multiprops (website_id, t_name, t_value, first_date, last_date, occurrences) VALUES (%d, \'%s\', \'%s\', \'%s\', \'%s\', %d)" % (
+            site_id,
+            key,
+            value,
+            sqlutcnow(),
+            sqlutcnow(),
+            1)
+        cur.execute(temp_sql)
+
+    # Now build the return value
+    multivalue = ""
+    temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' AND t_name = \'%s\' ORDER BY occurrences DESC" % (
+        site_id,
+        '2013-04-26 18:23:01',
+        key)
+    cur.execute(temp_sql)
+    rows = cur.fetchall()
+    for row in rows:
+        if len(multivalue) > 0:
+            multivalue += ","
+        multivalue += "%s" % row[0]
+
+    return multivalue
+
+def build_skins_template(ext_obj):
+    """Build a the wikitext for the skin subpage."""
 
     # Some keys we do not want to store in WikiApiary
     ignore_keys = []
@@ -26,18 +81,18 @@ def build_skins_template(self, ext_obj):
     # that are just different ordering
     skins_sorted = sorted(ext_obj, key=operator.itemgetter('*'))
 
-    for x in skins_sorted:
-        if '*' in x:
+    for skin in skins_sorted:
+        if '*' in skin:
             # Start the template instance
             template_block += "{{Skin in use\n"
-            for item in x:
+            for item in skin:
                 # Loop through all the items in the skin data and build the instance
                 if item not in ignore_keys:
                     name = key_names.get(item, item)
-                    value = x[item]
+                    value = skin[item]
 
                     if item == '*':
-                        value = self.filter_illegal_chars(value)
+                        value = filter_illegal_chars(value)
 
                     if item == 'default':
                         # This parameter won't appear unless it is true
@@ -57,6 +112,8 @@ def build_skins_template(self, ext_obj):
     return template_block
 
 def build_extensions_template(ext_obj):
+    """Build a the wikitext for the extensions subpage."""
+
     h = HTMLParser.HTMLParser()
 
     # Some keys we do not want to store in WikiApiary
@@ -72,15 +129,15 @@ def build_extensions_template(ext_obj):
 
     template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
-    for x in ext_obj:
-        if 'name' in x:
+    for extension in ext_obj:
+        if 'name' in extension:
             template_block += "{{Extension in use\n"
 
-            for item in x:
+            for item in extension:
                 if item not in ignore_keys:
 
                     name = key_names.get(item, item)
-                    value = x[item]
+                    value = extension[item]
 
                     if item == 'name':
                         # Sometimes people make the name of the extension a hyperlink using
@@ -144,7 +201,9 @@ def build_extensions_template(ext_obj):
     return template_block
 
 
-def BuildMaxmindTemplate(self, hostname):
+def BuildMaxmindTemplate(hostname):
+    """Build a the wikitext for the maxmind subpage."""
+
     template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
     template_block += "{{Maxmind\n"
 
@@ -158,7 +217,8 @@ def BuildMaxmindTemplate(self, hostname):
 
     return template_block
 
-def build_general_template(x):
+def build_general_template(site_id, data):
+    """Build a the wikitext for the general subpage."""
 
     # Some keys we do not want to store in WikiApiary
     ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
@@ -182,12 +242,12 @@ def build_general_template(x):
     template_block += "{{General siteinfo\n"
 
     # Loop through all the keys provided and create the template block
-    for key in x:
+    for key in data:
         # Make sure we aren't ignoring this key
         if key not in ignore_keys:
             # If we have a name for this key use that
             name = key_names.get(key, key)
-            value = x[key]
+            value = data[key]
 
             # For some items we may need to do some preprocessing
             if isinstance(value, basestring):
@@ -201,7 +261,7 @@ def build_general_template(x):
                 # Try using an HTML entity instead
                 value = value.replace(':', '&#58;')
             if key == 'dbversion':
-                value = self.ProcessMultiprops(site_id, key, value)
+                value = ProcessMultiprops(site_id, key, value)
 
             template_block += "|%s=%s\n" % (name, value)
 

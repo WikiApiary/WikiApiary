@@ -1,50 +1,48 @@
 """Celery tasks"""
 
+# pylint: disable=C0301
+
 from __future__ import absolute_import
 from WikiApiary.celery import app
 from WikiApiary.apiary.utils import *
 import requests
 import MySQLdb as mdb
+import datetime
+
+
+# Constants used later to call various API methods
+EXTENSION_QUERY = '?action=query&meta=siteinfo&siprop=extensions&format=json'
+STATISTICS_QUERY = '?action=query&meta=siteinfo&siprop=statistics&format=json'
+GENERAL_QUERY = '?action=query&meta=siteinfo&siprop=general&format=json'
+SKIN_QUERY = '?action=query&meta=siteinfo&siprop=skins&format=json'
+SMWINFO_QUERY = ''.join([
+    '?action=smwinfo',
+    '&info=propcount%7Cusedpropcount%7Cdeclaredpropcount%7Cproppagecount%7Cquerycount%7Cquerysize%7Cconceptcount%7Csubobjectcount',
+    '&format=json'
+    ])
 
 
 @app.task
-def update_general(has_api_url):
-    """Async task to get siteinfo/general"""
-    query_param = '?action=query&meta=siteinfo&siprop=general&format=json'
+def record_general(site_id, sitename, api_url):
+    data_url = api_url + GENERAL_QUERY
 
-    try:
-        req = requests.get(
-            has_api_url + query_param,
-            timeout = 10)
-        if req.status_code == 200:
-            print "SUCCESS!\n%s\n" % req.json()['query']['general']
-            return True
-        else:
-            return False
-    except Exception, err:
-        print err
-        return False
+    req = requests.get(data_url, timeout = 30)
+    duration = req.elapsed
+    data = req.json()
 
-@app.task
-def record_general(self, site):
-    data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=general&format=json"
-    if self.args.verbose >= 2:
-        print "Pulling general info info from %s." % data_url
-    (success, data, duration) = self.pull_json(site, data_url)
-    ret_value = True
-    if success:
+    if req.status_code == 200:
         # Successfully pulled data
         if 'query' in data:
-            datapage = "%s/General" % site['pagename']
-            template_block = self.build_general_template(site['Has ID'], data['query']['general'])
+            datapage = "%s/General" % sitename
+            template_block = build_general_template(site_id, data['query']['general'])
 
-            socket.setdefaulttimeout(30)
             c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-            if self.args.verbose >= 3:
-                print c
-            self.stats['general'] += 1
+
+            # Update the status table that we did our work! It doesn't matter if this was an error.
+            update_status(site_id, 'general')
+
         else:
-            self.record_error(
+            record_error(
                 site=site,
                 log_message='Returned unexpected JSON when general info.',
                 log_type='info',
@@ -52,31 +50,28 @@ def record_general(self, site):
                 log_bot='Bumble Bee',
                 log_url=data_url
             )
-            ret_value = False
-
-    # Update the status table that we did our work! It doesn't matter if this was an error.
-    self.update_status(site, 'general')
-    return ret_value
+            return False
+    else:
+        return False
 
 @app.task
-def update_skins(site):
-    data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=skins&format=json"
-    if self.args.verbose >= 2:
-        print "Pulling skin info from %s." % data_url
-    (success, data, duration) = self.pull_json(site, data_url)
-    ret_value = True
-    if success:
+def record_skins(site_id, sitename, api_url):
+    """Pull skin data from website and write to WikiApiary."""
+    data_url = site['Has API URL'] + SKIN_QUERY
+
+    req = requests.get(data_url, timeout = 30)
+    duration = req.elapsed
+    data = req.json()
+
+    if req.status_code == 200:
         # Successfully pulled data
         if 'query' in data:
-            datapage = "%s/Skins" % site['pagename']
-            template_block = self.build_skins_template(data['query']['skins'])
-            socket.setdefaulttimeout(30)
+            datapage = "%s/Skins" % sitename
+            template_block = build_skins_template(data['query']['skins'])
             c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-            if self.args.verbose >= 3:
-                print c
-            self.stats['skins'] += 1
+            return True
         else:
-            self.record_error(
+            record_error(
                 site=site,
                 log_message='Returned unexpected JSON when requesting skin data.',
                 log_type='info',
@@ -84,26 +79,34 @@ def update_skins(site):
                 log_bot='Bumble Bee',
                 log_url=data_url
             )
-            ret_value = False
-    return ret_value
+            return False
+    else:
+        return False
 
 @app.task
 def record_extensions(site_id, sitename, api_url):
-    data_url = api_url + "?action=query&meta=siteinfo&siprop=extensions&format=json"
-    # (success, data, duration) = self.pull_json(site, data_url)
-    req = requests.get(
-            data_url,
-            timeout = 10)
+    """Get extensions from the website and write them to WikiApiary."""
+
+    data_url = api_url + EXTENSION_QUERY
+
+    req = requests.get(data_url, timeout = 30)
+    duration = req.elapsed
     data = req.json()
-    success = True
-    ret_value = True
-    if success:
+
+    if req.status_code == 200:
         # Successfully pulled data
         if 'query' in data:
+            # Looks like a valid response
             datapage = "%s/Extensions" % sitename
             template_block = build_extensions_template(data['query']['extensions'])
             print template_block
-            c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+            c = apiary_wiki.call({
+                'action': 'edit',
+                'title': datapage,
+                'text': template_block,
+                'token': self.edit_token,
+                'bot': 'true'
+                })
         else:
             # self.record_error(
             #     site=site,
@@ -117,25 +120,22 @@ def record_extensions(site_id, sitename, api_url):
     return ret_value
 
 @app.task
-def record_maxmind(site):
-    # Create the Maxmind page to put all the geographic data in
-    datapage = "%s/Maxmind" % site['pagename']
-    hostname = urlparse.urlparse(site['Has API URL']).hostname
-    template_block = self.BuildMaxmindTemplate(hostname)
+def record_maxmind(site_id, sitename, api_url):
+    """Get MaxMind data for website and write to WikiApiary."""
 
-    socket.setdefaulttimeout(30)
-    c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-    if self.args.verbose >= 3:
-        print c
-    self.stats['maxmind'] += 1
+    datapage = "%s/Maxmind" % sitename
+    hostname = urlparse.urlparse(api_url).hostname
+    template_block = BuildMaxmindTemplate(hostname)
+
+    c = apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
 
 @app.task
-def record_whois(site):
+def record_whois(site_id, sitename, api_url):
     # Now that we successfully got the data, we can make a quick query to get the server info
-    hostname = urlparse.urlparse(site['Has API URL']).hostname
+    hostname = urlparse.urlparse(api_url).hostname
     addr = socket.gethostbyname(hostname)
 
-    datapage = "%s/Whois" % site['pagename']
+    datapage = "%s/Whois" % sitename
     template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
     template_block += "{{Whois\n"
 
@@ -163,29 +163,19 @@ def record_whois(site):
 
     template_block += "}}\n</includeonly>\n"
 
-    socket.setdefaulttimeout(30)
-    c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-    if self.args.verbose >= 3:
-        print c
-    self.stats['whois'] += 1
+    c = apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
 
 @app.task
-def record_smwinfo(self, site):
-    # Go out and get the statistic information
-    data_url = site['Has API URL'] + ''.join([
-        '?action=smwinfo',
-        '&info=propcount%7Cusedpropcount%7Cdeclaredpropcount%7Cproppagecount%7Cquerycount%7Cquerysize%7Cconceptcount%7Csubobjectcount',
-        '&format=json'])
-    if self.args.verbose >= 2:
-        print "Pulling SMW info from %s." % data_url
-    (status, data, duration) = self.pull_json(site, data_url)
+def record_smwinfo(site_id, sitename, api_url):
+    """Pull skin data from website and write to WikiApiary."""
 
-    ret_value = True
-    if status:
-        # Record the new data into the DB
-        if self.args.verbose >= 2:
-            print "JSON: %s" % data
-            print "Duration: %s" % duration
+    data_url = api_url + SMWINFO_QUERY
+
+    req = requests.get(data_url, timeout = 30)
+    duration = req.elapsed
+    data = req.json()
+
+    if req.status_code == 200:
 
         if 'info' in data:
             # Record the data received to the database
@@ -197,44 +187,20 @@ def record_smwinfo(self, site):
                     (%d, '%s', %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 """
 
-            if 'propcount' in data['info']:
-                propcount = data['info']['propcount']
-            else:
-                propcount = 'null'
-            if 'proppagecount' in data['info']:
-                proppagecount = data['info']['proppagecount']
-            else:
-                proppagecount = 'null'
-            if 'usedpropcount' in data['info']:
-                usedpropcount = data['info']['usedpropcount']
-            else:
-                usedpropcount = 'null'
-            if 'declaredpropcount' in data['info']:
-                declaredpropcount = data['info']['declaredpropcount']
-            else:
-                declaredpropcount = 'null'
+            propcount = data['info'].get('propcount', 'null')
+            proppagecount = data['info'].get('proppagecount', 'null')
+            usedpropcount = data['info'].get('usedpropcount', 'null')
+            declaredpropcount = data['info'].get('declaredpropcount', 'null')
 
             # Catch additional results returned in SMW 1.9
-            if 'querycount' in data['info']:
-                querycount = data['info']['querycount']
-            else:
-                querycount = 'null'
-            if 'querysize' in data['info']:
-                querysize = data['info']['querysize']
-            else:
-                querysize = 'null'
-            if 'conceptcount' in data['info']:
-                conceptcount = data['info']['conceptcount']
-            else:
-                conceptcount = 'null'
-            if 'subobjectcount' in data['info']:
-                subobjectcount = data['info']['subobjectcount']
-            else:
-                subobjectcount = 'null'
+            querycount = data['info'].get('querycount', 'null')
+            querysize = data['info'].get('querysize', 'null')
+            conceptcount = data['info'].get('conceptcount', 'null')
+            subobjectcount = data['info'].get('subobjectcount', 'null')
 
             sql_command = sql_command % (
-                site['Has ID'],
-                self.sqlutcnow(),
+                site_id,
+                sqlutcnow(),
                 duration,
                 propcount,
                 proppagecount,
@@ -245,10 +211,11 @@ def record_smwinfo(self, site):
                 conceptcount,
                 subobjectcount)
 
-            self.runSql(sql_command)
-            self.stats['smwinfo'] += 1
+            runSql(sql_command)
+
+            return True
         else:
-            self.record_error(
+            record_error(
                 site=site,
                 log_message='SMWInfo returned unexpected JSON.',
                 log_type='info',
@@ -256,16 +223,7 @@ def record_smwinfo(self, site):
                 log_bot='Bumble Bee',
                 log_url=data_url
             )
-            ret_value = False
+            return False
 
     else:
-        if self.args.verbose >= 3:
-            print "Did not receive valid data from %s" % (data_url)
-        ret_value = False
-
-    # Update the status table that we did our work!
-    # TODO: Commenting out. There is a bug that if this updates at the same time as the previous one
-    # there is no change to the row, and my check for rows_affected in update_status will
-    # not work as intended. Going to assume that smwinfo slaves off of regular statistics.
-    #self.update_status(site, 'statistics')
-    return ret_value
+        return False

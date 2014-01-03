@@ -2,6 +2,8 @@
 Base class for WikiApiary websites.
 """
 
+# pylint: disable=C0301
+
 import MySQLdb as mdb
 import simplejson
 import re
@@ -42,13 +44,21 @@ class Website(object):
             self.log("Website has neither API or Statistics URLs.")
             return False
 
-    def get_siteinfo_general(self):
-        """Get the siteinfo/general data."""
-        tasks.update_general.delay(self.__has_api_url)
+    def record_general(self):
+        """Get extension data."""
+        tasks.record_general.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_extensions(self):
         """Get extension data."""
         tasks.record_extensions.delay(self.__has_id, self.__website_name, self.__has_api_url)
+
+    def record_skins(self):
+        """Get extension data."""
+        tasks.record_skins.delay(self.__has_id, self.__website_name, self.__has_api_url)
+
+    def record_smwinfo(self):
+        """Get extension data."""
+        tasks.record_smwinfo.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def retrieve_siteinfo_general(self):
         """Return the data stored for siteinfo/general."""
