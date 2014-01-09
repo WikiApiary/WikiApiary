@@ -6,6 +6,7 @@
 
 # We need to connect to mysql
 mysql-python
+yoyo-migrations
 
 # Use requests to make it easier to do things with URLs
 requests

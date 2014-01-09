@@ -14,7 +14,7 @@ install:
 
 before_script:
   - mysql -e 'create database apiary;'
-  - mysql -u travis apiary < "./sql/apiary-001.sql"
+  - yoyo-migrate -b -vv apply ./migrations/ mysql://travis@localhost/apiary
 
 # command to run tests
 script:
