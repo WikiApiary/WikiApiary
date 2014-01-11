@@ -21,5 +21,6 @@ step(
         `subobjectcount` int(11) DEFAULT NULL, \
         PRIMARY KEY (`website_id`,`capture_date`) \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `smwinfo`",
+    "DROP TABLE `smwinfo`",
+    ignore_errors='rollback', # This table is dropped in migration 20.
 )

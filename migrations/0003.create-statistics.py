@@ -26,5 +26,5 @@ step(
         KEY `idx_capture_date` (`capture_date`) USING BTREE \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8 \
     PARTITION BY HASH (website_id) PARTITIONS 15",
-    "DROP TABLE IF EXISTS `statistics`",
+    "DROP TABLE `statistics`",
 )

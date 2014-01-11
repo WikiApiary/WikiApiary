@@ -22,5 +22,5 @@ step(
         KEY `idx_log_date` (`log_date`) USING BTREE, \
         KEY `idx_website_id_log_date` (`website_id`,`log_date`) USING BTREE \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `apiary_website_logs`",
+    "DROP TABLE `apiary_website_logs`",
 )

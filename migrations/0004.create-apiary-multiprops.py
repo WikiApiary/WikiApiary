@@ -20,5 +20,5 @@ step(
 		`occurrences` int(11) NOT NULL, \
 		PRIMARY KEY (`website_id`,`t_name`,`t_value`) \
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-	"DROP TABLE IF EXISTS `apiary_multiprops`",
+	"DROP TABLE `apiary_multiprops`",
 )

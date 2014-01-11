@@ -32,5 +32,5 @@ step(
         `smw_declaredpropcount_last` int(11) NOT NULL, \
         PRIMARY KEY (`website_id`,`website_date`) \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `statistics_daily`",
+    "DROP TABLE `statistics_daily`",
 )

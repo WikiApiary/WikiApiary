@@ -20,5 +20,5 @@ step(
         `last_skin_hash` char(64) DEFAULT NULL, \
         PRIMARY KEY (`website_id`) \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `website_status`",
+    "DROP TABLE `website_status`",
 )

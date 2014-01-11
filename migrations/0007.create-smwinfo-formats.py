@@ -15,4 +15,5 @@ step(
 		PRIMARY KEY (`website_id`,`capture_date`) \
 	) ENGINE=InnoDB DEFAULT CHARSET=utf8",
 	"DROP TABLE IF EXISTS `smwinfo_formats`",
+    ignore_errors='rollback', # This table is dropped in migration 20.
 )

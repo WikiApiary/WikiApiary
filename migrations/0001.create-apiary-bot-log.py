@@ -19,5 +19,5 @@ step(
         PRIMARY KEY (`log_id`), \
         KEY `idx_log_date` (`log_date`) USING BTREE \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `apiary_bot_log`",
+    "DROP TABLE `apiary_bot_log`",
 )

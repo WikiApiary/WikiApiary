@@ -44,5 +44,6 @@ step(
         `format_ul` int(11) NOT NULL, \
         PRIMARY KEY (`website_id`,`capture_date`) \
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8",
-    "DROP TABLE IF EXISTS `smwextinfo`"
+    "DROP TABLE IF EXISTS `smwextinfo`",
+    ignore_errors='rollback', # This table is dropped in migration 20.
 )
