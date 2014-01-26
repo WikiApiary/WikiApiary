@@ -7,7 +7,6 @@
 # We need to connect to mysql
 mysql-python
 yoyo-migrations
-PySQLPool
 
 # CherryPy for the API
 cherrypy
