@@ -1,19 +1,11 @@
 """
 Base class for WikiApiary websites.
 """
-
 # pylint: disable=C0301
-
-import MySQLdb as mdb
-import simplejson
 import re
-from bs4 import BeautifulSoup
-import operator
-import urlparse
-import pygeoip
-import requests
-from simplemediawiki import MediaWiki
 from WikiApiary import tasks
+from WikiApiary.apiary.tasks.website import RecordGeneralTask, RecordSkinsTask, RecordExtentionsTask
+
 
 class Website(object):
     """Class for websites in WikiApiary."""
@@ -46,15 +38,15 @@ class Website(object):
 
     def record_general(self):
         """Get extension data."""
-        tasks.record_general.delay(self.__has_id, self.__website_name, self.__has_api_url)
+        RecordGeneralTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_extensions(self):
         """Get extension data."""
-        tasks.record_extensions.delay(self.__has_id, self.__website_name, self.__has_api_url)
+        RecordExtentionsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_skins(self):
         """Get extension data."""
-        tasks.record_skins.delay(self.__has_id, self.__website_name, self.__has_api_url)
+        RecordSkinsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_smwinfo(self):
         """Get extension data."""

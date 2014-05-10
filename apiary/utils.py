@@ -4,9 +4,11 @@
 
 import HTMLParser
 import re
+import pygeoip
 import datetime
+import operator
 import pytz
-
+from WikiApiary.apiary.connect import apiary_db
 
 def filter_illegal_chars(pre_filter):
     """Utility function to make sure that strings are okay for page titles"""
@@ -28,7 +30,7 @@ def ProcessMultiprops(site_id, key, value):
     # First update the timestamp for seeing the current name/value
     cur = apiary_db.cursor()
     temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
-        self.sqlutcnow(),
+        sqlutcnow(),
         site_id,
         key,
         value)

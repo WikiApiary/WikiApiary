@@ -5,7 +5,7 @@ from celery import Celery
 app = Celery('WikiApiary',
              broker='redis://',
              backend='redis://',
-             include=['WikiApiary.tasks'])
+             include=['WikiApiary.tasks', 'WikiApiary.apiary.tasks.website'])
 
 # Optional configuration, see the application user guide.
 app.conf.update(
