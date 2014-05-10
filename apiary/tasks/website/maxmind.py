@@ -1,5 +1,5 @@
 """Record MaxMind data."""
-# pylint: disable=C0301
+# pylint: disable=C0301,R0201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
@@ -17,8 +17,8 @@ class MaxmindTask(BaseApiaryTask):
         hostname = urlparse.urlparse(api_url).hostname
         template_block = self.generate_template(hostname)
 
-        c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
-        LOGGER.debug(c)
+        wiki_return = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
+        LOGGER.debug(wiki_return)
         return True
 
     def generate_template(self, hostname):
@@ -27,8 +27,8 @@ class MaxmindTask(BaseApiaryTask):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
         template_block += "{{Maxmind\n"
 
-        gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
-        data = gi.record_by_name(hostname)
+        geoip = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
+        data = geoip.record_by_name(hostname)
 
         for val in data:
             template_block += "|%s=%s\n" % (val, data[val])

@@ -1,5 +1,5 @@
 """Get skin data."""
-# pylint: disable=C0301
+# pylint: disable=C0301,R0201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 from WikiApiary.apiary.utils import filter_illegal_chars
@@ -22,10 +22,14 @@ class RecordSkinsTask(BaseApiaryTask):
         if req.status_code == 200:
             # Successfully pulled data
             if 'query' in data:
-                datapage = "%s/Skins" % sitename
                 template_block = self.generate_template(data['query']['skins'])
-                c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
-                LOGGER.debug(c)
+                wiki_return = self.bumble_bee.call({
+                    'action': 'edit',
+                    'title': "%s/Skins" % sitename,
+                    'text': template_block,
+                    'token': self.bumble_bee_token,
+                    'bot': 'true'})
+                LOGGER.debug(wiki_return)
                 return True
             else:
                 self.record_error(

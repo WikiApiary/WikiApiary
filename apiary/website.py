@@ -16,16 +16,12 @@ class Website(object):
     """Class for websites in WikiApiary."""
 
     __data = {} #Private dictionary to store data from website
-    __has_api_url = None; #Store the API URL
+    __has_api_url = None    #Store the API URL
 
     def __init__(self, website_id, website_name, api_url):
         self.__has_id = website_id
         self.__website_name = website_name
         self.__has_api_url = api_url
-
-    def status(self):
-        """Display the status of a website."""
-        print "%d %s %s" % (self.website_id, self.name, self.api_url)
 
     def get_id(self):
         """Return the ID for a website."""
