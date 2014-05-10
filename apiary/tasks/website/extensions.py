@@ -1,3 +1,6 @@
+"""Record extension data."""
+# pylint: disable=C0301
+
 from WikiApiary.apiary.tasks import BaseApiaryTask
 from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
@@ -22,17 +25,16 @@ class RecordExtentionsTask(BaseApiaryTask):
             # Successfully pulled data
             if 'query' in data:
                 # Looks like a valid response
-                datapage = "%s/Extensions" % sitename
                 template_block = self.generate_template(data['query']['extensions'])
                 print template_block
-                c = self.bumble_bee.call({
+                wiki_return = self.bumble_bee.call({
                     'action': 'edit',
-                    'title': datapage,
+                    'title': "%s/Extensions" % sitename,
                     'text': template_block,
                     'token': self.bumble_bee_token,
                     'bot': 'true'
                     })
-                LOGGER.debug(c)
+                LOGGER.debug(wiki_return)
                 return True
             else:
                 self.record_error(
@@ -133,3 +135,4 @@ class RecordExtentionsTask(BaseApiaryTask):
         template_block += "</includeonly>"
 
         return template_block
+

@@ -2,12 +2,14 @@
 Base class for WikiApiary websites.
 """
 # pylint: disable=C0301
+
 import re
 from WikiApiary import tasks
 from WikiApiary.apiary.tasks.website.extensions import RecordExtentionsTask
 from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
 from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
 from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
+from WikiApiary.apiary.tasks.website.whois import RecordWhoisTask
 
 
 class Website(object):
@@ -54,6 +56,10 @@ class Website(object):
     def record_maxmind(self):
         """Get extension data."""
         MaxmindTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
+
+    def record_whois(self):
+        """Get whois data."""
+        RecordWhoisTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_smwinfo(self):
         """Get extension data."""

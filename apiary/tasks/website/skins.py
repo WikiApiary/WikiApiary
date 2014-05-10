@@ -1,3 +1,6 @@
+"""Get skin data."""
+# pylint: disable=C0301
+
 from WikiApiary.apiary.tasks import BaseApiaryTask
 from WikiApiary.apiary.utils import filter_illegal_chars
 import requests

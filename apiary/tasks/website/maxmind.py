@@ -1,3 +1,6 @@
+"""Record MaxMind data."""
+# pylint: disable=C0301
+
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
 import urlparse

@@ -20,42 +20,6 @@ SMWINFO_QUERY = ''.join([
 
 
 @app.task
-def record_whois(site_id, sitename, api_url):
-    # Now that we successfully got the data, we can make a quick query to get the server info
-    hostname = urlparse.urlparse(api_url).hostname
-    addr = socket.gethostbyname(hostname)
-
-    datapage = "%s/Whois" % sitename
-    template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
-    template_block += "{{Whois\n"
-
-    template_block += "|HTTP server=%s\n" % ('')
-    try:
-        template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site['Has ID'], 'addr', addr))
-    except:
-        pass
-
-    try:
-        reverse_host = socket.gethostbyaddr(addr)[0]
-        template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site['Has ID'], 'reverse_host', reverse_host))
-    except:
-        pass
-
-    # Now lets get the netblock information
-    try:
-        whois = Whois()
-        netblock_owner = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@name']
-        netblock_owner_handle = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@handle']
-        template_block += "|Netblock organization=%s\n" % (netblock_owner)
-        template_block += "|Netblock organization handle=%s\n" % netblock_owner_handle
-    except:
-        pass
-
-    template_block += "}}\n</includeonly>\n"
-
-    c = apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
-
-@app.task
 def record_smwinfo(site_id, sitename, api_url):
     """Pull skin data from website and write to WikiApiary."""
 

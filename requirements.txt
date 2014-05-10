@@ -21,6 +21,7 @@ kitchen
 # We use this to get data from MaxMind and store information
 # into wikiapiary.com from MaxMind database
 pygeoip
+Whois
 
 # We use semantic versioning to understand better the version
 # numbers we deal with
