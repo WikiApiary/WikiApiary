@@ -10,7 +10,7 @@ import logging
 
 LOGGER = logging.getLogger()
 
-APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'WikiApiary/config/apiary.cfg')
+APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
 config = ConfigParser.SafeConfigParser()
 
 try:
