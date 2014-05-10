@@ -18,6 +18,7 @@ class RecordExtentionsTask(BaseApiaryTask):
 
         data_url = api_url + '?action=query&meta=siteinfo&siprop=extensions&format=json'
 
+        LOGGER.debug("Requesting from %s" % data_url)
         req = requests.get(data_url, timeout = 30)
         data = req.json()
 
@@ -26,7 +27,6 @@ class RecordExtentionsTask(BaseApiaryTask):
             if 'query' in data:
                 # Looks like a valid response
                 template_block = self.generate_template(data['query']['extensions'])
-                print template_block
                 wiki_return = self.bumble_bee.call({
                     'action': 'edit',
                     'title': "%s/Extensions" % sitename,

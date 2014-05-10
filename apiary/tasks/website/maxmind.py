@@ -5,15 +5,22 @@ from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
 import urlparse
 import pygeoip
-
+import os
 
 LOGGER = logging.getLogger()
+GEODATA = '../vendor/GeoLiteCity.dat'
 
 class MaxmindTask(BaseApiaryTask):
     """Use the MaxMind GeoIP database to associated geo data with websites."""
 
     def run(self, site_id, sitename, api_url):
         """Get MaxMind data for website and write to WikiApiary."""
+
+        # Make sure we have the database to do this, if not just return
+        # false immediately
+        if not os.path.isfile(GEODATA):
+            LOGGER.warn("Unable to load MaxMind database at %s" % GEODATA)
+            return False
 
         datapage = "%s/Maxmind" % sitename
         hostname = urlparse.urlparse(api_url).hostname
@@ -35,7 +42,7 @@ class MaxmindTask(BaseApiaryTask):
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
         template_block += "{{Maxmind\n"
 
-        geoip = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
+        geoip = pygeoip.GeoIP(GEODATA)
         data = geoip.record_by_name(hostname)
 
         for val in data:

@@ -10,38 +10,49 @@ import logging
 
 LOGGER = logging.getLogger()
 
-APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
-config = ConfigParser.SafeConfigParser()
+# Set default connection details for localhost dev
+API_URL = 'https://wikiapiary.com/w/api.php'
+APIARYDB_HOSTNAME = 'localhost'
+APIARYDB_DATABASE = 'apiary'
+APIARYDB_USERNAME = 'root'
+APIARYDB_PASSWORD = ''
 
-try:
-    LOGGER.info("Reading configuration from %s" % APIARY_CONFIG)
+if os.environ.get("TRAVIS") == "true":
+    LOGGER.info("Configuring for TravisCI")
+    APIARYDB_USERNAME = 'travis'
+    APIARYDB_PASSWORD = ''
+
+APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
+if os.path.isfile(APIARY_CONFIG):
+    LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
+    config = ConfigParser.SafeConfigParser()
     config.read(APIARY_CONFIG)
-except IOError:
-    print "Cannot open configuration file at %s." % APIARY_CONFIG
-    raise
+    APIARYDB_USERNAME = config.get('ApiaryDB', 'username')
+    APIARYDB_PASSWORD = config.get('ApiaryDB', 'password')
+else:
+    LOGGER.info("No configuration file detected.")
 
 def open_connection(bot_name):
     """Open a connection to MediaWiki for a bot."""
 
-    api_url = config.get('WikiApiary', 'API')
-    username = config.get(bot_name, 'Username')
-    password = config.get(bot_name, 'Password')
+    LOGGER.info("Opening MediaWiki connection for %s at %s" % (bot_name, API_URL))
+    apiary_wiki = MediaWiki(API_URL)
 
-    LOGGER.info("Opening MediaWiki connection for %s at %s" % (bot_name, api_url))
-    apiary_wiki = MediaWiki(api_url)
-    LOGGER.debug("Logging in as %s with password %s" % (username, password))
-    apiary_wiki.login(username, password)
+    try:
+        password = config.get('Passwords', bot_name)
+        LOGGER.debug("Logging in as %s using %s" % (bot_name, password))
+        apiary_wiki.login(bot_name, password)
 
-    # Get the edit token for writes
-    wiki_return = apiary_wiki.call({
-        'action': 'tokens',
-        'type': 'edit'
-    })
-    LOGGER.info(wiki_return)
-    edit_token = wiki_return['tokens']['edittoken']
+        wiki_return = apiary_wiki.call({
+            'action': 'tokens',
+            'type': 'edit'
+        })
+        edit_token = wiki_return['tokens']['edittoken']
+        LOGGER.info("%s has been given edit token %s" % (bot_name, edit_token))
 
-    # Perform a write to validate our connection to WikiApiary
-    #c = apiary_wiki.call({'action': 'query', 'titles': 'Foo', 'prop': 'info', 'intoken': 'edit'})
+    except:
+        LOGGER.warn("Unable to login as %s. " % bot_name)
+        edit_token = None
 
     return (apiary_wiki, edit_token)
 
@@ -53,8 +64,8 @@ audit_bee, audit_bee_token = open_connection("Audit Bee")
 
 LOGGER.info("Opening MySQL connection")
 apiary_db = mdb.connect(
-    host=config.get('ApiaryDB', 'hostname'),
-    db=config.get('ApiaryDB', 'database'),
-    user=config.get('ApiaryDB', 'username'),
-    passwd=config.get('ApiaryDB', 'password'),
+    host=APIARYDB_HOSTNAME,
+    db=APIARYDB_DATABASE,
+    user=APIARYDB_USERNAME,
+    passwd=APIARYDB_PASSWORD,
     charset='utf8')

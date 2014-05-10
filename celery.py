@@ -15,6 +15,7 @@ app = Celery(
         'WikiApiary.apiary.tasks.website.general',
         'WikiApiary.apiary.tasks.website.maxmind',
         'WikiApiary.apiary.tasks.website.skins',
+        'WikiApiary.apiary.tasks.website.statistics',
         'WikiApiary.apiary.tasks.website.whois' 
     ]
 )
