@@ -1,7 +1,7 @@
 from WikiApiary.apiary.tasks import BaseApiaryTask
-import requests
 import logging
 import urlparse
+import pygeoip
 
 
 LOGGER = logging.getLogger()
@@ -12,7 +12,7 @@ class MaxmindTask(BaseApiaryTask):
 
         datapage = "%s/Maxmind" % sitename
         hostname = urlparse.urlparse(api_url).hostname
-        template_block = generate_template(hostname)
+        template_block = self.generate_template(hostname)
 
         c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
         LOGGER.debug(c)

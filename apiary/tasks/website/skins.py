@@ -1,7 +1,8 @@
 from WikiApiary.apiary.tasks import BaseApiaryTask
+from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
 import logging
-import urlparse
+import operator
 
 
 LOGGER = logging.getLogger()
@@ -19,7 +20,7 @@ class RecordSkinsTask(BaseApiaryTask):
             # Successfully pulled data
             if 'query' in data:
                 datapage = "%s/Skins" % sitename
-                template_block = generate_template(data['query']['skins'])
+                template_block = self.generate_template(data['query']['skins'])
                 c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
                 LOGGER.debug(c)
                 return True

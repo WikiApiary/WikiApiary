@@ -1,7 +1,7 @@
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import requests
 import logging
-import urlparse
+from WikiApiary.apiary.utils import ProcessMultiprops
 
 
 LOGGER = logging.getLogger()
@@ -18,7 +18,7 @@ class RecordGeneralTask(BaseApiaryTask):
             # Successfully pulled data
             if 'query' in data:
                 datapage = "%s/General" % sitename
-                template_block = generate_template(site_id, data['query']['general'])
+                template_block = self.generate_template(site_id, data['query']['general'])
                 c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
                 LOGGER.debug(c)
                 # Update the status table that we did our work! It doesn't matter if this was an error.

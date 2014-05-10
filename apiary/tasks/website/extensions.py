@@ -1,7 +1,9 @@
 from WikiApiary.apiary.tasks import BaseApiaryTask
+from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
 import logging
-import urlparse
+import HTMLParser
+import re
 
 
 LOGGER = logging.getLogger()
@@ -21,7 +23,7 @@ class RecordExtentionsTask(BaseApiaryTask):
             if 'query' in data:
                 # Looks like a valid response
                 datapage = "%s/Extensions" % sitename
-                template_block = generate_template(data['query']['extensions'])
+                template_block = self.generate_template(data['query']['extensions'])
                 print template_block
                 c = self.bumble_bee.call({
                     'action': 'edit',
