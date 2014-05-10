@@ -7,14 +7,15 @@ as expected.
 import unittest
 if __name__ == "__main__" and __package__ is None:
     __package__ = "WikiApiary.apiary.tests"
-from WikiApiary.apiary import website
+from WikiApiary.apiary.tasks.website.whois import RecordWhoisTask
 
 
 class TestRecordWhoisTask(unittest.TestCase):
     """Run some tests."""
 
     def test_whois_task(self):
-        website.Website(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php').record_whois()
+        task = RecordWhoisTask()
+        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
 if __name__ == '__main__':
     unittest.main()

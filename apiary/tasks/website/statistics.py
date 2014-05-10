@@ -37,10 +37,11 @@ class GetStatisticsTask(BaseApiaryTask):
         """Get the site statistics using the Special:Statistics page."""
         stats_url = self.statistics_url + '&action=raw'
 
-    def run(self, site, method):
+    def run(self, site_id, site, api_url):
+        method = "API"
         if method == 'API':
             # Go out and get the statistic information
-            data_url = site['Has API URL'] + '?action=query&meta=siteinfo&siprop=statistics&format=json'
+            data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
             LOGGER.info("Pulling statistics info from %s." % data_url)
             (status, data, duration) = self.pull_json(site, data_url)
         elif method == 'Statistics':
