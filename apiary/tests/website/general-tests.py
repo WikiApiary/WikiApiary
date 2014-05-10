@@ -11,11 +11,17 @@ from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
 
 
 class TestRecordGeneralTask(unittest.TestCase):
-    """Run some tests."""
+    """Test the methods that access general siteinfo."""
 
     def test_record_general(self):
+        """Get general site information from WikiApiary."""
         task = RecordGeneralTask()
-        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        assert task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php') == True
+
+    def test_record_general(self):
+        """Get general site information from non-existent website."""
+        task = RecordGeneralTask()
+        assert task.run(18, 'Foo', 'https://foo.bar.com') == False
 
 if __name__ == '__main__':
     unittest.main()
