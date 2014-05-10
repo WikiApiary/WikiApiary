@@ -14,8 +14,13 @@ class RecordGeneralTask(BaseApiaryTask):
     def run(self, site_id, sitename, api_url):
         data_url = api_url + '?action=query&meta=siteinfo&siprop=general&format=json'
 
-        req = requests.get(data_url, timeout = 30)
-        data = req.json()
+        LOGGER.debug("Requesting from %s" % data_url)
+        try:
+            req = requests.get(data_url, timeout = 30)
+            data = req.json()
+        except Exception, e:
+            LOGGER.error(e)
+            return False
 
         if req.status_code == 200:
             # Successfully pulled data
