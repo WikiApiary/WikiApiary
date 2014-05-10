@@ -44,90 +44,90 @@ class RecordExtentionsTask(BaseApiaryTask):
         return False
 
     def generate_template(self, ext_obj):
-    """Build a the wikitext for the extensions subpage."""
+        """Build a the wikitext for the extensions subpage."""
 
-    h = HTMLParser.HTMLParser()
+        h = HTMLParser.HTMLParser()
 
-    # Some keys we do not want to store in WikiApiary
-    ignore_keys = ['descriptionmsg']
-    # Some keys we turn into more readable names for using inside of WikiApiary
-    key_names = {
-        'author': 'Extension author',
-        'name': 'Extension name',
-        'version': 'Extension version',
-        'type': 'Extension type',
-        'url': 'Extension URL'
-    }
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = ['descriptionmsg']
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {
+            'author': 'Extension author',
+            'name': 'Extension name',
+            'version': 'Extension version',
+            'type': 'Extension type',
+            'url': 'Extension URL'
+        }
 
-    template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
 
-    for extension in ext_obj:
-        if 'name' in extension:
-            template_block += "{{Extension in use\n"
+        for extension in ext_obj:
+            if 'name' in extension:
+                template_block += "{{Extension in use\n"
 
-            for item in extension:
-                if item not in ignore_keys:
+                for item in extension:
+                    if item not in ignore_keys:
 
-                    name = key_names.get(item, item)
-                    value = extension[item]
+                        name = key_names.get(item, item)
+                        value = extension[item]
 
-                    if item == 'name':
-                        # Sometimes people make the name of the extension a hyperlink using
-                        # wikitext links and this makes things ugly. So, let's detect that if present.
-                        if re.match(r'\[(http[^\s]+)\s+([^\]]+)\]', value):
-                            (possible_url, value) = re.findall(r'\[(http[^\s]+)\s+([^\]]+)\]', value)[0]
-                            # If a URL was given in the name, and not given as a formal part of the
-                            # extension definition (yes, this happens) then add this to the template
-                            # it is up to the template to decide what to do with this
-                            template_block += "|URL Embedded in name=%s" % possible_url
+                        if item == 'name':
+                            # Sometimes people make the name of the extension a hyperlink using
+                            # wikitext links and this makes things ugly. So, let's detect that if present.
+                            if re.match(r'\[(http[^\s]+)\s+([^\]]+)\]', value):
+                                (possible_url, value) = re.findall(r'\[(http[^\s]+)\s+([^\]]+)\]', value)[0]
+                                # If a URL was given in the name, and not given as a formal part of the
+                                # extension definition (yes, this happens) then add this to the template
+                                # it is up to the template to decide what to do with this
+                                template_block += "|URL Embedded in name=%s" % possible_url
 
-                        value = filter_illegal_chars(value)
-                        # Before unescaping 'regular' unicode characters, first deal with spaces
-                        # because they cause problems when converted to unicode non-breaking spaces
-                        value = value.replace('&nbsp;', ' ').replace('&#160;', ' ').replace('&160;', ' ')
-                        value = h.unescape(value)
+                            value = filter_illegal_chars(value)
+                            # Before unescaping 'regular' unicode characters, first deal with spaces
+                            # because they cause problems when converted to unicode non-breaking spaces
+                            value = value.replace('&nbsp;', ' ').replace('&#160;', ' ').replace('&160;', ' ')
+                            value = h.unescape(value)
 
-                    # if item == 'version':
-                    #     # Breakdown the version information for more detailed analysis
-                    #     ver_details = self.parse_version(value)
-                    #     if 'major' in ver_details:
-                    #         template_block += "|Extension version major=%s\n" % ver_details['major']
-                    #     if 'minor' in ver_details:
-                    #         template_block += "|Extension version minor=%s\n" % ver_details['minor']
-                    #     if 'bugfix' in ver_details:
-                    #         template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
-                    #     if 'flag' in ver_details:
-                    #         template_block += "|Extension version flag=%s\n" % ver_details['flag']
+                        # if item == 'version':
+                        #     # Breakdown the version information for more detailed analysis
+                        #     ver_details = self.parse_version(value)
+                        #     if 'major' in ver_details:
+                        #         template_block += "|Extension version major=%s\n" % ver_details['major']
+                        #     if 'minor' in ver_details:
+                        #         template_block += "|Extension version minor=%s\n" % ver_details['minor']
+                        #     if 'bugfix' in ver_details:
+                        #         template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
+                        #     if 'flag' in ver_details:
+                        #         template_block += "|Extension version flag=%s\n" % ver_details['flag']
 
-                    if item == 'author':
-                        # Authors can have a lot of junk in them, wikitext and such.
-                        # We'll try to clean that up.
+                        if item == 'author':
+                            # Authors can have a lot of junk in them, wikitext and such.
+                            # We'll try to clean that up.
 
-                        # Wikilinks with names
-                        # "[[Foobar | Foo Bar]]"
-                        value = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', value)
-                        # Simple Wikilinks
-                        value = re.sub(r'\[\[(.*)\]\]', r'\1', value)
-                        # Hyperlinks as wikiext
-                        # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
-                        value = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', value)
-                        # Misc text
-                        value = re.sub(r'\sand\s', r', ', value)
-                        value = re.sub(r'\.\.\.', r'', value)
-                        value = re.sub(r'&nbsp;', r' ', value)
-                        # Lastly, there could be HTML encoded stuff in these
-                        value = h.unescape(value)
+                            # Wikilinks with names
+                            # "[[Foobar | Foo Bar]]"
+                            value = re.sub(r'\[\[.*\|(.*)\]\]', r'\1', value)
+                            # Simple Wikilinks
+                            value = re.sub(r'\[\[(.*)\]\]', r'\1', value)
+                            # Hyperlinks as wikiext
+                            # "[https://www.mediawiki.org/wiki/User:Jeroen_De_Dauw Jeroen De Dauw]"
+                            value = re.sub(r'\[\S+\s+([^\]]+)\]', r'\1', value)
+                            # Misc text
+                            value = re.sub(r'\sand\s', r', ', value)
+                            value = re.sub(r'\.\.\.', r'', value)
+                            value = re.sub(r'&nbsp;', r' ', value)
+                            # Lastly, there could be HTML encoded stuff in these
+                            value = h.unescape(value)
 
-                    if item == 'url':
-                        # Seems some people really really love protocol agnostic URL's
-                        # We detect them and add a generic http: protocol to them
-                        if re.match(r'^\/\/', value):
-                            value = 'http:' + value
+                        if item == 'url':
+                            # Seems some people really really love protocol agnostic URL's
+                            # We detect them and add a generic http: protocol to them
+                            if re.match(r'^\/\/', value):
+                                value = 'http:' + value
 
-                    template_block += "|%s=%s\n" % (name, value)
+                        template_block += "|%s=%s\n" % (name, value)
 
-            template_block += "}}\n"
+                template_block += "}}\n"
 
-    template_block += "</includeonly>"
+        template_block += "</includeonly>"
 
-    return template_block
+        return template_block

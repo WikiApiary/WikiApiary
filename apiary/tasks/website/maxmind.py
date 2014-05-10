@@ -19,18 +19,18 @@ class MaxmindTask(BaseApiaryTask):
         return True
 
     def generate_template(self, hostname):
-	    """Build a the wikitext for the maxmind subpage."""
+        """Build a the wikitext for the maxmind subpage."""
 
-	    template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
-	    template_block += "{{Maxmind\n"
+        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block += "{{Maxmind\n"
 
-	    gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
-	    data = gi.record_by_name(hostname)
+        gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
+        data = gi.record_by_name(hostname)
 
-	    for val in data:
-	        template_block += "|%s=%s\n" % (val, data[val])
+        for val in data:
+            template_block += "|%s=%s\n" % (val, data[val])
 
-	    template_block += "}}\n</includeonly>\n"
+        template_block += "}}\n</includeonly>\n"
 
-	    return template_block
+        return template_block
 
