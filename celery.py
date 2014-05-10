@@ -5,7 +5,12 @@ from celery import Celery
 app = Celery('WikiApiary',
              broker='redis://',
              backend='redis://',
-             include=['WikiApiary.tasks', 'WikiApiary.apiary.tasks.website'])
+             include=[
+                'WikiApiary.apiary.tasks.website.extensions',
+                'WikiApiary.apiary.tasks.website.general',
+                'WikiApiary.apiary.tasks.website.maxmind',
+                'WikiApiary.apiary.tasks.website.skins'
+             ])
 
 # Optional configuration, see the application user guide.
 app.conf.update(

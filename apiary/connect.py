@@ -1,25 +1,34 @@
+"""Connect to database and open connections to WikiApiary."""
+
 import ConfigParser
 from simplemediawiki import MediaWiki
 import os
 import MySQLdb as mdb
+import logging
 
+
+LOGGER = logging.getLogger()
 
 APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'WikiApiary/config/apiary.cfg')
 config = ConfigParser.ConfigParser()
 
 try:
-	config.read(APIARY_CONFIG)
+    config.read(APIARY_CONFIG)
 except IOError:
     print "Cannot open %s." % APIARY_CONFIG
 
 
 def open_connection(bot_name):
-	apiary_wiki = MediaWiki(config.get('WikiApiary', 'API'))
-	apiary_wiki.login(config.get(bot_name, 'Username'), config.get(bot_name, 'Password'))
-	# We need an edit token
-	c = apiary_wiki.call({'action': 'query', 'titles': 'Foo', 'prop': 'info', 'intoken': 'edit'})
-	edit_token = c['query']['pages']['-1']['edittoken']
-	return (apiary_wiki, edit_token)
+    """Open a connection to MediaWiki."""
+
+    apiary_wiki = MediaWiki(config.get('WikiApiary', 'API'))
+    apiary_wiki.login(config.get(bot_name, 'Username'), config.get(bot_name, 'Password'))
+
+    # We need an edit token
+    c = apiary_wiki.call({'action': 'query', 'titles': 'Foo', 'prop': 'info', 'intoken': 'edit'})
+    edit_token = c['query']['pages']['-1']['edittoken']
+
+    return (apiary_wiki, edit_token)
 
 
 bumble_bee, bumble_bee_token = open_connection("Bumble Bee")
