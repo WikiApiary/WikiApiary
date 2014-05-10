@@ -4,7 +4,7 @@ Base class for WikiApiary websites.
 # pylint: disable=C0301
 
 # Import the task classes associated with websites
-from WikiApiary.apiary.tasks.website.extensions import RecordExtentionsTask
+from WikiApiary.apiary.tasks.website.extensions import RecordExtensionsTask
 from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
 from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
 from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
@@ -27,7 +27,7 @@ class Website(object):
 
     def record_extensions(self):
         """Get extension data."""
-        RecordExtentionsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
+        RecordExtensionsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_skins(self):
         """Get extension data."""

@@ -1,5 +1,5 @@
 """Record extension data."""
-# pylint: disable=C0301
+# pylint: disable=C0301,W1201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 from WikiApiary.apiary.utils import filter_illegal_chars
@@ -11,7 +11,7 @@ import re
 
 LOGGER = logging.getLogger()
 
-class RecordExtentionsTask(BaseApiaryTask):
+class RecordExtensionsTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
         """Get extensions from the website and write them to WikiApiary."""
@@ -19,8 +19,12 @@ class RecordExtentionsTask(BaseApiaryTask):
         data_url = api_url + '?action=query&meta=siteinfo&siprop=extensions&format=json'
 
         LOGGER.debug("Requesting from %s" % data_url)
-        req = requests.get(data_url, timeout = 30)
-        data = req.json()
+        try:
+            req = requests.get(data_url, timeout = 30)
+            data = req.json()
+        except Exception, e:
+            LOGGER.error(e)
+            return False
 
         if req.status_code == 200:
             # Successfully pulled data
