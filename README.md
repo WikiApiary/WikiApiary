@@ -19,3 +19,7 @@ General information on versions and extensions being used are pulled and recorde
 ### Notify Bee
 
 Bot that handles email notifications.
+
+Jamie Thingelstad <jamie@thingelstad.com>
+http://wikiapiary.com/wiki/User:Thingles
+http://thingelstad.com/

@@ -2,7 +2,13 @@
 	"folders":
 	[
 		{
-			"path": "/Users/jthingelstad/Project/WikiApiary"
+			"path": ".",
+			"file_exclude_patterns": [".yoyo-migrate", "*.sublime-workspace"]
 		}
-	]
+	],
+	"settings":
+	{
+		"tab_size": 4,
+		"translate_tabs_to_spaces": true
+	}
 }

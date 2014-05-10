@@ -1,10 +1,6 @@
 """
 Base class for all WikiApiary bots. To make another bot, create a new class derived
 from this class.
-
-Jamie Thingelstad <jamie@thingelstad.com>
-http://wikiapiary.com/wiki/User:Thingles
-http://thingelstad.com/
 """
 
 import sys

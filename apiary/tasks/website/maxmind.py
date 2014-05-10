@@ -1,5 +1,5 @@
 """Record MaxMind data."""
-# pylint: disable=C0301,R0201
+# pylint: disable=C0301,R0201,R0904
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
@@ -10,6 +10,8 @@ import pygeoip
 LOGGER = logging.getLogger()
 
 class MaxmindTask(BaseApiaryTask):
+    """Use the MaxMind GeoIP database to associated geo data with websites."""
+
     def run(self, site_id, sitename, api_url):
         """Get MaxMind data for website and write to WikiApiary."""
 
@@ -17,7 +19,13 @@ class MaxmindTask(BaseApiaryTask):
         hostname = urlparse.urlparse(api_url).hostname
         template_block = self.generate_template(hostname)
 
-        wiki_return = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
+        wiki_return = self.bumble_bee.call({
+            'action': 'edit',
+            'title': datapage,
+            'text': template_block,
+            'token': self.bumble_bee_token,
+            'bot': 'true'
+        })
         LOGGER.debug(wiki_return)
         return True
 

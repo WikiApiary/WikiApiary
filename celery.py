@@ -1,16 +1,23 @@
-from __future__ import absolute_import
+"""
+Base celery app definition.
+"""
+# pylint: disable=C0103
 
+from __future__ import absolute_import
 from celery import Celery
 
-app = Celery('WikiApiary',
-             broker='redis://',
-             backend='redis://',
-             include=[
-                'WikiApiary.apiary.tasks.website.extensions',
-                'WikiApiary.apiary.tasks.website.general',
-                'WikiApiary.apiary.tasks.website.maxmind',
-                'WikiApiary.apiary.tasks.website.skins'
-             ])
+app = Celery(
+    'WikiApiary',
+    broker='redis://',
+    backend='redis://',
+    include=[
+        'WikiApiary.apiary.tasks.website.extensions',
+        'WikiApiary.apiary.tasks.website.general',
+        'WikiApiary.apiary.tasks.website.maxmind',
+        'WikiApiary.apiary.tasks.website.skins',
+        'WikiApiary.apiary.tasks.website.whois' 
+    ]
+)
 
 # Optional configuration, see the application user guide.
 app.conf.update(

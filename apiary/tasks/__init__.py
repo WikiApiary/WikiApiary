@@ -1,9 +1,17 @@
+"""
+baseclass for tasks
+"""
+# pylint: disable=C0301
+
 from celery.task import Task
 from WikiApiary.apiary.connect import bumble_bee, bumble_bee_token, audit_bee, audit_bee_token, apiary_db
 from WikiApiary.celery import app
+import logging
 import datetime
 import pytz
 
+
+LOGGER = logging.getLogger()
 
 class BaseApiaryTask(Task):
     bumble_bee = None
@@ -13,7 +21,7 @@ class BaseApiaryTask(Task):
     apiary_db = None
 
     def update_status(self, site, checktype):
-        # Update the website_status table
+        """Update the website_status table"""
         my_now = self.sqlutcnow()
 
         if checktype == "statistics":
@@ -32,6 +40,7 @@ class BaseApiaryTask(Task):
             self.runSql(temp_sql)
 
     def runSql(self, sql_command):
+        """Helper to run a SQL command and catch errors"""
         print "SQL: %s" % sql_command
         try:
             cur = self.apiary_db.cursor()
@@ -46,15 +55,19 @@ class BaseApiaryTask(Task):
             return False, 0
 
     def record_error(self, site, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
+        """
+        If a task encounters an error while collecting from a website it can record that
+        error into the ApiaryDB so it is then displayed to the users on WikiApiary. This
+        allows people that are not administrators on the machines running the bots to
+        correct collection errors.
+        """
         if 'pagename' not in site:
             if 'Has name' in site:
                 site['pagename'] = site['Has name']
 
-        if self.args.verbose >= 2:
-            print "New log message for %s" % site['pagename']
+        LOGGER.debug("New log message for %s" % site['pagename'])
 
-        if self.args.verbose >= 1:
-            print log_message
+        LOGGER.debug(log_message)
 
         if log_bot is None:
             log_bot = "null"

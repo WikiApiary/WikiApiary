@@ -5,7 +5,7 @@ from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
 import urlparse
 import socket
-import Whois
+import whois
 from WikiApiary.apiary.utils import ProcessMultiprops
 
 
