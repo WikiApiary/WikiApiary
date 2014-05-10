@@ -71,7 +71,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         y2label: 'Articles',
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/articles.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/articles.php?id=" + _id
     },
     {
       id: "edits",
@@ -94,7 +94,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         fillGraph: true,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/edits.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/edits.php?id=" + _id
     },
     {
       id: "users",
@@ -127,7 +127,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/users.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/users.php?id=" + _id
     },
     {
       id: "jobs",
@@ -151,7 +151,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         includeZero: true,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/jobs.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/jobs.php?id=" + _id
     },
     {
       id: "images",
@@ -174,7 +174,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         fillGraph: true,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/images.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/images.php?id=" + _id
     },
     {
       id: "response-time",
@@ -197,7 +197,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         includeZero: true,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/response_timer.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/response_timer.php?id=" + _id
     },
     // SMW Graphs
     {
@@ -221,7 +221,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/propcount.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/propcount.php?id=" + _id
     },
     {
       id: "properties",
@@ -243,7 +243,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/properties.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/properties.php?id=" + _id
     },
     // SMW Usage graphs
     {
@@ -267,7 +267,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/smwqueries.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/smwqueries.php?id=" + _id
     },
     {
       id: "querypages",
@@ -290,7 +290,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/smwquerypages.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/smwquerypages.php?id=" + _id
     },
     {
       id: "querysize",
@@ -313,7 +313,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/smwquerysize.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/smwquerysize.php?id=" + _id
     },
     {
       id: "queryformat",
@@ -338,7 +338,7 @@ window.Chart = function(targetDiv, id, defaultGraph) {
         yLabelWidth: 12,
         rightGap: 10
       },
-      path: "http://wikiapiary.com/apiary/data/smwqueryformat.php?id=" + _id
+      path: "https://wikiapiary.com/apiary/data/smwqueryformat.php?id=" + _id
     }
 
     ];

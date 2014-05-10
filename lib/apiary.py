@@ -51,6 +51,8 @@ class ApiaryBot:
         self.stats['skippedgeneral'] = 0
         self.stats['whois'] = 0
         self.stats['maxmind'] = 0
+        self.stats['interwikimap'] = 0
+        self.stats['namespaces'] = 0
 
     def get_config(self, config_file='../apiary.cfg'):
         try:
@@ -254,7 +256,7 @@ class ApiaryBot:
             '|?Collect statistics stats',
             '|sort=Creation date',
             '|order=asc',
-            '|limit=1000'])
+            '|limit=2000'])
         if self.args.verbose >= 3:
             print "Query: %s" % my_query
         sites = self.apiary_wiki.call({'action': 'ask', 'query': my_query})

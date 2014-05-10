@@ -390,21 +390,23 @@ class BumbleBee(ApiaryBot):
                 else:
                     subobjectcount = 'null'
 
-                sql_command = sql_command % (
-                    site['Has ID'],
-                    self.sqlutcnow(),
-                    duration,
-                    propcount,
-                    proppagecount,
-                    usedpropcount,
-                    declaredpropcount,
-                    querycount,
-                    querysize,
-                    conceptcount,
-                    subobjectcount)
+                # Before inserting insure we have good data
+                if propcount is not 'null':
+                    sql_command = sql_command % (
+                        site['Has ID'],
+                        self.sqlutcnow(),
+                        duration,
+                        propcount,
+                        proppagecount,
+                        usedpropcount,
+                        declaredpropcount,
+                        querycount,
+                        querysize,
+                        conceptcount,
+                        subobjectcount)
 
-                self.runSql(sql_command)
-                self.stats['smwinfo'] += 1
+                    self.runSql(sql_command)
+                    self.stats['smwinfo'] += 1
             else:
                 self.record_error(
                     site=site,
@@ -478,6 +480,8 @@ class BumbleBee(ApiaryBot):
 
         # Some keys we do not want to store in WikiApiary
         ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
+        # These items are only included if they are true
+        boolean_keys = ['imagewhitelistenabled', 'rtl', 'writeapi', 'misermode']
         # Some keys we turn into more readable names for using inside of WikiApiary
         key_names = {
             'dbtype': 'Database type',
@@ -493,7 +497,7 @@ class BumbleBee(ApiaryBot):
             'wikiid': 'Wiki ID'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{General subpage}}</noinclude><includeonly>"
 
         template_block += "{{General siteinfo\n"
 
@@ -504,6 +508,10 @@ class BumbleBee(ApiaryBot):
                 # If we have a name for this key use that
                 name = key_names.get(key, key)
                 value = x[key]
+
+                # These items are only included if they are true
+                if key in boolean_keys:
+                    value = True
 
                 # For some items we may need to do some preprocessing
                 if isinstance(value, basestring):
@@ -526,7 +534,7 @@ class BumbleBee(ApiaryBot):
         return template_block
 
     def BuildMaxmindTemplate(self, hostname):
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Maxmind subpage}}</noinclude><includeonly>"
         template_block += "{{Maxmind\n"
 
         gi = pygeoip.GeoIP('../vendor/GeoLiteCity.dat')
@@ -577,7 +585,7 @@ class BumbleBee(ApiaryBot):
         addr = socket.gethostbyname(hostname)
 
         datapage = "%s/Whois" % site['pagename']
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Whois subpage}}</noinclude><includeonly>"
         template_block += "{{Whois\n"
 
         template_block += "|HTTP server=%s\n" % ('')
@@ -638,7 +646,7 @@ class BumbleBee(ApiaryBot):
             'url': 'Extension URL'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Extensions subpage}}</noinclude><includeonly>"
 
         for x in ext_obj:
             if 'name' in x:
@@ -751,7 +759,7 @@ class BumbleBee(ApiaryBot):
             'unusable': 'Skipped skin'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Skins subpage}}</noinclude><includeonly>"
 
         # Skins are returned in random order so we need to sort them before
         # making the template, otherwise we generate a lot of edits
@@ -816,6 +824,132 @@ class BumbleBee(ApiaryBot):
                 ret_value = False
         return ret_value
 
+    def build_interwikimap_template(self, ext_obj):
+
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = []
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {}
+
+        template_block = "<noinclude>{{Interwikimap subpage}}</noinclude><includeonly>"
+
+        # Skins are returned in random order so we need to sort them before
+        # making the template, otherwise we generate a lot of edits
+        # that are just different ordering
+        interwiki_sorted = sorted(ext_obj, key=operator.itemgetter('prefix'))
+
+        for x in interwiki_sorted:
+            if 'prefix' in x:
+                # Start the template instance
+                template_block += "{{Interwiki link\n"
+                for item in x:
+                    # Loop through all the items in the interwiki data and build the instance
+                    if item not in ignore_keys:
+                        name = key_names.get(item, item)
+                        value = x[item]
+
+                        if item == 'local':
+                            # This parameter won't appear unless it is true
+                            value = True
+
+                        template_block += "|%s=%s\n" % (name, value)
+
+                # Now end the template instance
+                template_block += "}}\n"
+
+        template_block += "</includeonly>"
+
+        return template_block
+
+    def record_interwikimap(self, site):
+        data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=interwikimap&format=json"
+        if self.args.verbose >= 2:
+            print "Pulling interwikimap info from %s." % data_url
+        (success, data, duration) = self.pull_json(site, data_url)
+        ret_value = True
+        if success:
+            # Successfully pulled data
+            if 'query' in data:
+                datapage = "%s/Interwikimap" % site['pagename']
+                template_block = self.build_interwikimap_template(data['query']['interwikimap'])
+                socket.setdefaulttimeout(30)
+                c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+                if self.args.verbose >= 3:
+                    print c
+                self.stats['interwikimap'] += 1
+            else:
+                self.record_error(
+                    site=site,
+                    log_message='Returned unexpected JSON when requesting interwikimap data.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
+                ret_value = False
+        return ret_value
+
+    def build_namespaces_template(self, ext_obj):
+
+        # Some keys we do not want to store in WikiApiary
+        ignore_keys = []
+        # Some keys we turn into more readable names for using inside of WikiApiary
+        key_names = {
+            '*': 'Namespace'
+        }
+
+        template_block = "<noinclude>{{Namespaces subpage}}</noinclude><includeonly>"
+
+        for x in ext_obj:
+            # Start the template instance
+            template_block += "{{Namespace in use\n"
+            for item in ext_obj[x]:
+                # Loop through all the items in the namespace data and build the instance
+                if item not in ignore_keys:
+                    name = key_names.get(item, item)
+                    value = ext_obj[x][item]
+
+                    if item in ['subpages', 'content']:
+                        # This parameter won't appear unless it is true
+                        value = True
+
+                    template_block += "|%s=%s\n" % (name, value)
+
+            # Now end the template instance
+            template_block += "}}\n"
+
+        template_block += "</includeonly>"
+
+        return template_block
+
+    def record_namespaces(self, site):
+        data_url = site['Has API URL'] + "?action=query&meta=siteinfo&siprop=namespaces&format=json"
+        if self.args.verbose >= 2:
+            print "Pulling namespaces info from %s." % data_url
+        (success, data, duration) = self.pull_json(site, data_url)
+        ret_value = True
+        if success:
+            # Successfully pulled data
+            if 'query' in data:
+                datapage = "%s/Namespaces" % site['pagename']
+                template_block = self.build_namespaces_template(data['query']['namespaces'])
+                socket.setdefaulttimeout(30)
+                c = self.apiary_wiki.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.edit_token, 'bot': 'true'})
+                if self.args.verbose >= 3:
+                    print c
+                self.stats['namespaces'] += 1
+            else:
+                self.record_error(
+                    site=site,
+                    log_message='Returned unexpected JSON when requesting namespaces data.',
+                    log_type='info',
+                    log_severity='normal',
+                    log_bot='Bumble Bee',
+                    log_url=data_url
+                )
+                ret_value = False
+        return ret_value
+
     def main(self):
         if self.args.site is not None:
             message = "Starting processing for site %d." % int(self.args.site)
@@ -872,6 +1006,8 @@ class BumbleBee(ApiaryBot):
                     if site['Collect extension data']:
                         process = "collect extension data"
                         status = self.record_extensions(site)
+                        status = self.record_interwikimap(site)
+                        status = self.record_namespaces(site)
                     if site['Collect skin data']:
                         process = "collect skin data"
                         status = self.record_skins(site)
@@ -890,10 +1026,10 @@ class BumbleBee(ApiaryBot):
         else:
             message = "Completed processing for all websites."
         message += " Processed %d websites." % i
-        message += " Counters statistics %d smwinfo %d smwusage %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d whois: %d maxmind: %d" % (
+        message += " Counters statistics %d smwinfo %d smwusage %d general %d extensions %d skins %d skipped_stats: %d skipped_general: %d whois: %d maxmind: %d interwikimap: %d namespaces: %d" % (
             self.stats['statistics'], self.stats['smwinfo'], self.stats['smwusage'], self.stats['general'],
             self.stats['extensions'], self.stats['skins'], self.stats['skippedstatistics'], self.stats['skippedgeneral'],
-            self.stats['whois'], self.stats['maxmind'])
+            self.stats['whois'], self.stats['maxmind'], self.stats['interwikimap'], self.stats['namespaces'])
         self.botlog(bot='Bumble Bee', duration=float(duration), message=message)
 
 
