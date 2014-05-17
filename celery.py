@@ -11,6 +11,7 @@ app = Celery(
     broker='redis://',
     backend='redis://',
     include=[
+        'WikiApiary.apiary.tasks.bot.websitesegment',
         'WikiApiary.apiary.tasks.website.extensions',
         'WikiApiary.apiary.tasks.website.general',
         'WikiApiary.apiary.tasks.website.interwikimap',
