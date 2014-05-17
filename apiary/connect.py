@@ -6,6 +6,7 @@ from simplemediawiki import MediaWiki
 import os
 import MySQLdb as mdb
 import logging
+import redis
 
 
 LOGGER = logging.getLogger()
@@ -69,3 +70,6 @@ apiary_db = mdb.connect(
     user=APIARYDB_USERNAME,
     passwd=APIARYDB_PASSWORD,
     charset='utf8')
+
+LOGGER.info("Opening Redis connection")
+redis_db = redis.StrictRedis(host='localhost', port='6379')

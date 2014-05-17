@@ -4,7 +4,7 @@ baseclass for tasks
 # pylint: disable=C0301
 
 from celery.task import Task
-from WikiApiary.apiary.connect import bumble_bee, bumble_bee_token, audit_bee, audit_bee_token, apiary_db
+from WikiApiary.apiary.connect import bumble_bee, bumble_bee_token, audit_bee, audit_bee_token, apiary_db, redis_db
 from WikiApiary.celery import app
 import logging
 import datetime
@@ -19,6 +19,7 @@ class BaseApiaryTask(Task):
     audit_bee = None
     audit_bee_token = None
     apiary_db = None
+    redis_db = None
 
     def update_status(self, site, checktype):
         """Update the website_status table"""
@@ -106,4 +107,4 @@ class BaseApiaryTask(Task):
         self.audit_bee = audit_bee
         self.audit_bee_token = audit_bee_token
         self.apiary_db = apiary_db
-
+        self.redis_db = redis_db

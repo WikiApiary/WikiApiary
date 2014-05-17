@@ -3,11 +3,20 @@
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
+import datetime
 
 
 LOGGER = logging.getLogger()
 
 class ProcessWebsiteSegment(BaseApiaryTask):
+
+    def set_timestamp(self, site_id, token):
+        self.redis_db.set(
+            "wikiapiary_%d_%s" % (site_id, token),
+            int(datetime.datetime.now().strftime("%s")),
+            60*60*24*7    # Expire these tokens after 1 week
+        )
+
 
     def run(self, segment):
         LOGGER.info("Processing segment %d" % segment)
@@ -64,49 +73,61 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 # Initialize the flags but do it carefully in case there is no value in the wiki yet
                 try:
                     if (site['printouts']['Collect general data'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'general')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect extension data'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'extension')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect skin data'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'skin')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect statistics'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'statistics')
+                except Exception, e:
+                    pass
+
+                try:
+                    if (site['printouts']['Collect interwikimap'][0] == "t"):
+                        self.set_timestamp(site_id, 'interwikimap')
+                except Exception, e:
+                    pass
+
+                try:
+                    if (site['printouts']['Collect namespaces'][0] == "t"):
+                        self.set_timestamp(site_id, 'namespaces')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect semantic statistics'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'smwinfo')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect statistics stats'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'statistics_stats')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect logs'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'logs')
                 except Exception, e:
                     pass
 
                 try:
                     if (site['printouts']['Collect recent changes'][0] == "t"):
-                        pass
+                        self.set_timestamp(site_id, 'recentchanges')
                 except Exception, e:
                     pass
 
