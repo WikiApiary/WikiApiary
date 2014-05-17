@@ -3,8 +3,8 @@
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
-import urlparse
-import socket
+import requests
+import datetime
 
 
 LOGGER = logging.getLogger()
@@ -43,7 +43,18 @@ class GetStatisticsTask(BaseApiaryTask):
             # Go out and get the statistic information
             data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
             LOGGER.info("Pulling statistics info from %s." % data_url)
-            (status, data, duration) = self.pull_json(site, data_url)
+            status = False
+            req = requests.get(
+                data_url,
+                timeout = 30,
+                headers = {
+                    'User-Agent': 'Bumble Bee'
+                }
+            )
+            if req.status_code == 200:
+                status = True
+            data = req.json()
+            duration = req.elapsed.total_seconds()
         elif method == 'Statistics':
             # Get stats the old fashioned way
             data_url = site['Has statistics URL']
@@ -51,21 +62,18 @@ class GetStatisticsTask(BaseApiaryTask):
                 data_url += "&action=raw"
             else:
                 data_url += "?action=raw"
-            if self.args.verbose >= 2:
-                print "Pulling statistics from %s." % data_url
-
-            # This is terrible and should be put into pull_json somewhow
-            socket.setdefaulttimeout(15)
-
-            # Get CSV data via raw Statistics call
-            req = urllib2.Request(data_url)
-            req.add_header('User-Agent', self.config.get('Bumble Bee', 'User-Agent'))
-            opener = urllib2.build_opener()
+            LOGGER.info("Pulling statistics from %s." % data_url)
 
             try:
-                t1 = datetime.datetime.now()
-                f = opener.open(req)
-                duration = (datetime.datetime.now() - t1).total_seconds()
+                # Get CSV data via raw Statistics call
+                req = requests.get(
+                    data_url,
+                    timeout = 30,
+                    headers = {
+                        'User-Agent': 'Bumble Bee'
+                    }
+                )
+                duration = req.elapsed.total_seconds()
             except Exception, e:
                 self.record_error(
                     site=site,
@@ -96,12 +104,10 @@ class GetStatisticsTask(BaseApiaryTask):
                                 name = "pages"
                             if name == "good":
                                 name = "articles"
-                            if self.args.verbose >= 3:
-                                print "Transforming %s to %s" % (name, value)
+                            LOGGER.info("Transforming %s to %s" % (name, value))
                             data['query']['statistics'][name] = value
                         except:
-                            if self.args.verbose >= 3:
-                                print "Illegal value '%s' for %s." % (value, name)
+                            LOGGER.info("Illegal value '%s' for %s." % (value, name))
                 else:
                     status = False # The result didn't match the pattern expected
                     self.record_error(
@@ -117,9 +123,8 @@ class GetStatisticsTask(BaseApiaryTask):
         ret_value = True
         if status:
             # Record the new data into the DB
-            if self.args.verbose >= 2:
-                print "JSON: %s" % data
-                print "Duration: %s" % duration
+            LOGGER.info("JSON: %s" % data)
+            LOGGER.info("Duration: %s" % duration)
 
             if 'query' in data:
                 # Record the data received to the database
@@ -171,7 +176,7 @@ class GetStatisticsTask(BaseApiaryTask):
                     views = 'null'
 
                 sql_command = sql_command % (
-                    site['Has ID'],
+                    site_id,
                     self.sqlutcnow(),
                     duration,
                     articles,
@@ -185,7 +190,6 @@ class GetStatisticsTask(BaseApiaryTask):
                     views)
 
                 self.runSql(sql_command)
-                self.stats['statistics'] += 1
             else:
                 self.record_error(
                     site=site,
@@ -198,12 +202,12 @@ class GetStatisticsTask(BaseApiaryTask):
                 ret_value = False
 
         else:
-            if self.args.verbose >= 3:
-                print "Did not receive valid data from %s" % (data_url)
+            LOGGER.info("Did not receive valid data from %s" % (data_url))
             ret_value = False
 
         # Update the status table that we did our work!
-        self.update_status(site, 'statistics')
+        # TODO: Keep status in redis!
+        #self.update_status(site_id, 'statistics')
         return ret_value
 
 
