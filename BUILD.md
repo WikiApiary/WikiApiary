@@ -6,7 +6,7 @@ Thank you for your interest in contributing to the WikiApiary codebase. This doc
 
 You must have `mysqld` and `redis-server` running to work on the bots.
 
-Start the Celery worker using `celery --app=WikiApiary worker -l info`.
+Start the Celery worker using `celery --beat --app=WikiApiary worker -l info`.
 
 You must have a local database named `apiary` in MySQL. Apply the database migrations from `migrations` using `yoyo-migrate apply ./migrations`.
 

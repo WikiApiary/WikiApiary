@@ -13,7 +13,9 @@ app = Celery(
     include=[
         'WikiApiary.apiary.tasks.website.extensions',
         'WikiApiary.apiary.tasks.website.general',
+        'WikiApiary.apiary.tasks.website.interwikimap',
         'WikiApiary.apiary.tasks.website.maxmind',
+        'WikiApiary.apiary.tasks.website.namespaces',
         'WikiApiary.apiary.tasks.website.skins',
         'WikiApiary.apiary.tasks.website.smwinfo',
         'WikiApiary.apiary.tasks.website.statistics',
