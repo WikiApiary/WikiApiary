@@ -44,13 +44,19 @@ class GetStatisticsTask(BaseApiaryTask):
             data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
             LOGGER.info("Pulling statistics info from %s." % data_url)
             status = False
-            req = requests.get(
-                data_url,
-                timeout = 30,
-                headers = {
-                    'User-Agent': 'Bumble Bee'
-                }
-            )
+
+            try:
+                req = requests.get(
+                    data_url,
+                    timeout = 30,
+                    headers = {
+                        'User-Agent': 'Bumble Bee'
+                    }
+                )
+            except Exception, e:
+                LOGGER.error(e)
+                return False
+
             if req.status_code == 200:
                 status = True
             data = req.json()

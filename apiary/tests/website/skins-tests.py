@@ -17,5 +17,9 @@ class TestRecordSkinsTask(unittest.TestCase):
         task = RecordSkinsTask()
         task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
+    def test_record_skins_fake(self):
+        task = RecordSkinsTask()
+        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        
 if __name__ == '__main__':
     unittest.main()

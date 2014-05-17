@@ -18,7 +18,7 @@ class TestRecordGeneralTask(unittest.TestCase):
         task = RecordGeneralTask()
         assert task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php') == True
 
-    def test_record_general(self):
+    def test_record_general_fake(self):
         """Get general site information from non-existent website."""
         task = RecordGeneralTask()
         assert task.run(18, 'Foo', 'https://foo.bar.com') == False

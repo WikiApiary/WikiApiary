@@ -17,5 +17,9 @@ class TestGetSMWInfoTask(unittest.TestCase):
         task = GetSMWInfoTask()
         task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
+    def test_smwinfo_task_fake(self):
+        task = GetSMWInfoTask()
+        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        
 if __name__ == '__main__':
     unittest.main()

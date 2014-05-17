@@ -16,11 +16,14 @@ class RecordSkinsTask(BaseApiaryTask):
         """Pull skin data from website and write to WikiApiary."""
         data_url = api_url + '?action=query&meta=siteinfo&siprop=skins&format=json'
 
-        req = requests.get(data_url, timeout = 30)
-        data = req.json()
+        try:
+            req = requests.get(data_url, timeout = 30)
+            data = req.json()
+        except Exception, e:
+            LOGGER.error(e)
+            return False
 
         if req.status_code == 200:
-            # Successfully pulled data
             if 'query' in data:
                 template_block = self.generate_template(data['query']['skins'])
                 wiki_return = self.bumble_bee.call({
@@ -40,6 +43,7 @@ class RecordSkinsTask(BaseApiaryTask):
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
+                return False
         return False
 
     def generate_template(self, ext_obj):

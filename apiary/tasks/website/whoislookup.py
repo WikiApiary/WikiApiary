@@ -16,7 +16,11 @@ class RecordWhoisTask(BaseApiaryTask):
     def run(self, site_id, sitename, api_url):
         # Now that we successfully got the data, we can make a quick query to get the server info
         hostname = urlparse.urlparse(api_url).hostname
-        addr = socket.gethostbyname(hostname)
+        try:
+            addr = socket.gethostbyname(hostname)
+        except Exception, e:
+            LOGGER.error(e)
+            return False
 
         template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
         template_block += "{{Whois\n"
@@ -24,23 +28,23 @@ class RecordWhoisTask(BaseApiaryTask):
         template_block += "|HTTP server=%s\n" % ('')
         try:
             template_block += "|IP address=%s\n" % (ProcessMultiprops(site_id, 'addr', addr))
-        except:
+        except Exception, e:
             pass
 
         try:
             reverse_host = socket.gethostbyaddr(addr)[0]
             template_block += "|Reverse lookup=%s\n" % (ProcessMultiprops(site_id, 'reverse_host', reverse_host))
-        except:
+        except Exception, e:
             pass
 
         # Now lets get the netblock information
         try:
-            whois = Whois()
-            netblock_owner = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@name']
-            netblock_owner_handle = whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@handle']
+            my_whois = whois.whois()
+            netblock_owner = my_whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@name']
+            netblock_owner_handle = my_whois.getNetworkRegistrationRelatedToIP(addr, format='json')['net']['orgRef']['@handle']
             template_block += "|Netblock organization=%s\n" % (netblock_owner)
             template_block += "|Netblock organization handle=%s\n" % netblock_owner_handle
-        except:
+        except Exception, e:
             pass
 
         template_block += "}}\n</includeonly>\n"

@@ -21,9 +21,13 @@ class GetSMWInfoTask(BaseApiaryTask):
             '&format=json'
         ])
 
-        req = requests.get(data_url, timeout = 30)
-        duration = req.elapsed
-        data = req.json()
+        try:
+            req = requests.get(data_url, timeout = 30)
+            duration = req.elapsed
+            data = req.json()
+        except Exception, e:
+            LOGGER.error(e)
+            return False
 
         if req.status_code == 200:
 

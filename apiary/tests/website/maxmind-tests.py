@@ -17,5 +17,9 @@ class TestMaxmindTask(unittest.TestCase):
         task = MaxmindTask()
         task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
+    def test_maxmind_task_fake(self):
+        task = MaxmindTask()
+        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+
 if __name__ == '__main__':
     unittest.main()

@@ -9,7 +9,7 @@ from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
 from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
 from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
 from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
-from WikiApiary.apiary.tasks.website.whois import RecordWhoisTask
+from WikiApiary.apiary.tasks.website.whoislookup import RecordWhoisTask
 from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
 
 

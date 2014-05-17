@@ -17,5 +17,9 @@ class TestGetStatisticsTask(unittest.TestCase):
         task = GetStatisticsTask()
         task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
+    def test_statistics_task_fake(self):
+        task = GetStatisticsTask()
+        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        
 if __name__ == '__main__':
     unittest.main()
