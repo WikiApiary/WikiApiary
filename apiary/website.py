@@ -8,6 +8,7 @@ from WikiApiary.apiary.tasks.website.extensions import RecordExtensionsTask
 from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
 from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
 from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
+from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
 from WikiApiary.apiary.tasks.website.whois import RecordWhoisTask
 from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
 
@@ -41,9 +42,9 @@ class Website(object):
         """Get whois data."""
         RecordWhoisTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
-    # def record_smwinfo(self):
-    #     """Get extension data."""
-    #     tasks.record_smwinfo.delay(self.__has_id, self.__website_name, self.__has_api_url)
+    def get_smwinfo(self):
+        """Run SMWInfo Task."""
+        GetSMWInfoTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def get_statistics(self):
         """Run the statistics task"""
