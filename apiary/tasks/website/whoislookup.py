@@ -57,5 +57,10 @@ class RecordWhoisTask(BaseApiaryTask):
             'bot': 'true'
         })
         LOGGER.debug(wiki_return)
+        if 'error' in wiki_return:
+            LOGGER.warn(wiki_return)
+            return False
+        else:
+            return True
 
         return True

@@ -6,7 +6,9 @@ Base class for WikiApiary websites.
 # Import the task classes associated with websites
 from WikiApiary.apiary.tasks.website.extensions import RecordExtensionsTask
 from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
+from WikiApiary.apiary.tasks.website.interwikimap import RecordInterwikimapTask
 from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
+from WikiApiary.apiary.tasks.website.namespaces import RecordNamespacesTask
 from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
 from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
 from WikiApiary.apiary.tasks.website.whoislookup import RecordWhoisTask
@@ -23,7 +25,7 @@ class Website(object):
         self.__has_api_url = api_url
 
     def record_general(self):
-        """Get extension data."""
+        """Get general data."""
         RecordGeneralTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_extensions(self):
@@ -31,11 +33,19 @@ class Website(object):
         RecordExtensionsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_skins(self):
-        """Get extension data."""
+        """Get skin data."""
         RecordSkinsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
+    def record_interwikimap(self):
+        """Get interwiki data."""
+        RecordInterwikimapTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
+
+    def record_namespaces(self):
+        """Get namespace data."""
+        RecordNamespacesTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
+
     def record_maxmind(self):
-        """Get extension data."""
+        """Get maxmind data."""
         MaxmindTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
     def record_whois(self):

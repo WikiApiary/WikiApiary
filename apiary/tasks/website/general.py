@@ -27,8 +27,19 @@ class RecordGeneralTask(BaseApiaryTask):
             if 'query' in data:
                 datapage = "%s/General" % sitename
                 template_block = self.generate_template(site_id, data['query']['general'])
-                c = self.bumble_bee.call({'action': 'edit', 'title': datapage, 'text': template_block, 'token': self.bumble_bee_token, 'bot': 'true'})
-                LOGGER.debug(c)
+                wiki_return = self.bumble_bee.call({
+                    'action': 'edit',
+                    'title': datapage,
+                    'text': template_block,
+                    'token': self.bumble_bee_token,
+                    'bot': 'true'
+                })
+                LOGGER.debug(wiki_return)
+                if 'error' in wiki_return:
+                    LOGGER.warn(wiki_return)
+                    return False
+                else:
+                    return True
                 # Update the status table that we did our work! It doesn't matter if this was an error.
                 self.update_status(site_id, 'general')
                 return True

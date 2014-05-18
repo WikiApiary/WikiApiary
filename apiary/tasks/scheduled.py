@@ -15,5 +15,5 @@ LOGGER = logging.getLogger()
 def run_segment(segment_id):
     """Invoke and run the website segment."""
     LOGGER.info("Running segment %d" % segment_id)
-    # task = ProcessWebsiteSegment()
-    # task.run(segment_id)
+    task = ProcessWebsiteSegment()
+    task.run(segment_id)

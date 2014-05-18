@@ -39,7 +39,11 @@ class RecordExtensionsTask(BaseApiaryTask):
                     'bot': 'true'
                     })
                 LOGGER.debug(wiki_return)
-                return True
+                if 'error' in wiki_return:
+                    LOGGER.warn(wiki_return)
+                    return False
+                else:
+                    return True
             else:
                 self.record_error(
                     site=sitename,

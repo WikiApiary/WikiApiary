@@ -13,10 +13,10 @@ from WikiApiary.apiary.tasks.bot.websitesegment import ProcessWebsiteSegment
 class TestProcessWebsiteSegment(unittest.TestCase):
     """Run some tests."""
 
-    def test_segment_zero(self):
-        """Process segment 0."""
-        task = ProcessWebsiteSegment()
-        task.run(0)
+    # def test_segment_zero(self):
+    #     """Process segment 0."""
+    #     task = ProcessWebsiteSegment()
+    #     task.run(0)
 
 if __name__ == '__main__':
     unittest.main()

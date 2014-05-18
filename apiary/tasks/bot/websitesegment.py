@@ -2,6 +2,7 @@
 # pylint: disable=C0301,C0103,W1201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
+from WikiApiary.apiary.website import Website
 import logging
 import datetime
 
@@ -10,12 +11,30 @@ LOGGER = logging.getLogger()
 
 class ProcessWebsiteSegment(BaseApiaryTask):
 
-    def set_timestamp(self, site_id, token):
-        self.redis_db.set(
-            "wikiapiary_%d_%s" % (site_id, token),
-            int(datetime.datetime.now().strftime("%s")),
-            60*60*24*7    # Expire these tokens after 1 week
-        )
+    def check_timer(self, site_id, token, expire_timer):
+        """Determine if this task should be run again."""
+
+        my_token = "wikiapiary_%d_%s" % (site_id, token)
+
+        current_time = int(datetime.datetime.now().strftime("%s"))
+        try:
+            stored_time = int(self.redis_db.get(my_token))
+        except:
+            stored_time = 0
+
+        time_since = current_time - stored_time
+        if time_since > expire_timer:
+            # Update the timer regardless of success
+            self.redis_db.set(
+                my_token,
+                int(datetime.datetime.now().strftime("%s")),
+                60*60*24*7    # Expire these tokens after 1 week
+            )
+            LOGGER.debug("check_timer %d %s is %d old, check it." % (site_id, token, time_since))
+            return True
+        else:
+            LOGGER.debug("check_timer %d %s is %d old, skip." % (site_id, token, time_since))
+            return False
 
 
     def run(self, segment):
@@ -69,66 +88,80 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 except Exception, e:
                     api_url = None
 
-
-                # Initialize the flags but do it carefully in case there is no value in the wiki yet
                 try:
-                    if (site['printouts']['Collect general data'][0] == "t"):
-                        self.set_timestamp(site_id, 'general')
+                    check_every = site['printouts']['Check every'][0]
                 except Exception, e:
-                    pass
+                    check_every = 60*60*4
 
-                try:
-                    if (site['printouts']['Collect extension data'][0] == "t"):
-                        self.set_timestamp(site_id, 'extension')
-                except Exception, e:
-                    pass
+                my_website = Website(site_id, pagename, api_url)
 
+                # Get the statistical data
                 try:
-                    if (site['printouts']['Collect skin data'][0] == "t"):
-                        self.set_timestamp(site_id, 'skin')
+                    if (site['printouts']['Collect semantic statistics'][0] == "t") and \
+                    self.check_timer(site_id, 'smwinfo', check_every):
+                        pass
                 except Exception, e:
-                    pass
+                    LOGGER.warn(e)
 
                 try:
-                    if (site['printouts']['Collect statistics'][0] == "t"):
-                        self.set_timestamp(site_id, 'statistics')
+                    if (site['printouts']['Collect statistics'][0] == "t") and \
+                    self.check_timer(site_id, 'statistics', 24*60*60):
+                        self.check_timer(site_id, 'statistics', check_every)
+                        pass
                 except Exception, e:
-                    pass
+                    LOGGER.warn(e)
+
+
+                # Get the metadata
+                try:
+                    if (site['printouts']['Collect general data'][0] == "t") and \
+                    self.check_timer(site_id, 'general', 24*60*60):
+                        my_website.record_general()
+                        my_website.record_interwikimap()
+                        my_website.record_namespaces()
+                except Exception, e:
+                    LOGGER.warn(e)
 
                 try:
-                    if (site['printouts']['Collect interwikimap'][0] == "t"):
-                        self.set_timestamp(site_id, 'interwikimap')
+                    if (site['printouts']['Collect extension data'][0] == "t") and \
+                    self.check_timer(site_id, 'extension', 24*60*60):
+                        my_website.record_extensions()
                 except Exception, e:
-                    pass
+                    LOGGER.warn(e)
 
                 try:
-                    if (site['printouts']['Collect namespaces'][0] == "t"):
-                        self.set_timestamp(site_id, 'namespaces')
+                    if (site['printouts']['Collect skin data'][0] == "t") and \
+                    self.check_timer(site_id, 'skin', 3*24*60*60):
+                        my_website.record_skins()
                 except Exception, e:
-                    pass
+                    LOGGER.warn(e)
 
-                try:
-                    if (site['printouts']['Collect semantic statistics'][0] == "t"):
-                        self.set_timestamp(site_id, 'smwinfo')
-                except Exception, e:
-                    pass
+                # try:
+                #     if (site['printouts']['Collect interwikimap'][0] == "t") and \
+                #     self.check_timer(site_id, 'interwikimap', 5*24*60*60):
+                #         my_website.record_interwikimap()
+                # except Exception, e:
+                #     LOGGER.warn(e)
 
-                try:
-                    if (site['printouts']['Collect statistics stats'][0] == "t"):
-                        self.set_timestamp(site_id, 'statistics_stats')
-                except Exception, e:
-                    pass
+                # try:
+                #     if (site['printouts']['Collect namespaces'][0] == "t") and \
+                #     self.check_timer(site_id, 'namespaces', 5*24*60*60):
+                #         my_website.record_namespaces()
+                # except Exception, e:
+                #     LOGGER.warn(e)
 
-                try:
-                    if (site['printouts']['Collect logs'][0] == "t"):
-                        self.set_timestamp(site_id, 'logs')
-                except Exception, e:
-                    pass
+                # try:
+                #     if (site['printouts']['Collect logs'][0] == "t") and \
+                #     self.check_timer(site_id, 'general', 24*60*60):
+                #         self.check_timer(site_id, 'logs', 60*60)
+                # except Exception, e:
+                #     pass
 
-                try:
-                    if (site['printouts']['Collect recent changes'][0] == "t"):
-                        self.set_timestamp(site_id, 'recentchanges')
-                except Exception, e:
-                    pass
+                # try:
+                #     if (site['printouts']['Collect recent changes'][0] == "t") and \
+                #     self.check_timer(site_id, 'general', 24*60*60):
+                #         self.check_timer(site_id, 'recentchanges', 60*60)
+                # except Exception, e:
+                #     pass
 
             return i
