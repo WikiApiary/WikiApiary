@@ -63,7 +63,7 @@ class RecordSkinsTask(BaseApiaryTask):
             'unusable': 'Skipped skin'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Skins subpage}}</noinclude><includeonly>"
 
         # Skins are returned in random order so we need to sort them before
         # making the template, otherwise we generate a lot of edits

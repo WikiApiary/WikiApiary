@@ -52,7 +52,7 @@ def open_connection(bot_name):
         LOGGER.info("%s has been given edit token %s" % (bot_name, edit_token))
 
     except:
-        LOGGER.warn("Unable to login as %s. " % bot_name)
+        LOGGER.error("Unable to login as %s. " % bot_name)
         edit_token = None
 
     return (apiary_wiki, edit_token)

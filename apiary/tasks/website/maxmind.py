@@ -43,7 +43,7 @@ class MaxmindTask(BaseApiaryTask):
     def generate_template(self, hostname):
         """Build a the wikitext for the maxmind subpage."""
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Maxmind subpage}}</noinclude><includeonly>"
         template_block += "{{Maxmind\n"
 
         geoip = pygeoip.GeoIP(GEODATA)

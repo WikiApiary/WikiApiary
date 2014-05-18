@@ -22,7 +22,7 @@ class RecordWhoisTask(BaseApiaryTask):
             LOGGER.error(e)
             return False
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Whois subpage}}</noinclude><includeonly>"
         template_block += "{{Whois\n"
 
         template_block += "|HTTP server=%s\n" % ('')

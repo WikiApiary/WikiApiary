@@ -71,7 +71,7 @@ class RecordExtensionsTask(BaseApiaryTask):
             'url': 'Extension URL'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{Extensions subpage}}</noinclude><includeonly>"
 
         for extension in ext_obj:
             if 'name' in extension:

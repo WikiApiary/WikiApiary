@@ -74,7 +74,7 @@ class RecordGeneralTask(BaseApiaryTask):
             'wikiid': 'Wiki ID'
         }
 
-        template_block = "<noinclude>{{Notice bot owned page}}</noinclude><includeonly>"
+        template_block = "<noinclude>{{General subpage}}</noinclude><includeonly>"
 
         template_block += "{{General siteinfo\n"
 
