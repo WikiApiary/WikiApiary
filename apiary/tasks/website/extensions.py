@@ -7,6 +7,7 @@ import requests
 import logging
 import HTMLParser
 import re
+import semantic_version
 
 
 LOGGER = logging.getLogger()
@@ -99,17 +100,24 @@ class RecordExtensionsTask(BaseApiaryTask):
                             value = value.replace('&nbsp;', ' ').replace('&#160;', ' ').replace('&160;', ' ')
                             value = h.unescape(value)
 
-                        # if item == 'version':
-                        #     # Breakdown the version information for more detailed analysis
-                        #     ver_details = self.parse_version(value)
-                        #     if 'major' in ver_details:
-                        #         template_block += "|Extension version major=%s\n" % ver_details['major']
-                        #     if 'minor' in ver_details:
-                        #         template_block += "|Extension version minor=%s\n" % ver_details['minor']
-                        #     if 'bugfix' in ver_details:
-                        #         template_block += "|Extension version bugfix=%s\n" % ver_details['bugfix']
-                        #     if 'flag' in ver_details:
-                        #         template_block += "|Extension version flag=%s\n" % ver_details['flag']
+                        if item == 'version':
+                            try:
+                                # Breakdown the version information for more detailed analysis
+                                version_details = semantic_version.Version(value, partial=True)
+                                if version_details.major is not None:
+                                    template_block += "|Version major=%s\n" % version_details.major
+                                if version_details.minor is not None:
+                                    template_block += "|Version minor=%s\n" % version_details.minor
+                                if version_details.patch is not None:
+                                    template_block += "|Version patch=%s\n" % version_details.patch
+                                if version_details.prerelease is not None:
+                                    prerelease_string = ','.join(version_details.prerelease)
+                                    template_block += "|Version prerelease=%s\n" % prerelease_string
+                                if version_details.build is not None:
+                                    build_string = ','.join(version_details.build)
+                                    template_block += "|Version build=%s\n" % build_string
+                            except Exception, e:
+                                LOGGER.info("Unable to parse version string %s (%s)" % (value, e))
 
                         if item == 'author':
                             # Authors can have a lot of junk in them, wikitext and such.
