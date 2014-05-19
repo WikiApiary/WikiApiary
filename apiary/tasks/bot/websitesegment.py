@@ -16,12 +16,14 @@ class ProcessWebsiteSegment(BaseApiaryTask):
         """Determine if this task should be run again."""
 
         my_token = "wikiapiary_%d_%s" % (site_id, token)
+        LOGGER.debug("Checking cache token %s" % my_token)
 
         current_time = int(datetime.datetime.now().strftime("%s"))
         try:
             stored_time = int(self.redis_db.get(my_token))
         except:
             stored_time = 0
+        LOGGER.debug("Stored time for %s of %d" % (my_token, stored_time))
 
         time_since = current_time - stored_time
         if time_since > expire_timer:
