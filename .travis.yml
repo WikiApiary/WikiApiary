@@ -1,0 +1,35 @@
+language: python
+
+python:
+  - "2.7"
+
+# We will use MySQL for testing
+services:
+  - mysql
+  - redis-server
+
+# command to install dependencies
+install:
+  - pip install -r requirements.txt
+
+before_script:
+  - mysql -e 'create database apiary;'
+  - yoyo-migrate -b -vv apply ./migrations/ mysql://travis@localhost/apiary
+
+# command to run tests
+script:
+  - nosetests --with-coverage
+
+after_success:
+  - coveralls
+
+notifications:
+  irc:
+    channels:
+      - "chat.freenode.net#wikiapiary"
+    use_notice: true
+    skip_join: true
+  email:
+    recipients:
+      - wikiapiary-dev@lists.thingelstad.com
+

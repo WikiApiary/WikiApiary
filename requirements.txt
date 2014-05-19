@@ -1,0 +1,42 @@
+# Install WikiApiary requirements easily with
+# sudo pip install -r requirements.txt
+# sudo pip install --upgrade -r requirements.txt
+#
+# External requirements are mysqld and redis-server
+
+# We need to connect to mysql
+mysql-python
+yoyo-migrations
+
+# CherryPy for the API
+cherrypy
+
+# Use requests to make it easier to do things with URLs
+requests
+
+# This is the library the bots use to talk to wikiapiary.com
+simplemediawiki
+kitchen
+
+# We use this to get data from MaxMind and store information
+# into wikiapiary.com from MaxMind database
+pygeoip
+Whois
+
+# We use semantic versioning to understand better the version
+# numbers we deal with
+semantic_version
+
+# This is used during audit process to find things like the
+# logo for the wiki
+beautifulsoup4
+
+# Parse JSON easier
+simplejson
+
+# Coveralls for code coverage
+python-coveralls
+
+# We use Celery to manage our queue, with redis as the backend
+redis
+celery[redis]
