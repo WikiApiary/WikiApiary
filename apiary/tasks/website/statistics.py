@@ -5,6 +5,7 @@ from WikiApiary.apiary.tasks import BaseApiaryTask
 import logging
 import requests
 import datetime
+import re
 
 
 LOGGER = logging.getLogger()
@@ -12,33 +13,7 @@ LOGGER = logging.getLogger()
 class GetStatisticsTask(BaseApiaryTask):
     """Collect statistics on usage from site."""
 
-    def fetch_statistics(self):
-        """Method calls the website API and retrieves site statistics, storing them in the class."""
-        if self.has_API():
-            return self.fetch_statistics_API()
-        elif self.has_StatisticsURL():
-            return self.fetch_statistics_statistics()
-        else:
-            self.log("Website has neither API or Statistics URLs.")
-            return False
-
-    def has_StatisticsURL(self):
-        """Test if the website has a Statistics URL."""
-        if self.statistics_url is not None:
-            return True
-        else:
-            return False
-
-    def fetch_statisitcs_API(self):
-        """Get site statistics via the API."""
-        stats_url = self.api_url + bot.STATISTICS_API_CALL
-
-    def fetch_statistics_statistics(self):
-        """Get the site statistics using the Special:Statistics page."""
-        stats_url = self.statistics_url + '&action=raw'
-
-    def run(self, site_id, site, api_url):
-        method = "API"
+    def run(self, site_id, site, method, api_url = None, stats_url = None):
         if method == 'API':
             # Go out and get the statistic information
             data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
@@ -48,7 +23,7 @@ class GetStatisticsTask(BaseApiaryTask):
             try:
                 req = requests.get(
                     data_url,
-                    timeout = 30,
+                    timeout = 15,
                     headers = {
                         'User-Agent': 'Bumble Bee'
                     }
@@ -63,7 +38,7 @@ class GetStatisticsTask(BaseApiaryTask):
             duration = req.elapsed.total_seconds()
         elif method == 'Statistics':
             # Get stats the old fashioned way
-            data_url = site['Has statistics URL']
+            data_url = stats_url
             if "?" in data_url:
                 data_url += "&action=raw"
             else:
@@ -92,8 +67,7 @@ class GetStatisticsTask(BaseApiaryTask):
                 status = False
             else:
                 # Create an object that is the same as that returned by the API
-                ret_string = f.read()
-                ret_string = ret_string.strip()
+                ret_string = req.text.strip()
                 if re.match(r'(\w+=\d+)\;?', ret_string):
                     # The return value looks as we expected
                     status = True
@@ -211,9 +185,6 @@ class GetStatisticsTask(BaseApiaryTask):
             LOGGER.info("Did not receive valid data from %s" % (data_url))
             ret_value = False
 
-        # Update the status table that we did our work!
-        # TODO: Keep status in redis!
-        #self.update_status(site_id, 'statistics')
         return ret_value
 
 

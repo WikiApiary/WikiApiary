@@ -21,7 +21,7 @@ class RecordExtensionsTask(BaseApiaryTask):
 
         LOGGER.debug("Requesting from %s" % data_url)
         try:
-            req = requests.get(data_url, timeout = 30)
+            req = requests.get(data_url, timeout = 15)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
@@ -117,7 +117,7 @@ class RecordExtensionsTask(BaseApiaryTask):
                                     build_string = ','.join(version_details.build)
                                     template_block += "|Version build=%s\n" % build_string
                             except Exception, e:
-                                LOGGER.info("Unable to parse version string %s (%s)" % (value, e))
+                                LOGGER.debug("Unable to parse version string %s (%s)" % (value, e))
 
                         if item == 'author':
                             # Authors can have a lot of junk in them, wikitext and such.

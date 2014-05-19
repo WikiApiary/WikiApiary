@@ -22,8 +22,8 @@ class GetSMWInfoTask(BaseApiaryTask):
         ])
 
         try:
-            req = requests.get(data_url, timeout = 30)
-            duration = req.elapsed
+            req = requests.get(data_url, timeout = 15)
+            duration = req.elapsed.total_seconds()
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
@@ -79,5 +79,4 @@ class GetSMWInfoTask(BaseApiaryTask):
                 )
                 return False
 
-        else:
-            return False
+        return False

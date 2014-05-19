@@ -17,7 +17,7 @@ class RecordInterwikimapTask(BaseApiaryTask):
         data_url = api_url + '?action=query&meta=siteinfo&siprop=interwikimap&format=json'
 
         try:
-            req = requests.get(data_url, timeout = 30)
+            req = requests.get(data_url, timeout = 15)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)

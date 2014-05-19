@@ -16,7 +16,7 @@ class RecordGeneralTask(BaseApiaryTask):
 
         LOGGER.debug("Requesting from %s" % data_url)
         try:
-            req = requests.get(data_url, timeout = 30)
+            req = requests.get(data_url, timeout = 15)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
@@ -59,6 +59,8 @@ class RecordGeneralTask(BaseApiaryTask):
 
         # Some keys we do not want to store in WikiApiary
         ignore_keys = ['time', 'fallback', 'fallback8bitEncoding']
+        # These items are only included if they are true
+        boolean_keys = ['imagewhitelistenabled', 'rtl', 'writeapi', 'misermode']
         # Some keys we turn into more readable names for using inside of WikiApiary
         key_names = {
             'dbtype': 'Database type',
@@ -85,6 +87,10 @@ class RecordGeneralTask(BaseApiaryTask):
                 # If we have a name for this key use that
                 name = key_names.get(key, key)
                 value = data[key]
+
+                # These items are only included if they are true
+                if key in boolean_keys:
+                    value = True
 
                 # For some items we may need to do some preprocessing
                 if isinstance(value, basestring):

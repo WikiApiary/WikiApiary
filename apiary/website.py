@@ -18,11 +18,12 @@ from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
 class Website(object):
     """Class for websites in WikiApiary."""
 
-    def __init__(self, website_id, website_name, api_url):
+    def __init__(self, website_id, website_name, api_url, stats_url):
         """Initialize the instance."""
         self.__has_id = website_id
         self.__website_name = website_name
         self.__has_api_url = api_url
+        self.__has_stats_url = stats_url
 
     def record_general(self):
         """Get general data."""
@@ -56,7 +57,11 @@ class Website(object):
         """Run SMWInfo Task."""
         GetSMWInfoTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
 
-    def get_statistics(self):
+    def get_statistics_api(self):
         """Run the statistics task"""
-        GetStatisticsTask.delay(self.__has_id, self.__website_name, self.__has_api_url)
+        GetStatisticsTask.delay(self.__has_id, self.__website_name, 'API', self.__has_api_url, self.__has_stats_url)
+
+    def get_statistics_stats(self):
+        """Run the statistics task"""
+        GetStatisticsTask.delay(self.__has_id, self.__website_name, 'Statistics', self.__has_api_url, self.__has_stats_url)
 

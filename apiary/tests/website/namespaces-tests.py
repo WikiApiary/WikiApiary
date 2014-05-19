@@ -2,7 +2,7 @@
 Exercise the Website class to insure the methods operate
 as expected.
 """
-# pylint: disable=C0301,W0622
+# pylint: disable=C0301,W0622,R0201,R0904
 
 import unittest
 if __name__ == "__main__" and __package__ is None:

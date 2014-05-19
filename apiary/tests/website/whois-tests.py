@@ -2,7 +2,7 @@
 Exercise the Website class to insure the methods operate
 as expected.
 """
-# pylint: disable=C0301,W0622
+# pylint: disable=C0301,W0622,R0201,R0904
 
 import unittest
 if __name__ == "__main__" and __package__ is None:
@@ -14,10 +14,12 @@ class TestRecordWhoisTask(unittest.TestCase):
     """Run some tests."""
 
     def test_whois_task(self):
+        """Get whois information from WikiApiary."""
         task = RecordWhoisTask()
         task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
 
     def test_whois_task_fake(self):
+        """Get whois information from fake website."""
         task = RecordWhoisTask()
         assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
         

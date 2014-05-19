@@ -10,6 +10,7 @@ import datetime
 LOGGER = logging.getLogger()
 
 class ProcessWebsiteSegment(BaseApiaryTask):
+    """Bot function to retrieve a segment and issue the tasks."""
 
     def check_timer(self, site_id, token, expire_timer):
         """Determine if this task should be run again."""
@@ -38,7 +39,13 @@ class ProcessWebsiteSegment(BaseApiaryTask):
 
 
     def run(self, segment):
+        """Run a segment for processing."""
         LOGGER.info("Processing segment %d" % segment)
+
+        # TODO: It is very expensive to get the segment everytime. It would be better
+        # to cache the segment in redis and just check the most recent "Modification date"
+        # from the wiki. If that date hasn't changed, use the cached version from redis.
+
         my_query = ''.join([
             '[[Category:Website]]',
             '[[Is defunct::False]]',
@@ -48,7 +55,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
             '|?Has statistics URL',
             '|?Check every',
             '|?Creation date',
-            '|?Has ID',
+            '|?Page ID',
             '|?Collect general data',
             '|?Collect extension data',
             '|?Collect skin data',
@@ -68,16 +75,13 @@ class ProcessWebsiteSegment(BaseApiaryTask):
             'query': my_query
         })
 
-        # We could just return the raw JSON object from the API, however instead we are going to clean it up into an
-        # easier to deal with array of dictionary objects.
-        # To keep things sensible, we'll use the same name as the properties
         i = 0
         if len(sites['query']['results']) > 0:
             for pagename, site in sites['query']['results'].items():
                 i += 1
                 LOGGER.info("Processing %s" % pagename)
 
-                site_id = int(site['printouts']['Has ID'][0])
+                site_id = int(site['printouts']['Page ID'][0])
                 try:
                     stats_url = site['printouts']['Has statistics URL'][0]
                 except Exception, e:
@@ -93,13 +97,13 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 except Exception, e:
                     check_every = 60*60*4
 
-                my_website = Website(site_id, pagename, api_url)
+                my_website = Website(site_id, pagename, api_url, stats_url)
 
                 # Get the statistical data
                 try:
                     if (site['printouts']['Collect semantic statistics'][0] == "t") and \
                     self.check_timer(site_id, 'smwinfo', check_every):
-                        pass
+                        my_website.get_smwinfo()
                 except Exception, e:
                     LOGGER.warn(e)
 
@@ -107,16 +111,26 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                     if (site['printouts']['Collect statistics'][0] == "t") and \
                     self.check_timer(site_id, 'statistics', 24*60*60):
                         self.check_timer(site_id, 'statistics', check_every)
-                        pass
+                        my_website.get_statistics_api()
                 except Exception, e:
                     LOGGER.warn(e)
 
+
+                try:
+                    if (site['printouts']['Collect statistics stats'][0] == "t") and \
+                    self.check_timer(site_id, 'statistics', 24*60*60):
+                        self.check_timer(site_id, 'statistics', check_every)
+                        my_website.get_statistics_stats()
+                except Exception, e:
+                    LOGGER.warn(e)
 
                 # Get the metadata
                 try:
                     if (site['printouts']['Collect general data'][0] == "t") and \
                     self.check_timer(site_id, 'general', 24*60*60):
                         my_website.record_general()
+                        # TODO: Interwikimap and Namespaces should be moved to their own sections
+                        # (see below) but the wiki needs to have fields added for those.
                         my_website.record_interwikimap()
                         my_website.record_namespaces()
                 except Exception, e:

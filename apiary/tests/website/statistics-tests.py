@@ -2,7 +2,7 @@
 Exercise the Website class to insure the methods operate
 as expected.
 """
-# pylint: disable=C0301,W0622
+# pylint: disable=C0301,W0622,R0201,R0904
 
 import unittest
 if __name__ == "__main__" and __package__ is None:
@@ -11,15 +11,22 @@ from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
 
 
 class TestGetStatisticsTask(unittest.TestCase):
-    """Run some tests."""
+    """Test the GetStatisticsTask methods."""
 
     def test_statistics_task(self):
+        """Ask for statistics via API"""
         task = GetStatisticsTask()
-        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        assert task.run(18, 'WikiApiary', 'API', 'https://wikiapiary.com/w/api.php', None) == True
+
+    def test_statistics_stats_task(self):
+        """Asking for statistics via the Stats URL"""
+        task = GetStatisticsTask()
+        assert task.run(10898, '311wiki', 'Statistics', None, 'http://www.taiyedbrodels.com/wiki/index.php?title=Special:Statistics') == True
 
     def test_statistics_task_fake(self):
+        """Calling a fake website."""
         task = GetStatisticsTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        assert task.run(666, 'Fake site', 'API', 'http://foo.bar.com/', None) == False
         
 if __name__ == '__main__':
     unittest.main()

@@ -42,7 +42,7 @@ class BaseApiaryTask(Task):
 
     def runSql(self, sql_command):
         """Helper to run a SQL command and catch errors"""
-        print "SQL: %s" % sql_command
+        LOGGER.debug("SQL: %s" % sql_command)
         try:
             cur = self.apiary_db.cursor()
             cur.execute(sql_command)
@@ -50,9 +50,9 @@ class BaseApiaryTask(Task):
             self.apiary_db.commit()
             return True, cur.rowcount
         except Exception, e:
-            print "Exception generated while running SQL command."
-            print "Command: %s" % sql_command
-            print "Exception: %s" % e
+            LOGGER.error("Exception generated while running SQL command.")
+            LOGGER.error("Command: %s" % sql_command)
+            LOGGER.error("Exception: %s" % e)
             return False, 0
 
     def record_error(self, site, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
