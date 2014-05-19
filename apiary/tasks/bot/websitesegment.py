@@ -95,7 +95,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                     api_url = None
 
                 try:
-                    check_every = site['printouts']['Check every'][0]
+                    check_every = int(site['printouts']['Check every'][0])
                 except Exception, e:
                     check_every = 60*60*4
 
@@ -105,14 +105,15 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect semantic statistics'][0] == "t") and \
                     self.check_timer(site_id, 'smwinfo', check_every):
+                        LOGGER.info("Retrieve smwinfo for %d" % site_id)
                         my_website.get_smwinfo()
                 except Exception, e:
                     LOGGER.warn(e)
 
                 try:
                     if (site['printouts']['Collect statistics'][0] == "t") and \
-                    self.check_timer(site_id, 'statistics', 24*60*60):
-                        self.check_timer(site_id, 'statistics', check_every)
+                    self.check_timer(site_id, 'statistics', check_every):
+                        LOGGER.info("Retrieve get_statistics_api for %d" % site_id)
                         my_website.get_statistics_api()
                 except Exception, e:
                     LOGGER.warn(e)
@@ -120,8 +121,8 @@ class ProcessWebsiteSegment(BaseApiaryTask):
 
                 try:
                     if (site['printouts']['Collect statistics stats'][0] == "t") and \
-                    self.check_timer(site_id, 'statistics', 24*60*60):
-                        self.check_timer(site_id, 'statistics', check_every)
+                    self.check_timer(site_id, 'statistics', check_every):
+                        LOGGER.info("Retrieve get_statistics_stats for %d" % site_id)
                         my_website.get_statistics_stats()
                 except Exception, e:
                     LOGGER.warn(e)
@@ -130,10 +131,13 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect general data'][0] == "t") and \
                     self.check_timer(site_id, 'general', 24*60*60):
+                        LOGGER.info("Retrieve record_general for %d" % site_id)
                         my_website.record_general()
                         # TODO: Interwikimap and Namespaces should be moved to their own sections
                         # (see below) but the wiki needs to have fields added for those.
+                        LOGGER.info("Retrieve record_interwikimap for %d" % site_id)
                         my_website.record_interwikimap()
+                        LOGGER.info("Retrieve record_namespaces for %d" % site_id)
                         my_website.record_namespaces()
                 except Exception, e:
                     LOGGER.warn(e)
@@ -141,6 +145,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect extension data'][0] == "t") and \
                     self.check_timer(site_id, 'extension', 24*60*60):
+                        LOGGER.info("Retrieve record_extensions for %d" % site_id)
                         my_website.record_extensions()
                 except Exception, e:
                     LOGGER.warn(e)
@@ -148,6 +153,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect skin data'][0] == "t") and \
                     self.check_timer(site_id, 'skin', 3*24*60*60):
+                        LOGGER.info("Retrieve record_skins for %d" % site_id)
                         my_website.record_skins()
                 except Exception, e:
                     LOGGER.warn(e)
