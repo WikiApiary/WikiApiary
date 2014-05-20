@@ -107,6 +107,10 @@ app.conf.update(
             'task': 'run_segment',
             'schedule': crontab(minute='14,29,44,59'),
             'args': [14]
+        },
+        'daily_tasks': {
+            'task': 'daily_tasks',
+            'schedule': crontab(minute='0', hour='0')
         }
     }
 )
