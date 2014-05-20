@@ -14,6 +14,10 @@ app = Celery(
     broker='redis://',
     backend='redis://',
     include=[
+        'WikiApiary.apiary.tasks.bot.deletebotlogs',
+        'WikiApiary.apiary.tasks.bot.deletewebsitelogs',
+        'WikiApiary.apiary.tasks.bot.updatetagline',
+        'WikiApiary.apiary.tasks.bot.updatetotaledits',
         'WikiApiary.apiary.tasks.bot.websitesegment',
         'WikiApiary.apiary.tasks.website.extensions',
         'WikiApiary.apiary.tasks.website.general',
