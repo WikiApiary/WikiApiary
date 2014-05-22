@@ -54,8 +54,8 @@ class BaseApiaryTask(Task):
                 site_id,
                 key,
                 value,
-                sqlutcnow(),
-                sqlutcnow(),
+                self.sqlutcnow(),
+                self.sqlutcnow(),
                 1)
             cur.execute(temp_sql)
 
