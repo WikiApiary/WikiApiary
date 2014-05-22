@@ -16,12 +16,16 @@ class TestRecordExtensionsTask(unittest.TestCase):
     def test_record_extensions(self):
         """This should succeed, getting extensions from WikiApiary."""
         task = RecordExtensionsTask()
-        assert task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php') == True
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_record_extensions_fake(self):
         """This should fail, the hostname isn't real."""
         task = RecordExtensionsTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        with self.assertRaises(Exception):
+            task.run(666, 'Fake site', 'http://foo.bar.com/')
 
 if __name__ == '__main__':
     unittest.main()

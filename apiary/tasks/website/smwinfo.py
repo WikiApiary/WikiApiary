@@ -14,6 +14,8 @@ class GetSMWInfoTask(BaseApiaryTask):
     def run(self, site_id, site, api_url):
         """Execute collection."""
 
+        LOGGER.info("Retrieve smwinfo for %d" % site_id)
+
         data_url = ''.join([
             api_url,
             '?action=smwinfo',
@@ -22,12 +24,12 @@ class GetSMWInfoTask(BaseApiaryTask):
         ])
 
         try:
-            req = requests.get(data_url, timeout = 15)
+            req = requests.get(data_url, timeout = 15, verify=False)
             duration = req.elapsed.total_seconds()
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise Exception(e)
 
         if req.status_code == 200:
 
@@ -70,13 +72,14 @@ class GetSMWInfoTask(BaseApiaryTask):
                 return True
             else:
                 self.record_error(
-                    site=site,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='SMWInfo returned unexpected JSON.',
                     log_type='info',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                return False
+                raise Exception('SMWInfo returned unexpected JSON.')
 
-        return False
+        raise Exception()

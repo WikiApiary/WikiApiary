@@ -4,7 +4,6 @@
 from WikiApiary.apiary.tasks import BaseApiaryTask
 import requests
 import logging
-from WikiApiary.apiary.utils import ProcessMultiprops
 
 
 LOGGER = logging.getLogger()
@@ -12,15 +11,17 @@ LOGGER = logging.getLogger()
 class RecordGeneralTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
+        LOGGER.info("Retrieve record_general for %d" % site_id)
+
         data_url = api_url + '?action=query&meta=siteinfo&siprop=general&format=json'
 
         LOGGER.debug("Requesting from %s" % data_url)
         try:
-            req = requests.get(data_url, timeout = 15)
+            req = requests.get(data_url, timeout = 15, verify=False)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise Exception(e)
 
         if req.status_code == 200:
             # Successfully pulled data
@@ -37,22 +38,23 @@ class RecordGeneralTask(BaseApiaryTask):
                 LOGGER.debug(wiki_return)
                 if 'error' in wiki_return:
                     LOGGER.warn(wiki_return)
-                    return False
+                    raise Exception(wiki_return)
                 else:
                     return True
                 # Update the status table that we did our work! It doesn't matter if this was an error.
                 self.update_status(site_id, 'general')
-                return True
+                raise Exception()
             else:
                 self.record_error(
-                    site=sitename,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='Returned unexpected JSON when general info.',
                     log_type='info',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-        return False
+        raise Exception('Returned unexpected JSON when general info.')
 
     def generate_template(self, site_id, data):
         """Build a the wikitext for the general subpage."""
@@ -104,7 +106,7 @@ class RecordGeneralTask(BaseApiaryTask):
                     # Try using an HTML entity instead
                     value = value.replace(':', '&#58;')
                 if key == 'dbversion':
-                    value = ProcessMultiprops(site_id, key, value)
+                    value = self.ProcessMultiprops(site_id, key, value)
 
                 template_block += "|%s=%s\n" % (name, value)
 

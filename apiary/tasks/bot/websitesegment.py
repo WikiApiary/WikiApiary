@@ -2,9 +2,17 @@
 # pylint: disable=C0301,C0103,W1201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
-from WikiApiary.apiary.website import Website
 import logging
 import datetime
+from WikiApiary.apiary.tasks.website.extensions import RecordExtensionsTask
+from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
+from WikiApiary.apiary.tasks.website.interwikimap import RecordInterwikimapTask
+from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
+from WikiApiary.apiary.tasks.website.namespaces import RecordNamespacesTask
+from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
+from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
+from WikiApiary.apiary.tasks.website.whoislookup import RecordWhoisTask
+from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
 
 
 LOGGER = logging.getLogger()
@@ -99,22 +107,18 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 except Exception, e:
                     check_every = 60*60*4
 
-                my_website = Website(site_id, pagename, api_url, stats_url)
-
                 # Get the statistical data
                 try:
                     if (site['printouts']['Collect semantic statistics'][0] == "t") and \
                     self.check_timer(site_id, 'smwinfo', check_every):
-                        LOGGER.info("Retrieve smwinfo for %d" % site_id)
-                        my_website.get_smwinfo()
+                        GetSMWInfoTask.delay(site_id, pagename, api_url)
                 except Exception, e:
                     LOGGER.warn(e)
 
                 try:
                     if (site['printouts']['Collect statistics'][0] == "t") and \
                     self.check_timer(site_id, 'statistics', check_every):
-                        LOGGER.info("Retrieve get_statistics_api for %d" % site_id)
-                        my_website.get_statistics_api()
+                        GetStatisticsTask.delay(site_id, pagename, 'API', api_url, self.__has_stats_url)
                 except Exception, e:
                     LOGGER.warn(e)
 
@@ -122,8 +126,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect statistics stats'][0] == "t") and \
                     self.check_timer(site_id, 'statistics', check_every):
-                        LOGGER.info("Retrieve get_statistics_stats for %d" % site_id)
-                        my_website.get_statistics_stats()
+                        GetStatisticsTask.delay(site_id, pagename, 'Statistics', api_url, stats_url)
                 except Exception, e:
                     LOGGER.warn(e)
 
@@ -131,30 +134,27 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                 try:
                     if (site['printouts']['Collect general data'][0] == "t") and \
                     self.check_timer(site_id, 'general', 24*60*60):
-                        LOGGER.info("Retrieve record_general for %d" % site_id)
-                        my_website.record_general()
+                        RecordGeneralTask.delay(site_id, pagename, api_url)
                         # TODO: Interwikimap and Namespaces should be moved to their own sections
                         # (see below) but the wiki needs to have fields added for those.
-                        LOGGER.info("Retrieve record_interwikimap for %d" % site_id)
-                        my_website.record_interwikimap()
-                        LOGGER.info("Retrieve record_namespaces for %d" % site_id)
-                        my_website.record_namespaces()
+                        RecordInterwikimapTask.delay(site_id, pagename, api_url)
+                        RecordNamespacesTask.delay(site_id, pagename, api_url)
+                        RecordWhoisTask.delay(site_id, pagename, api_url)
+                        MaxmindTask.delay(site_id, pagename, api_url)
                 except Exception, e:
                     LOGGER.warn(e)
 
                 try:
                     if (site['printouts']['Collect extension data'][0] == "t") and \
                     self.check_timer(site_id, 'extension', 24*60*60):
-                        LOGGER.info("Retrieve record_extensions for %d" % site_id)
-                        my_website.record_extensions()
+                        RecordExtensionsTask.delay(site_id, pagename, api_url)
                 except Exception, e:
                     LOGGER.warn(e)
 
                 try:
                     if (site['printouts']['Collect skin data'][0] == "t") and \
                     self.check_timer(site_id, 'skin', 3*24*60*60):
-                        LOGGER.info("Retrieve record_skins for %d" % site_id)
-                        my_website.record_skins()
+                        RecordSkinsTask.delay(site_id, pagename, api_url)
                 except Exception, e:
                     LOGGER.warn(e)
 

@@ -6,21 +6,24 @@ import logging
 import urlparse
 import socket
 import whois
-from WikiApiary.apiary.utils import ProcessMultiprops
 
 
 LOGGER = logging.getLogger()
 
 class RecordWhoisTask(BaseApiaryTask):
+    """Task to get whois information for the domain name of the wiki."""
 
     def run(self, site_id, sitename, api_url):
+        """Run the task."""
+        LOGGER.info("Get whois data")
+
         # Now that we successfully got the data, we can make a quick query to get the server info
         hostname = urlparse.urlparse(api_url).hostname
         try:
             addr = socket.gethostbyname(hostname)
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise Exception(e)
 
         template_block = "<noinclude>{{Whois subpage}}</noinclude><includeonly>"
         template_block += "{{Whois\n"

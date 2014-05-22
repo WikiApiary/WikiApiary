@@ -16,12 +16,17 @@ class TestMaxmindTask(unittest.TestCase):
     def test_maxmind_task(self):
         """Get MaxMind data for WikiApiary."""
         task = MaxmindTask()
-        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_maxmind_task_fake(self):
         """Get MaxMind from fake website."""
         task = MaxmindTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        with self.assertRaises(Exception):
+            task.run(666, 'Fake site', 'http://foo.bar.com/')
+
 
 if __name__ == '__main__':
     unittest.main()

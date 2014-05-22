@@ -14,6 +14,10 @@ class GetStatisticsTask(BaseApiaryTask):
     """Collect statistics on usage from site."""
 
     def run(self, site_id, site, method, api_url = None, stats_url = None):
+        """Run the task."""
+        
+        LOGGER.info("Retrieve get_statistics_stats for %d" % site_id)
+
         if method == 'API':
             # Go out and get the statistic information
             data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
@@ -24,18 +28,20 @@ class GetStatisticsTask(BaseApiaryTask):
                 req = requests.get(
                     data_url,
                     timeout = 15,
+                    verify = False,
                     headers = {
                         'User-Agent': 'Bumble Bee'
                     }
                 )
+                if req.status_code == requests.codes.ok:
+                    data = req.json()
+                    duration = req.elapsed.total_seconds()
+                    status = True
+                else:
+                    raise Exception('Did not get OK status code from API request')
             except Exception, e:
                 LOGGER.error(e)
-                return False
-
-            if req.status_code == 200:
-                status = True
-            data = req.json()
-            duration = req.elapsed.total_seconds()
+                raise Exception(e)                
         elif method == 'Statistics':
             # Get stats the old fashioned way
             data_url = stats_url
@@ -50,6 +56,7 @@ class GetStatisticsTask(BaseApiaryTask):
                 req = requests.get(
                     data_url,
                     timeout = 30,
+                    verify = False,
                     headers = {
                         'User-Agent': 'Bumble Bee'
                     }
@@ -57,14 +64,15 @@ class GetStatisticsTask(BaseApiaryTask):
                 duration = req.elapsed.total_seconds()
             except Exception, e:
                 self.record_error(
-                    site=site,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message="%s" % e,
                     log_type='error',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                status = False
+                raise Exception('Invalid response from request for statistics from Statistics page')
             else:
                 # Create an object that is the same as that returned by the API
                 ret_string = req.text.strip()
@@ -87,11 +95,12 @@ class GetStatisticsTask(BaseApiaryTask):
                             LOGGER.info("Transforming %s to %s" % (name, value))
                             data['query']['statistics'][name] = value
                         except:
-                            LOGGER.info("Illegal value '%s' for %s." % (value, name))
+                            LOGGER.warn("Illegal value '%s' for %s." % (value, name))
                 else:
                     status = False # The result didn't match the pattern expected
                     self.record_error(
-                        site=site,
+                        site_id=site_id,
+                        sitename=sitename,
                         log_message="Unexpected response to statistics call",
                         log_type='error',
                         log_severity='normal',
@@ -172,18 +181,19 @@ class GetStatisticsTask(BaseApiaryTask):
                 self.runSql(sql_command)
             else:
                 self.record_error(
-                    site=site,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='Statistics returned unexpected JSON.',
                     log_type='info',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                ret_value = False
+                raise Exception('Statistics returned unexpected JSON.')
 
         else:
             LOGGER.info("Did not receive valid data from %s" % (data_url))
-            ret_value = False
+            raise Exception("Did not receive valid data from %s" % (data_url))
 
         return ret_value
 

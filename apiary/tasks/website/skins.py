@@ -2,7 +2,6 @@
 # pylint: disable=C0301,R0201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
-from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
 import logging
 import operator
@@ -14,14 +13,16 @@ class RecordSkinsTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
         """Pull skin data from website and write to WikiApiary."""
+        LOGGER.info("Retrieve record_skins for %d" % site_id)
+
         data_url = api_url + '?action=query&meta=siteinfo&siprop=skins&format=json'
 
         try:
-            req = requests.get(data_url, timeout = 15)
+            req = requests.get(data_url, timeout = 15, verify=False)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise(e)
 
         if req.status_code == 200:
             if 'query' in data:
@@ -35,20 +36,21 @@ class RecordSkinsTask(BaseApiaryTask):
                 LOGGER.debug(wiki_return)
                 if 'error' in wiki_return:
                     LOGGER.warn(wiki_return)
-                    return False
+                    raise
                 else:
                     return True
             else:
                 self.record_error(
-                    site=sitename,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='Returned unexpected JSON when requesting skin data.',
                     log_type='info',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                return False
-        return False
+                raise
+        raise
 
     def generate_template(self, ext_obj):
         """Build a the wikitext for the skin subpage."""
@@ -81,7 +83,7 @@ class RecordSkinsTask(BaseApiaryTask):
                         value = skin[item]
 
                         if item == '*':
-                            value = filter_illegal_chars(value)
+                            value = self.filter_illegal_chars(value)
 
                         if item == 'default':
                             # This parameter won't appear unless it is true

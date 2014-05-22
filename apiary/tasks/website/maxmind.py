@@ -19,8 +19,7 @@ class MaxmindTask(BaseApiaryTask):
         # Make sure we have the database to do this, if not just return
         # false immediately
         if not os.path.isfile(GEODATA):
-            LOGGER.warn("Unable to load MaxMind database at %s" % GEODATA)
-            return False
+            raise Exception("Unable to load MaxMind database at %s" % GEODATA)
 
         datapage = "%s/Maxmind" % sitename
         hostname = urlparse.urlparse(api_url).hostname
@@ -36,7 +35,7 @@ class MaxmindTask(BaseApiaryTask):
         LOGGER.debug(wiki_return)
         if 'error' in wiki_return:
             LOGGER.warn(wiki_return)
-            return False
+            raise
         else:
             return True
 

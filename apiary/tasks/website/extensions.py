@@ -2,7 +2,6 @@
 # pylint: disable=C0301,W1201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
-from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
 import logging
 import HTMLParser
@@ -17,15 +16,17 @@ class RecordExtensionsTask(BaseApiaryTask):
     def run(self, site_id, sitename, api_url):
         """Get extensions from the website and write them to WikiApiary."""
 
+        LOGGER.info("Retrieve record_extensions for %d" % site_id)
+
         data_url = api_url + '?action=query&meta=siteinfo&siprop=extensions&format=json'
 
         LOGGER.debug("Requesting from %s" % data_url)
         try:
-            req = requests.get(data_url, timeout = 15)
+            req = requests.get(data_url, timeout = 15, verify=False)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise Exception(e)
 
         if req.status_code == 200:
             # Successfully pulled data
@@ -42,19 +43,20 @@ class RecordExtensionsTask(BaseApiaryTask):
                 LOGGER.debug(wiki_return)
                 if 'error' in wiki_return:
                     LOGGER.warn(wiki_return)
-                    return False
+                    raise Exception(wiki_return)
                 else:
                     return True
             else:
                 self.record_error(
-                    site=sitename,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='Returned unexpected JSON when requesting extension data.',
                     log_type='warn',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-        return False
+        raise Exception('Returned unexpected JSON when requesting extension data.')
 
     def generate_template(self, ext_obj):
         """Build a the wikitext for the extensions subpage."""
@@ -94,7 +96,7 @@ class RecordExtensionsTask(BaseApiaryTask):
                                 # it is up to the template to decide what to do with this
                                 template_block += "|URL Embedded in name=%s" % possible_url
 
-                            value = filter_illegal_chars(value)
+                            value = self.filter_illegal_chars(value)
                             # Before unescaping 'regular' unicode characters, first deal with spaces
                             # because they cause problems when converted to unicode non-breaking spaces
                             value = value.replace('&nbsp;', ' ').replace('&#160;', ' ').replace('&160;', ' ')

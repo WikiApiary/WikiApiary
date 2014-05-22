@@ -16,12 +16,16 @@ class TestRecordWhoisTask(unittest.TestCase):
     def test_whois_task(self):
         """Get whois information from WikiApiary."""
         task = RecordWhoisTask()
-        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_whois_task_fake(self):
         """Get whois information from fake website."""
         task = RecordWhoisTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        with self.assertRaises(Exception):
+            task.run(666, 'Fake site', 'http://foo.bar.com/')
         
 if __name__ == '__main__':
     unittest.main()

@@ -2,7 +2,6 @@
 # pylint: disable=C0301,R0201
 
 from WikiApiary.apiary.tasks import BaseApiaryTask
-from WikiApiary.apiary.utils import filter_illegal_chars
 import requests
 import logging
 import operator
@@ -14,14 +13,16 @@ class RecordNamespacesTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
         """Pull namespace data from website and write to WikiApiary."""
+        LOGGER.info("Retrieve record_namespaces for %d" % site_id)
+
         data_url = api_url + '?action=query&meta=siteinfo&siprop=namespaces&format=json'
 
         try:
-            req = requests.get(data_url, timeout = 15)
+            req = requests.get(data_url, timeout = 15, verify=False)
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            return False
+            raise(e)
 
         if req.status_code == 200:
             if 'query' in data:
@@ -35,20 +36,21 @@ class RecordNamespacesTask(BaseApiaryTask):
                 LOGGER.debug(wiki_return)
                 if 'error' in wiki_return:
                     LOGGER.warn(wiki_return)
-                    return False
+                    raise Exception(wiki_return)
                 else:
                     return True
             else:
                 self.record_error(
-                    site=sitename,
+                    site_id=site_id,
+                    sitename=sitename,
                     log_message='Returned unexpected JSON when requesting namespace data.',
                     log_type='info',
                     log_severity='normal',
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                return False
-        return False
+                raise Exception('Returned unexpected JSON when requesting namespace data.')
+        raise Exception()
 
     def generate_template(self, ext_obj):
         # Some keys we do not want to store in WikiApiary

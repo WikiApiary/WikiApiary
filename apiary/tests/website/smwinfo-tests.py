@@ -16,12 +16,16 @@ class TestGetSMWInfoTask(unittest.TestCase):
     def test_smwinfo_task(self):
         """Get SMWInfo from WikiApiary."""
         task = GetSMWInfoTask()
-        assert task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php') == True
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_smwinfo_task_fake(self):
         """Get SMWInfo from fake website."""
         task = GetSMWInfoTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        with self.assertRaises(Exception):
+            task.run(666, 'Fake site', 'http://foo.bar.com/')
         
 if __name__ == '__main__':
     unittest.main()

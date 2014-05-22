@@ -9,7 +9,7 @@ from WikiApiary.celery import app
 import logging
 import datetime
 import pytz
-
+import re
 
 LOGGER = logging.getLogger()
 
@@ -21,24 +21,58 @@ class BaseApiaryTask(Task):
     apiary_db = None
     redis_db = None
 
-    def update_status(self, site, checktype):
-        """Update the website_status table"""
-        my_now = self.sqlutcnow()
+    def filter_illegal_chars(self, pre_filter):
+        """Utility function to make sure that strings are okay for page titles"""
+        return re.sub(r'[#<>\[\]\|{}]', '', pre_filter).replace('=', '-')
 
-        if checktype == "statistics":
-            temp_sql = "UPDATE website_status SET last_statistics = '%s' WHERE website_id = %d" % (my_now, site)
+    def sqlutcnow(self):
+        """Returns the UTC time in format SQL likes."""
+        now = datetime.datetime.utcnow()
+        now = now.replace(tzinfo=pytz.utc)
+        now = now.replace(microsecond=0)
+        return now.strftime('%Y-%m-%d %H:%M:%S')
 
-        if checktype == "general":
-            temp_sql = "UPDATE website_status SET last_general = '%s' WHERE website_id = %d" % (my_now, site)
+    def ProcessMultiprops(self, site_id, key, value):
+        # Here we deal with properties that change frequently and we care about all of them.
+        # For example, dbversion in a wiki farm will often have multiple values
+        # and we will get different values each time, rotating between a set.
+        # This function will take the value and return a more complex data structure.
 
-        (success, rows_affected) = self.runSql(temp_sql)
+        # First update the timestamp for seeing the current name/value
+        cur = self.apiary_db.cursor()
+        temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
+            self.sqlutcnow(),
+            site_id,
+            key,
+            value)
+        cur.execute(temp_sql)
+        rows_returned = cur.rowcount
 
-        if rows_affected == 0:
-            # No rows were updated, this website likely didn't exist before, so we need to insert the first time
-            print "No website_status record exists for ID %d, creating one" % site
-            temp_sql = "INSERT website_status (website_id, last_statistics, last_general, check_every_limit) "
-            temp_sql += "VALUES (%d, \"%s\", \"%s\", %d)" % (site, my_now, my_now, 240)
-            self.runSql(temp_sql)
+        # No rows returned, we need to create this value
+        if rows_returned == 0:
+            temp_sql = "INSERT apiary_multiprops (website_id, t_name, t_value, first_date, last_date, occurrences) VALUES (%d, \'%s\', \'%s\', \'%s\', \'%s\', %d)" % (
+                site_id,
+                key,
+                value,
+                sqlutcnow(),
+                sqlutcnow(),
+                1)
+            cur.execute(temp_sql)
+
+        # Now build the return value
+        multivalue = ""
+        temp_sql = "SELECT t_value, last_date, occurrences FROM apiary_multiprops WHERE website_id = %d AND last_date > \'%s\' AND t_name = \'%s\' ORDER BY occurrences DESC" % (
+            site_id,
+            '2013-04-26 18:23:01',
+            key)
+        cur.execute(temp_sql)
+        rows = cur.fetchall()
+        for row in rows:
+            if len(multivalue) > 0:
+                multivalue += ","
+            multivalue += "%s" % row[0]
+
+        return multivalue
 
     def runSql(self, sql_command):
         """Helper to run a SQL command and catch errors"""
@@ -55,18 +89,15 @@ class BaseApiaryTask(Task):
             LOGGER.error("Exception: %s" % e)
             return False, 0
 
-    def record_error(self, site, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
+    def record_error(self, site_id, sitename, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
         """
         If a task encounters an error while collecting from a website it can record that
         error into the ApiaryDB so it is then displayed to the users on WikiApiary. This
         allows people that are not administrators on the machines running the bots to
         correct collection errors.
         """
-        if 'pagename' not in site:
-            if 'Has name' in site:
-                site['pagename'] = site['Has name']
 
-        LOGGER.debug("New log message for %s" % site['pagename'])
+        LOGGER.debug("New log message for %s" % sitename)
 
         LOGGER.debug(log_message)
 
@@ -82,9 +113,9 @@ class BaseApiaryTask(Task):
 
         temp_sql = "INSERT  apiary_website_logs (website_id, log_date, website_name, log_type, log_severity, log_message, log_bot, log_url) "
         temp_sql += "VALUES (%d, \"%s\", \"%s\", \"%s\", \"%s\", \"%s\", %s, %s)" % (
-            site['Has ID'],
+            site_id,
             self.sqlutcnow(),
-            site['pagename'],
+            sitename,
             log_type,
             log_severity,
             log_message,
@@ -93,13 +124,6 @@ class BaseApiaryTask(Task):
         )
 
         self.runSql(temp_sql)
-
-    def sqlutcnow(self):
-        """Returns the UTC time in format SQL likes."""
-        now = datetime.datetime.utcnow()
-        now = now.replace(tzinfo=pytz.utc)
-        now = now.replace(microsecond=0)
-        return now.strftime('%Y-%m-%d %H:%M:%S')
 
     def __init__(self):
         self.bumble_bee = bumble_bee

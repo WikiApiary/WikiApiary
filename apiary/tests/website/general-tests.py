@@ -16,12 +16,17 @@ class TestRecordGeneralTask(unittest.TestCase):
     def test_record_general(self):
         """Get general site information from WikiApiary."""
         task = RecordGeneralTask()
-        assert task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php') == True
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_record_general_fake(self):
         """Get general site information from non-existent website."""
         task = RecordGeneralTask()
-        assert task.run(18, 'Foo', 'https://foo.bar.com') == False
+        with self.assertRaises(Exception):
+            task.run(18, 'Foo', 'https://foo.bar.com')
+
 
 if __name__ == '__main__':
     unittest.main()

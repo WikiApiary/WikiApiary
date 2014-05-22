@@ -16,12 +16,17 @@ class TestRecordSkinsTask(unittest.TestCase):
     def test_record_skins(self):
         """Get skins from WikiApiary."""
         task = RecordSkinsTask()
-        task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        self.assertEqual(
+            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
+            True
+        )
 
     def test_record_skins_fake(self):
         """Get skins from fake website."""
         task = RecordSkinsTask()
-        assert task.run(666, 'Fake site', 'http://foo.bar.com/') == False
+        with self.assertRaises(Exception):
+            task.run(666, 'Fake site', 'http://foo.bar.com/')
+
         
 if __name__ == '__main__':
     unittest.main()
