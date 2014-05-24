@@ -58,9 +58,94 @@ All components of WikiApiary collectors are tasks, including the components that
 
 ### Bot
 
+TODO: provide overview of what a bot task is.
+
 ### Extension
+
+TODO: provide overview of what an extension task is.
 
 ### Farmer
 
+TODO: provide overview of what a farm task is.
+
 ### Website
 
+TODO: provide overview of what a website task is.
+
+## Adding a new task
+
+Great, so now you have an overview of the code structure, how celery works, what the ApiaryAPI is. What if you want to add a new dataset to WikiApiary? That's awesome, here is how you would do that.
+
+### Slowly changing data
+
+If the data you want to look at is slowly changing you should store it as Semantic MediaWiki data in WikiApiary itself. To do this, you will create a new subpage for the website. WikiApiary has page in the Website category for each website it monitors. The website page itself is only ever modified by human editors or Audit Bee. Edit frequency on the main wiki page should be relatively low to make watchlists more useful. Each data set is then stored on a subpage that is edited only by the bots. Current examples of subpages include:
+
+* `WikiApiary/General` stores all values produced by siteinfo/general API call.
+* `WikiApiary/Extensions` stores the list of all extensions used.
+* `WikiApiary/Interwikimap` stores the interwikimap.
+
+Each of these pages is created and maintained by a task. For the ones above they are `apiary/tasks/general.py`, `apiary/tasks/extensions.py` and `apiary/tasks/interwikimap.py`. The tasks themselves should by design do very little. They simply get the data, do any cleanup required of the data and then store it in the wiki. As much as possible keep the names of the data unmodified so it is easier to track data from the bot task into the wiki.
+
+The data once stored in a wiki page is parsed using a template, and the template actually creates the Semantic MediaWiki data. None of that is done by the tasks. This keeps as much of the logic and capability directly in Semantic MediaWiki and limits the need for people to have to edit Python code to do new things.
+
+#### Recipe
+
+First, determine a proper name for your task and create a new file in one of the directories in `apiary/tasks` for your code. Use the right directory for the type of task you are writing. If it is new or unknown email the WikiApiary developer mailing list and ask for a recommendation. A blank task would look like this:
+
+    """
+    My great task worker to get amazing data!
+    """
+
+    from apiary.tasks import BaseApiaryTask
+    import logging
+
+
+    LOGGER = logging.getLogger()
+
+    class GetAmazingDataTask(BaseApiaryTask):
+        """Get amazing data"""
+
+        def run(self):
+            """Run my task"""
+            pass
+
+Now add a proper test for your task in the right directory of  `apiary/tests`. A blank test would look like:
+
+    """
+    Tests for the amazing data task!
+    """
+
+    import unittest
+    if __name__ == "__main__" and __package__ is None:
+        __package__ = "apiary.tests"
+    from apiary.tasks.bot.amazing import DeleteBotLogsTask
+
+
+    class Test GetAmazingDataTask(unittest.TestCase):
+        """Run GetAmazingDataTask and make sure it worked"""
+
+        def test_amazing_data(self):
+            """One of the amazing test cases"""
+            task = GetAmazingDataTask()
+            assert task.run() >= 0
+
+    if __name__ == '__main__':
+        unittest.main()
+
+Code your task up and make sure to run `nosetests` to make sure everything works. Once you are done, issue a pull request.
+
+### Time-series data
+
+Data that is quickly changing is a little more complicated. This data is stored outside of the WikiApiary wiki and managed directly in ApiaryDB, a MySQL database that holds millions of rows of data.
+
+The process for adding this type of data set is similar to the one above, but you'll need a new database table to put that data in, or possibly modify an existing one.
+
+The ApiaryDB is managed using database migrations using yoyo-migrations. You can see the migrations in the `migrations` directory. The filenames are important as they are executed in order. To add a new table, you would create a new file in the `migrations` directory and then describe both the apply and rollback methods for the table.
+
+You then apply the migration using the same step you did above to initially setup the database. The database connection is established in the `connect_mysql.py` and is stored in a `apiary_db` in the BaseApiaryTask class. In your code you can access it directly as `self.apiary_db`.
+
+You will need to add the proper SQL calls to your task worker to write the data. You can see `tasks/website/statistics.py` for an example of how to do this.
+
+Data stored in MySQL is then exposed by the ApiaryAPI. After adding your data to the database via your tasks, you will then want to extend ApiaryAPI by adding additional routes and handlers in `apiary/ApiaryAPI/api.py`. This API is then used by templates in WikiApiary to draw graphs and expose other elements.
+
+If you need a static Javascript library to display the data add that to the `www` directory. That is where the core dygraph.js library is stored.
