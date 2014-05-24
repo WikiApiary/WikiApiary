@@ -8,8 +8,8 @@
 mysql-python
 yoyo-migrations
 
-# CherryPy for the API
-cherrypy
+# Flask for the API
+Flask
 
 # Use requests to make it easier to do things with URLs
 requests

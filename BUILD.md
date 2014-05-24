@@ -10,6 +10,14 @@ Start the Celery worker using `celery --beat --app=WikiApiary worker -l info`.
 
 You must have a local database named `apiary` in MySQL. Apply the database migrations from `migrations` using `yoyo-migrate apply ./migrations`.
 
+## Running API Locally
+
+The ApiaryAPI is a module and Python doesn't like to run modules directly. The easiest way around this is to go to the parent directory above WikiApiary and run
+
+`python -c "from WikiApiary.apiary.ApiaryAPI.api import app; app.run()"`
+
+This invokes Python, loads the ApiaryAPI as a module and runs the Flask application.
+
 ## Data collection bots
 
 ### Classes
