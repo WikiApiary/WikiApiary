@@ -14,7 +14,7 @@ The WikiApiary repository contains:
 * `migrations` contains the database migrations to setup and modify the MySQL database structure.
 * `www` contains static assets that should be served directly via a web server.
 
-WikiApiary uses Travis-CI for building and running unit tests. Travis-CI will send build notification to the WikiApiary developer mailing list. Github also sends notifications to the developer mailing list. Code coverage is tracked on Coveralls. Code quality analysis is done by Landscape.io.
+WikiApiary uses [Travis-CI](https://travis-ci.org/thingles/WikiApiary) for building and running unit tests. Travis-CI will send build notification to the WikiApiary developer mailing list. Github also sends notifications to the developer mailing list. Code coverage is tracked on [Coveralls](https://coveralls.io/r/thingles/WikiApiary). Code quality analysis is done by [Landscape.io](https://landscape.io/github/thingles/WikiApiary).
 
 ## Running Locally
 
