@@ -6,8 +6,8 @@ as expected.
 
 import unittest
 if __name__ == "__main__" and __package__ is None:
-    __package__ = "WikiApiary.apiary.tests"
-from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
+    __package__ = "apiary.tests"
+from apiary.tasks.website.smwinfo import GetSMWInfoTask
 
 
 class TestGetSMWInfoTask(unittest.TestCase):

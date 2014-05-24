@@ -3,7 +3,7 @@ Clean up the website log table.
 """
 # pylint: disable=C0301,C0103,W1201
 
-from WikiApiary.apiary.tasks import BaseApiaryTask
+from apiary.tasks import BaseApiaryTask
 import logging
 import datetime
 

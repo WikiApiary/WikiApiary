@@ -1,7 +1,7 @@
 """Record general information."""
 # pylint: disable=C0301
 
-from WikiApiary.apiary.tasks import BaseApiaryTask
+from apiary.tasks import BaseApiaryTask
 import requests
 import logging
 

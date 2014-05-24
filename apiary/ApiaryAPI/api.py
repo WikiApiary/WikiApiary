@@ -6,7 +6,7 @@ Data API for WikiApiary
 
 from flask import Flask
 from flask import request
-from WikiApiary.apiary.connect_mysql import apiary_db
+from apiary.connect_mysql import apiary_db
 
 app = Flask(__name__)
 

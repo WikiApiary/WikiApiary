@@ -1,18 +1,18 @@
 """Process a website segment."""
 # pylint: disable=C0301,C0103,W1201
 
-from WikiApiary.apiary.tasks import BaseApiaryTask
+from apiary.tasks import BaseApiaryTask
 import logging
 import datetime
-from WikiApiary.apiary.tasks.website.extensions import RecordExtensionsTask
-from WikiApiary.apiary.tasks.website.general import RecordGeneralTask
-from WikiApiary.apiary.tasks.website.interwikimap import RecordInterwikimapTask
-from WikiApiary.apiary.tasks.website.maxmind import MaxmindTask
-from WikiApiary.apiary.tasks.website.namespaces import RecordNamespacesTask
-from WikiApiary.apiary.tasks.website.skins import RecordSkinsTask
-from WikiApiary.apiary.tasks.website.smwinfo import GetSMWInfoTask
-from WikiApiary.apiary.tasks.website.whoislookup import RecordWhoisTask
-from WikiApiary.apiary.tasks.website.statistics import GetStatisticsTask
+from apiary.tasks.website.extensions import RecordExtensionsTask
+from apiary.tasks.website.general import RecordGeneralTask
+from apiary.tasks.website.interwikimap import RecordInterwikimapTask
+from apiary.tasks.website.maxmind import MaxmindTask
+from apiary.tasks.website.namespaces import RecordNamespacesTask
+from apiary.tasks.website.skins import RecordSkinsTask
+from apiary.tasks.website.smwinfo import GetSMWInfoTask
+from apiary.tasks.website.whoislookup import RecordWhoisTask
+from apiary.tasks.website.statistics import GetStatisticsTask
 
 
 LOGGER = logging.getLogger()
@@ -108,82 +108,52 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                     check_every = 60*60*4
 
                 # Get the statistical data
-                try:
-                    if (site['printouts']['Collect semantic statistics'][0] == "t") and \
-                    self.check_timer(site_id, 'smwinfo', check_every):
-                        GetSMWInfoTask.delay(site_id, pagename, api_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect semantic statistics'][0] == "t") and \
+                self.check_timer(site_id, 'smwinfo', check_every):
+                    GetSMWInfoTask.delay(site_id, pagename, api_url)
 
-                try:
-                    if (site['printouts']['Collect statistics'][0] == "t") and \
-                    self.check_timer(site_id, 'statistics', check_every):
-                        GetStatisticsTask.delay(site_id, pagename, 'API', api_url, self.__has_stats_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect statistics'][0] == "t") and \
+                self.check_timer(site_id, 'statistics', check_every):
+                    GetStatisticsTask.delay(site_id, pagename, 'API', api_url, stats_url)
 
 
-                try:
-                    if (site['printouts']['Collect statistics stats'][0] == "t") and \
-                    self.check_timer(site_id, 'statistics', check_every):
-                        GetStatisticsTask.delay(site_id, pagename, 'Statistics', api_url, stats_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect statistics stats'][0] == "t") and \
+                self.check_timer(site_id, 'statistics', check_every):
+                    GetStatisticsTask.delay(site_id, pagename, 'Statistics', api_url, stats_url)
 
                 # Get the metadata
-                try:
-                    if (site['printouts']['Collect general data'][0] == "t") and \
-                    self.check_timer(site_id, 'general', 24*60*60):
-                        RecordGeneralTask.delay(site_id, pagename, api_url)
-                        # TODO: Interwikimap and Namespaces should be moved to their own sections
-                        # (see below) but the wiki needs to have fields added for those.
-                        RecordInterwikimapTask.delay(site_id, pagename, api_url)
-                        RecordNamespacesTask.delay(site_id, pagename, api_url)
-                        RecordWhoisTask.delay(site_id, pagename, api_url)
-                        MaxmindTask.delay(site_id, pagename, api_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect general data'][0] == "t") and \
+                self.check_timer(site_id, 'general', 24*60*60):
+                    RecordGeneralTask.delay(site_id, pagename, api_url)
+                    # TODO: Interwikimap and Namespaces should be moved to their own sections
+                    # (see below) but the wiki needs to have fields added for those.
+                    RecordInterwikimapTask.delay(site_id, pagename, api_url)
+                    RecordNamespacesTask.delay(site_id, pagename, api_url)
+                    RecordWhoisTask.delay(site_id, pagename, api_url)
+                    MaxmindTask.delay(site_id, pagename, api_url)
 
-                try:
-                    if (site['printouts']['Collect extension data'][0] == "t") and \
-                    self.check_timer(site_id, 'extension', 24*60*60):
-                        RecordExtensionsTask.delay(site_id, pagename, api_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect extension data'][0] == "t") and \
+                self.check_timer(site_id, 'extension', 24*60*60):
+                    RecordExtensionsTask.delay(site_id, pagename, api_url)
 
-                try:
-                    if (site['printouts']['Collect skin data'][0] == "t") and \
-                    self.check_timer(site_id, 'skin', 3*24*60*60):
-                        RecordSkinsTask.delay(site_id, pagename, api_url)
-                except Exception, e:
-                    LOGGER.warn(e)
+                if (site['printouts']['Collect skin data'][0] == "t") and \
+                self.check_timer(site_id, 'skin', 3*24*60*60):
+                    RecordSkinsTask.delay(site_id, pagename, api_url)
 
-                # try:
                 #     if (site['printouts']['Collect interwikimap'][0] == "t") and \
                 #     self.check_timer(site_id, 'interwikimap', 5*24*60*60):
                 #         my_website.record_interwikimap()
-                # except Exception, e:
-                #     LOGGER.warn(e)
 
-                # try:
                 #     if (site['printouts']['Collect namespaces'][0] == "t") and \
                 #     self.check_timer(site_id, 'namespaces', 5*24*60*60):
                 #         my_website.record_namespaces()
-                # except Exception, e:
-                #     LOGGER.warn(e)
 
-                # try:
                 #     if (site['printouts']['Collect logs'][0] == "t") and \
                 #     self.check_timer(site_id, 'general', 24*60*60):
                 #         self.check_timer(site_id, 'logs', 60*60)
-                # except Exception, e:
-                #     pass
 
-                # try:
                 #     if (site['printouts']['Collect recent changes'][0] == "t") and \
                 #     self.check_timer(site_id, 'general', 24*60*60):
                 #         self.check_timer(site_id, 'recentchanges', 60*60)
-                # except Exception, e:
-                #     pass
 
             return i

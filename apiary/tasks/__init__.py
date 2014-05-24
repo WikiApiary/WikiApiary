@@ -4,8 +4,8 @@ baseclass for tasks
 # pylint: disable=C0301
 
 from celery.task import Task
-from WikiApiary.apiary.connect import bumble_bee, bumble_bee_token, audit_bee, audit_bee_token, apiary_db, redis_db
-from WikiApiary.celery import app
+from apiary.connect import bumble_bee, bumble_bee_token, audit_bee, audit_bee_token, apiary_db, redis_db
+from apiary.celery import app
 import logging
 import datetime
 import pytz

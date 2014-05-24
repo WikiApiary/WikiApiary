@@ -4,12 +4,12 @@ Celery cannot invoke object methods directly, so these tasks
 take care of that.
 """
 
-from WikiApiary.apiary.tasks.bot.deletebotlogs import DeleteBotLogsTask
-from WikiApiary.apiary.tasks.bot.deletewebsitelogs import DeleteWebsiteLogsTask
-from WikiApiary.apiary.tasks.bot.updatetagline import UpdateTaglineTask
-from WikiApiary.apiary.tasks.bot.updatetotaledits import UpdateTotalEditsTask
-from WikiApiary.apiary.tasks.bot.websitesegment import ProcessWebsiteSegment
-from WikiApiary.celery import app
+from apiary.tasks.bot.deletebotlogs import DeleteBotLogsTask
+from apiary.tasks.bot.deletewebsitelogs import DeleteWebsiteLogsTask
+from apiary.tasks.bot.updatetagline import UpdateTaglineTask
+from apiary.tasks.bot.updatetotaledits import UpdateTotalEditsTask
+from apiary.tasks.bot.websitesegment import ProcessWebsiteSegment
+from apiary.celery import app
 import logging
 import datetime
 

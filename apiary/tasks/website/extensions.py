@@ -1,7 +1,7 @@
 """Record extension data."""
 # pylint: disable=C0301,W1201
 
-from WikiApiary.apiary.tasks import BaseApiaryTask
+from apiary.tasks import BaseApiaryTask
 import requests
 import logging
 import HTMLParser

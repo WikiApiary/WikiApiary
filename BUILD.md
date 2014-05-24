@@ -1,39 +1,66 @@
-# Building WikiApiary
+Thank you for your interest in contributing to WikiApiary. This document is intended to help get you started off in the right direction and provide an overall understanding of the codebase.
 
-Thank you for your interest in contributing to the WikiApiary codebase. This document is intended to provide an overview of the project structure to make it easier for others to contibute.
+Before diving in, you might want to also subscribe to the [WikiApiary development mailing list](http://lists.thingelstad.com/cgi-bin/mailman/listinfo/wikiapiary-dev) as well as the [general WikiApiary mailing list](http://lists.thingelstad.com/cgi-bin/mailman/listinfo/wikiapiary-l). These mailing lists are the right place to ask for various questions about how WikiApiary.
+
+The WikiApiary repository contains:
+
+* `apiary` is the location where the Python source is.
+* `apiary/ApiaryAPI` is the Flask-based API for communicating directly with the ApiaryDB and bots.
+* `apiary/tasks` contain the various tasks that are executed by Celery.
+* `apiary/tests` contain the unit tests.
+* `apiary/celery.py` defines the Celery application. This is also where the Celery scheduled tasks are defined.
+* `apiary/connect_*.py` sets up connections to various services that the codebase needs.
+* `config` holds the configuration file. **This file is not included in the repository. This is where passwords are stored.**
+* `migrations` contains the database migrations to setup and modify the MySQL database structure.
+* `www` contains static assets that should be served directly via a web server.
+
+WikiApiary uses Travis-CI for building and running unit tests. Travis-CI will send build notification to the WikiApiary developer mailing list. Github also sends notifications to the developer mailing list. Code coverage is tracked on Coveralls. Code quality analysis is done by Landscape.io.
 
 ## Running Locally
 
-You must have `mysqld` and `redis-server` running to work on the bots.
+For development purposes you will want to clone the repository locally. 
 
-Start the Celery worker using `celery --beat --app=WikiApiary worker -l info`.
+### Required Services
 
-You must have a local database named `apiary` in MySQL. Apply the database migrations from `migrations` using `yoyo-migrate apply ./migrations`.
+You must have `mysqld` and `redis-server` running to work on the bots. If you are using Ubuntu these are easily installed with your package manager. On a Mac it is easiest to use brew to get these setup. The code is setup to run without a configuration file for unittests.
 
-## Running API Locally
+#### Creating MySQL Database
 
-The ApiaryAPI is a module and Python doesn't like to run modules directly. The easiest way around this is to go to the parent directory above WikiApiary and run
+You must have a local database named `apiary` in MySQL. Apply the database migrations from the `migrations` directory:
 
-`python -c "from WikiApiary.apiary.ApiaryAPI.api import app; app.run()"`
+`yoyo-migrate apply ./migrations`.
+
+### Celery
+
+Start the worker locally by making sure you are in the `WikiApiary` directory and running:
+
+`celery --beat --app=apiary worker -l info`.
+
+## ApiaryAPI
+
+The ApiaryAPI is a module and Python doesn't like to run modules directly. The easiest way around this is to go to the `WikiApiary` directory and run
+
+`python -c "from apiary.ApiaryAPI.api import app; app.run()"`
 
 This invokes Python, loads the ApiaryAPI as a module and runs the Flask application.
 
-## Data collection bots
+## Tasks
 
-### Classes
+The heart of WikiApiary bots are the [Celery](http://www.celeryproject.org) tasks that do all the work. If you are unfamiliar with Celery you should definitely take a moment review before diving into creating new tasks. If you can’t be bothered, know that:
 
-#### bot.py
+> Celery is an asynchronous task queue/job queue based on distributed message passing.  It is focused on real-time operation, but supports scheduling as well.
 
-The Bot class holds utility functions that all bots need to talk to the WikiApiary website and to the Apiary MySQL database.
+> The execution units, called tasks, are executed concurrently on a single or more worker servers using multiprocessing. Tasks can execute asynchronously (in the background) or synchronously (wait until ready).
 
-#### farm.py
+By using Celery we don't have to worry about tasks blocking other tasks. Additionally, scaling out to collect more data from more wikis is straightforward by adding more celery worker processes.
 
-The Farm class mirrors the Farm category in WikiApiary. Farming bots that automatically add new wikis from various farms should inherit from this class. The Farm class provides base functionality to make farmer bots easier to write and maintain.
+All components of WikiApiary collectors are tasks, including the components that determine what to collect. The tasks are divided into four logical groupings, each in their own directory.
 
-#### website.py
+### Bot
 
-The Website class mirrors the Website category in the wiki. This class is the primary class that interfaces with the websites being monitored by WikiApiary.
+### Extension
 
-## Web tools
+### Farmer
 
-The `www` directory contains a collection of PHP scripts to accessing the MySQL database that stores the data collected by the bots.
+### Website
+

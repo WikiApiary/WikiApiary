@@ -1,5 +1,6 @@
 *.py[cod]
 *.yoyo-migrate
+dump.rdb
 
 # C extensions
 *.so
@@ -38,6 +39,7 @@ nosetests.xml
 *-config.php
 Geo*.dat
 *.basket
+celerybeat-schedule.db
 
 .DS_Store
 *.sublime-workspace

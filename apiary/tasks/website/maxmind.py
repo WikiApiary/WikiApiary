@@ -1,14 +1,14 @@
 """Record MaxMind data."""
 # pylint: disable=C0301,R0201,R0904
 
-from WikiApiary.apiary.tasks import BaseApiaryTask
+from apiary.tasks import BaseApiaryTask
 import logging
 import urlparse
 import pygeoip
 import os
 
 LOGGER = logging.getLogger()
-GEODATA = '../vendor/GeoLiteCity.dat'
+GEODATA = 'config/GeoLiteCity.dat'
 
 class MaxmindTask(BaseApiaryTask):
     """Use the MaxMind GeoIP database to associated geo data with websites."""
