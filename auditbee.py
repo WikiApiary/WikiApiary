@@ -1,6 +1,8 @@
-#!/usr/bin/python
 """
-Audit bee
+
+IGNORE THIS CODE COMPLETELY. IT IS ONLY HERE UNTIL IT IS 
+CONVERTED INTO A TASK WORKER. 
+
 """
 
 import os

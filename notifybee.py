@@ -1,8 +1,7 @@
-#!/usr/bin/python
 """
-Notify Bee
 
-This bot sends emails to users who have requested them.
+IGNORE THIS CODE COMPLETELY. IT IS ONLY HERE UNTIL IT IS 
+CONVERTED INTO A TASK WORKER. 
 
 """
 
