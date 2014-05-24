@@ -38,8 +38,8 @@ def open_connection(bot_name):
         edit_token = wiki_return['tokens']['edittoken']
         LOGGER.info("%s has been given edit token %s" % (bot_name, edit_token))
 
-    except:
-        LOGGER.error("Unable to login as %s. " % bot_name)
+    except Exception, e:
+        LOGGER.error("Unable to login as %s. Error: %s" % (bot_name, e))
         edit_token = None
 
     return (apiary_wiki, edit_token)

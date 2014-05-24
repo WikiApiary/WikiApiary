@@ -30,4 +30,4 @@ WHERE
 
         LOGGER.info ("Deleted %d rows." % rows_deleted)
 
-        return True
+        return rows_deleted

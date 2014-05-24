@@ -5,7 +5,6 @@ import ConfigParser
 import os
 import MySQLdb as mdb
 import logging
-import redis
 
 
 LOGGER = logging.getLogger()
