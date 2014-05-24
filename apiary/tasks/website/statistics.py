@@ -65,7 +65,7 @@ class GetStatisticsTask(BaseApiaryTask):
             except Exception, e:
                 self.record_error(
                     site_id=site_id,
-                    sitename=sitename,
+                    sitename=site,
                     log_message="%s" % e,
                     log_type='error',
                     log_severity='normal',
@@ -92,7 +92,7 @@ class GetStatisticsTask(BaseApiaryTask):
                                 name = "pages"
                             if name == "good":
                                 name = "articles"
-                            LOGGER.info("Transforming %s to %s" % (name, value))
+                            LOGGER.debug("Transforming %s to %s" % (name, value))
                             data['query']['statistics'][name] = value
                         except:
                             LOGGER.warn("Illegal value '%s' for %s." % (value, name))
@@ -100,7 +100,7 @@ class GetStatisticsTask(BaseApiaryTask):
                     status = False # The result didn't match the pattern expected
                     self.record_error(
                         site_id=site_id,
-                        sitename=sitename,
+                        sitename=site,
                         log_message="Unexpected response to statistics call",
                         log_type='error',
                         log_severity='normal',
@@ -182,7 +182,7 @@ class GetStatisticsTask(BaseApiaryTask):
             else:
                 self.record_error(
                     site_id=site_id,
-                    sitename=sitename,
+                    sitename=site,
                     log_message='Statistics returned unexpected JSON.',
                     log_type='info',
                     log_severity='normal',

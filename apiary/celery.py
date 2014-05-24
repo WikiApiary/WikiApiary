@@ -16,6 +16,8 @@ app = Celery(
     include=[
         'apiary.tasks.bot.deletebotlogs',
         'apiary.tasks.bot.deletewebsitelogs',
+        'apiary.tasks.bot.notify_segment',
+        'apiary.tasks.bot.send_weekly_report',
         'apiary.tasks.bot.updatetagline',
         'apiary.tasks.bot.updatetotaledits',
         'apiary.tasks.bot.websitesegment',
@@ -40,6 +42,10 @@ app.conf.update(
         'run_segment': {
             'task': 'run_segment',
             'schedule': crontab()
+        },
+        'notify_segment': {
+            'task': 'notify_segment',
+            'schedule': crontab(minute='5')
         },
         'daily_tasks': {
             'task': 'daily_tasks',

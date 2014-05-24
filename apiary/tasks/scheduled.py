@@ -9,6 +9,7 @@ from apiary.tasks.bot.deletewebsitelogs import DeleteWebsiteLogsTask
 from apiary.tasks.bot.updatetagline import UpdateTaglineTask
 from apiary.tasks.bot.updatetotaledits import UpdateTotalEditsTask
 from apiary.tasks.bot.websitesegment import ProcessWebsiteSegment
+from apiary.tasks.bot.notify_segment import NotifySegment
 from apiary.celery import app
 import logging
 import datetime
@@ -43,4 +44,12 @@ def run_daily_tasks():
     task.run()
 
     task = UpdateTotalEditsTask()
+    task.run()
+
+@app.task(name='notify_segment')
+def run_notify_segment():
+    """Send notifications each hour."""
+    LOGGER.info("Starting notifications")
+
+    task = NotifySegment()
     task.run()
