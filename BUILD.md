@@ -58,19 +58,19 @@ All components of WikiApiary collectors are tasks, including the components that
 
 ### Bot
 
-TODO: provide overview of what a bot task is.
+Bot tasks are typically started with scheduled entries in `celery.py`. These tasks generally start the work of all other tasks. Typically tasks in this directory involve updating collections of websites or performing general maintenance on WikiApiary. Nothing in here should be specific to a single website or type of data.
 
 ### Extension
 
-TODO: provide overview of what an extension task is.
+Extensions themselves can have tasks to get new information on them, similar to websites. These tasks may get data on the last commit to their repo, or update data on MediaWiki.org with information from WikiApiary, or the reverse.
 
 ### Farmer
 
-TODO: provide overview of what a farm task is.
+Farmer tasks mine wikifarms and automate the process of adding new wikis. These are typically invoked via a schedule. Examples of this include a task to add any wikis created on Wikia to WikiApiary, or syncing the activity of the WikiTeam with archive information on WikiApiary.
 
 ### Website
 
-TODO: provide overview of what a website task is.
+Tasks specifically related to collecting data from a website. Getting extensions, skins, interwikimaps and site statistics and storing it in WikiApiary.
 
 ## Adding a new task
 
