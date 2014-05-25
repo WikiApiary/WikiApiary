@@ -8,4 +8,4 @@ import redis
 LOGGER = logging.getLogger()
 
 LOGGER.info("Opening Redis connection")
-redis_db = redis.StrictRedis(host='localhost', port='6379')
+redis_db = redis.StrictRedis(host='localhost', port=6379)
