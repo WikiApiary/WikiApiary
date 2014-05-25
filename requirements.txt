@@ -4,6 +4,9 @@
 #
 # External requirements are mysqld and redis-server
 
+# Run our unit tests
+nose
+
 # We need to connect to mysql
 mysql-python
 yoyo-migrations

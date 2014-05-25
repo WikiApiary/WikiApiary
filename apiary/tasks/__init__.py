@@ -84,10 +84,9 @@ class BaseApiaryTask(Task):
             self.apiary_db.commit()
             return True, cur.rowcount
         except Exception, e:
-            LOGGER.error("Exception generated while running SQL command.")
-            LOGGER.error("Command: %s" % sql_command)
-            LOGGER.error("Exception: %s" % e)
-            return False, 0
+            cur.close()
+            LOGGER.error("SQL Command: %s" % sql_command)
+            raise Exception(e)
 
     def record_error(self, site_id, sitename, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
         """
