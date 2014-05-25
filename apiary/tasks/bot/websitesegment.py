@@ -23,7 +23,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
     def check_timer(self, site_id, token, expire_timer):
         """Determine if this task should be run again."""
 
-        my_token = "wikiapiary_%d_%s" % (site_id, token)
+        my_token = "wikiapiary_%d_%s_lastcheck" % (site_id, token)
         LOGGER.debug("Checking cache token %s" % my_token)
 
         current_time = int(datetime.datetime.now().strftime("%s"))
@@ -36,10 +36,10 @@ class ProcessWebsiteSegment(BaseApiaryTask):
         time_since = current_time - stored_time
         if time_since > expire_timer:
             # Update the timer regardless of success
-            self.redis_db.set(
+            self.redis_db.setex(
                 my_token,
-                int(datetime.datetime.now().strftime("%s")),
-                60*60*24*7    # Expire these tokens after 1 week
+                60*60*24*7,    # Expire these tokens after 1 week
+                int(datetime.datetime.now().strftime("%s"))
             )
             LOGGER.debug("check_timer %d %s is %d old, check it." % (site_id, token, time_since))
             return True
