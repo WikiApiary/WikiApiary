@@ -44,9 +44,10 @@ class NotifySegment(BaseApiaryTask):
 
         return sitelist
 
-    def run(self, segment):
-        """Trigger notification tasks for segment of websites"""
+    def run(self):
+        """Trigger notifications for websites"""
         sitelist = self.get_notify_sites()
+
         for site in sitelist:
             LOGGER.info ("Sending notifations for %s." % site)
             SendWeeklyReport.delay(site)

@@ -47,6 +47,16 @@ class ProcessWebsiteSegment(BaseApiaryTask):
             LOGGER.debug("check_timer %d %s is %d old, skip." % (site_id, token, time_since))
             return False
 
+    def check_if_true(self, site_obj, key_name):
+        """Get a boolean out of Smeantic MediaWikis unhelpful return data structure."""
+
+        try:
+            if site_obj['printouts'][key_name][0] == "t":
+                return True
+            else:
+                return False
+        except:
+            return False
 
     def run(self, segment):
         """Run a segment for processing."""
@@ -108,79 +118,36 @@ class ProcessWebsiteSegment(BaseApiaryTask):
                     check_every = 60*60*4
 
                 # Get the statistical data
-                if 'Collect semantic statistics' in site['printouts']:
-                    if site['printouts']['Collect semantic statistics'][0] == "t":
-                        if self.check_timer(site_id, 'smwinfo', check_every):
-                            GetSMWInfoTask.delay(site_id, pagename, api_url)
-                        else:
-                            LOGGER.debug("Skipping GetSMWInfoTask for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect semantic statistics disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect semantic statistics value present for %s" % pagename)
+                if self.check_if_true(site,'Collect semantic statistics'):
+                    if self.check_timer(site_id, 'smwinfo', check_every):
+                        GetSMWInfoTask.delay(site_id, pagename, api_url)
 
-                if 'Collect statistics' in site['printouts']:
-                    if site['printouts']['Collect statistics'][0] == "t":
-                        if self.check_timer(site_id, 'statistics', check_every):
-                            GetStatisticsTask.delay(site_id, pagename, 'API', api_url, stats_url)
-                        else:
-                            LOGGER.debug("Skipping GetStatisticsTask for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect statistics disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect statistics value present for %s" % pagename)
+                if self.check_if_true(site,'Collect statistics'):
+                    if self.check_timer(site_id, 'statistics', check_every):
+                        GetStatisticsTask.delay(site_id, pagename, 'API', api_url, stats_url)
 
-
-                if 'Collect statistics stats' in site['printouts']:
-                    if site['printouts']['Collect statistics stats'][0] == "t":
-                        if self.check_timer(site_id, 'statistics', check_every):
-                            GetStatisticsTask.delay(site_id, pagename, 'Statistics', api_url, stats_url)
-                        else:
-                            LOGGER.debug("Skipping GetStatisticsTask (stats) for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect statistics stats disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect statistics stats value present for %s" % pagename)
+                if self.check_if_true(site,'Collect statistics stats'):
+                    if self.check_timer(site_id, 'statistics', check_every):
+                        GetStatisticsTask.delay(site_id, pagename, 'Statistics', api_url, stats_url)
 
                 # Get the metadata
-                if 'Collect general data' in site['printouts']:
-                    if site['printouts']['Collect general data'][0] == "t":
-                        if self.check_timer(site_id, 'general', 24*60*60):
-                            RecordGeneralTask.delay(site_id, pagename, api_url)
-                            # TODO: Interwikimap and Namespaces should be moved to their own sections
-                            # (see below) but the wiki needs to have fields added for those.
-                            RecordInterwikimapTask.delay(site_id, pagename, api_url)
-                            RecordNamespacesTask.delay(site_id, pagename, api_url)
-                            RecordWhoisTask.delay(site_id, pagename, api_url)
-                            MaxmindTask.delay(site_id, pagename, api_url)
-                        else:
-                            LOGGER.debug("Skipping general tasks for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect general data disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect general data value present for %s" % pagename)
+                if self.check_if_true(site,'Collect general data'):
+                    if self.check_timer(site_id, 'general', 24*60*60):
+                        RecordGeneralTask.delay(site_id, pagename, api_url)
+                        # TODO: Interwikimap and Namespaces should be moved to their own sections
+                        # (see below) but the wiki needs to have fields added for those.
+                        RecordInterwikimapTask.delay(site_id, pagename, api_url)
+                        RecordNamespacesTask.delay(site_id, pagename, api_url)
+                        RecordWhoisTask.delay(site_id, pagename, api_url)
+                        MaxmindTask.delay(site_id, pagename, api_url)
 
-                if 'Collect extension data' in site['printouts']:
-                    if site['printouts']['Collect extension data'][0] == "t":
-                        if self.check_timer(site_id, 'extension', 24*60*60):
-                            RecordExtensionsTask.delay(site_id, pagename, api_url)
-                        else:
-                            LOGGER.debug("Skipping RecordExtensionsTask tasks for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect extension data disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect extension data value present for %s" % pagename)
+                if self.check_if_true(site,'Collect extension data'):
+                    if self.check_timer(site_id, 'extension', 24*60*60):
+                        RecordExtensionsTask.delay(site_id, pagename, api_url)
 
-                if 'Collect skin data' in site['printouts']:
-                    if site['printouts']['Collect skin data'][0] == "t":
-                        if self.check_timer(site_id, 'skin', 3*24*60*60):
-                            RecordSkinsTask.delay(site_id, pagename, api_url)
-                        else:
-                            LOGGER.debug("Skipping RecordSkinsTask tasks for %s" % pagename)
-                    else:
-                        LOGGER.debug("Collect skin data disabled for %s" % pagename)
-                else:
-                    LOGGER.debug("No Collect skin data value present for %s" % pagename)
+                if self.check_if_true(site,'Collect skin data'):
+                    if self.check_timer(site_id, 'skin', 3*24*60*60):
+                        RecordSkinsTask.delay(site_id, pagename, api_url)
 
                 #     if (site['printouts']['Collect interwikimap'][0] == "t") and \
                 #     self.check_timer(site_id, 'interwikimap', 5*24*60*60):
