@@ -34,11 +34,11 @@ class RecordNamespacesTask(BaseApiaryTask):
                     'token': self.bumble_bee_token,
                     'bot': 'true'})
                 LOGGER.debug(wiki_return)
+
                 if 'error' in wiki_return:
-                    LOGGER.warn(wiki_return)
                     raise Exception(wiki_return)
-                else:
-                    return True
+
+                return wiki_return
             else:
                 self.record_error(
                     site_id=site_id,

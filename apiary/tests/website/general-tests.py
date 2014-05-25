@@ -16,10 +16,9 @@ class TestRecordGeneralTask(unittest.TestCase):
     def test_record_general(self):
         """Get general site information from WikiApiary."""
         task = RecordGeneralTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_record_general_fake(self):
         """Get general site information from non-existent website."""

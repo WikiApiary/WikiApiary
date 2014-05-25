@@ -16,10 +16,9 @@ class TestRecordExtensionsTask(unittest.TestCase):
     def test_record_extensions(self):
         """This should succeed, getting extensions from WikiApiary."""
         task = RecordExtensionsTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_record_extensions_fake(self):
         """This should fail, the hostname isn't real."""

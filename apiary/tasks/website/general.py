@@ -20,7 +20,6 @@ class RecordGeneralTask(BaseApiaryTask):
             req = requests.get(data_url, timeout = 15, verify=False)
             data = req.json()
         except Exception, e:
-            LOGGER.error(e)
             raise Exception(e)
 
         if req.status_code == 200:
@@ -36,14 +35,12 @@ class RecordGeneralTask(BaseApiaryTask):
                     'bot': 'true'
                 })
                 LOGGER.debug(wiki_return)
+
                 if 'error' in wiki_return:
-                    LOGGER.warn(wiki_return)
                     raise Exception(wiki_return)
-                else:
-                    return True
-                # Update the status table that we did our work! It doesn't matter if this was an error.
-                self.update_status(site_id, 'general')
-                raise Exception()
+
+                return wiki_return
+
             else:
                 self.record_error(
                     site_id=site_id,
@@ -54,7 +51,7 @@ class RecordGeneralTask(BaseApiaryTask):
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-        raise Exception('Returned unexpected JSON when general info.')
+                raise Exception('Returned unexpected JSON when general info.')
 
     def generate_template(self, site_id, data):
         """Build a the wikitext for the general subpage."""

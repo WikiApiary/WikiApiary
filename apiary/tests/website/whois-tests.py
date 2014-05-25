@@ -16,10 +16,9 @@ class TestRecordWhoisTask(unittest.TestCase):
     def test_whois_task(self):
         """Get whois information from WikiApiary."""
         task = RecordWhoisTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_whois_task_fake(self):
         """Get whois information from fake website."""

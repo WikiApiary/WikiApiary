@@ -41,11 +41,11 @@ class RecordExtensionsTask(BaseApiaryTask):
                     'bot': 'true'
                     })
                 LOGGER.debug(wiki_return)
+
                 if 'error' in wiki_return:
-                    LOGGER.warn(wiki_return)
                     raise Exception(wiki_return)
-                else:
-                    return True
+
+                return wiki_return
             else:
                 self.record_error(
                     site_id=site_id,
@@ -56,7 +56,8 @@ class RecordExtensionsTask(BaseApiaryTask):
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-        raise Exception('Returned unexpected JSON when requesting extension data.')
+                raise Exception('Returned unexpected JSON when requesting extension data.')
+                
 
     def generate_template(self, ext_obj):
         """Build a the wikitext for the extensions subpage."""

@@ -16,10 +16,9 @@ class TestMaxmindTask(unittest.TestCase):
     def test_maxmind_task(self):
         """Get MaxMind data for WikiApiary."""
         task = MaxmindTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_maxmind_task_fake(self):
         """Get MaxMind from fake website."""

@@ -40,7 +40,6 @@ class GetStatisticsTask(BaseApiaryTask):
                 else:
                     raise Exception('Did not get OK status code from API request')
             except Exception, e:
-                LOGGER.error(e)
                 raise Exception(e)                
         elif method == 'Statistics':
             # Get stats the old fashioned way

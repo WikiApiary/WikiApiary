@@ -16,10 +16,9 @@ class TestRecordNamespacesTask(unittest.TestCase):
     def test_record_skins(self):
         """Test for WikiApiary."""
         task = RecordNamespacesTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_record_skins_fake(self):
         """Test for unknown host."""

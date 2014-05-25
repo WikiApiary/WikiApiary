@@ -16,10 +16,9 @@ class TestRecordSkinsTask(unittest.TestCase):
     def test_record_skins(self):
         """Get skins from WikiApiary."""
         task = RecordSkinsTask()
-        self.assertEqual(
-            task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php'),
-            True
-        )
+        retval = task.run(18, 'WikiApiary', 'https://wikiapiary.com/w/api.php')
+        if 'edit' not in retval:
+            raise Exception(retval)
 
     def test_record_skins_fake(self):
         """Get skins from fake website."""

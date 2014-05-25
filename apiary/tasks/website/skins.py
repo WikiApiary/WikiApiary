@@ -34,11 +34,11 @@ class RecordSkinsTask(BaseApiaryTask):
                     'token': self.bumble_bee_token,
                     'bot': 'true'})
                 LOGGER.debug(wiki_return)
+
                 if 'error' in wiki_return:
-                    LOGGER.warn(wiki_return)
-                    raise
-                else:
-                    return True
+                    raise Exception(wiki_return)
+
+                return wiki_return
             else:
                 self.record_error(
                     site_id=site_id,
@@ -49,8 +49,8 @@ class RecordSkinsTask(BaseApiaryTask):
                     log_bot='Bumble Bee',
                     log_url=data_url
                 )
-                raise
-        raise
+                raise Exception("Returned unexpected JSON when requesting skin data")
+        raise Exception("Failed call for skin data")
 
     def generate_template(self, ext_obj):
         """Build a the wikitext for the skin subpage."""

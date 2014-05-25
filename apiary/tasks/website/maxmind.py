@@ -34,10 +34,9 @@ class MaxmindTask(BaseApiaryTask):
         })
         LOGGER.debug(wiki_return)
         if 'error' in wiki_return:
-            LOGGER.warn(wiki_return)
-            raise
-        else:
-            return True
+            raise Exception(wiki_return)
+
+        return wiki_return
 
     def generate_template(self, hostname):
         """Build a the wikitext for the maxmind subpage."""
