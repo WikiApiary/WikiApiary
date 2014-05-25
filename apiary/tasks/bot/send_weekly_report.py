@@ -63,12 +63,19 @@ class SendWeeklyReport(BaseApiaryTask):
         })
 
         mediawiki_version = wiki_return['query']['results'][sitename]['printouts']['Has MediaWiki version'][0]
+        active_users = wiki_return['query']['results'][sitename]['printouts']['Has active users count'][0]
+        active_user_change = wiki_return['query']['results'][sitename]['printouts']['Has statistic active users change'][0]
 
         message_template = """
+This is your WikiApiary weekly report for %s.
+
 MediaWiki version is %s.
+Active user count is %d with user change of %s.
+
+You are receiving this message because you requested a weekly report from WikiApiary for this website. To unsubscribe please remove the notification for your username from the website.
 """
 
-        return message_template % mediawiki_version
+        return message_template % (sitename, mediawiki_version, active_users, active_user_change)
 
     def run(self, sitename):
         """Send weekly reports for a specific site."""
