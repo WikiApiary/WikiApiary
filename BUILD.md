@@ -36,6 +36,16 @@ Start the worker locally by making sure you are in the `WikiApiary` directory an
 
 `celery --beat --app=apiary worker -l info`.
 
+#### Flower
+
+Flower is a tool for celery that lets you see the tasks that are running and valuable details on each task. It is a great debugging tool as well as monitoring tool. You will likely want to use it as part of your development environment.
+
+To install flower use `pip install flower` and then run:
+
+`flower --broker=redis://`
+
+It will output the URL to see Celery.
+
 ## ApiaryAPI
 
 The ApiaryAPI is a module and Python doesn't like to run modules directly. The easiest way around this is to go to the `WikiApiary` directory and run
