@@ -214,7 +214,7 @@ class Audit(BaseApiaryTask):
                         log_url=data_url
                     )
 
-        if (audit_complete):
+        if audit_complete:
             # Let's see if we need to update the Founded date
             my_query = ''.join([
                 "[[%s]]" % sitename,
@@ -223,7 +223,7 @@ class Audit(BaseApiaryTask):
 
             LOGGER.debug ("Query: %s" % my_query)
 
-            check_date = self.apiary_wiki.call({
+            check_date = self.audit_bee.call({
                 'action': 'ask',
                 'query': my_query
             })
@@ -235,7 +235,7 @@ class Audit(BaseApiaryTask):
             else:
                 update_founded_date = True
 
-            if (update_founded_date):
+            if update_founded_date:
                 # ?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json
                 first_date_url = api_url + "?action=query&prop=revisions&revids=1&rvprop=timestamp&format=json"
                 (success, first_change, duration) = self.pull_json(sitename, first_date_url, bot='Audit Bee')
@@ -273,8 +273,7 @@ class Audit(BaseApiaryTask):
             # if this is a re-audit, leave these flags alone.
             if not site['Is audited']:
                 if not site['Is active']:
-                    if self.args.verbose >= 2:
-                        LOGGER.info("Activating %s." % sitename)
+                    LOGGER.info("Activating %s." % sitename)
                     self.set_flag(sitename, 'Active', 'Yes', "Activated.")
 
         # Update audit status, wether success or failure

@@ -22,7 +22,7 @@ class RecordNamespacesTask(BaseApiaryTask):
             data = req.json()
         except Exception, e:
             LOGGER.error(e)
-            raise(e)
+            raise Exception(e)
 
         if req.status_code == 200:
             if 'query' in data:

@@ -30,13 +30,13 @@ class RecordWhoisTask(BaseApiaryTask):
 
         template_block += "|HTTP server=%s\n" % ('')
         try:
-            template_block += "|IP address=%s\n" % (ProcessMultiprops(site_id, 'addr', addr))
+            template_block += "|IP address=%s\n" % (self.ProcessMultiprops(site_id, 'addr', addr))
         except Exception, e:
             pass
 
         try:
             reverse_host = socket.gethostbyaddr(addr)[0]
-            template_block += "|Reverse lookup=%s\n" % (ProcessMultiprops(site_id, 'reverse_host', reverse_host))
+            template_block += "|Reverse lookup=%s\n" % (self.ProcessMultiprops(site_id, 'reverse_host', reverse_host))
         except Exception, e:
             pass
 

@@ -11,7 +11,7 @@ LOGGER = logging.getLogger()
 class GetSMWInfoTask(BaseApiaryTask):
     """Collect statistics on usage from site."""
 
-    def run(self, site_id, site, api_url):
+    def run(self, site_id, sitename, api_url):
         """Execute collection."""
 
         LOGGER.info("Retrieve smwinfo for %d" % site_id)
