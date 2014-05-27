@@ -4,6 +4,7 @@ Celery cannot invoke object methods directly, so these tasks
 take care of that.
 """
 
+from apiary.tasks.bot.audit_websites import AuditWebsites
 from apiary.tasks.bot.deletebotlogs import DeleteBotLogsTask
 from apiary.tasks.bot.deletewebsitelogs import DeleteWebsiteLogsTask
 from apiary.tasks.bot.updatetagline import UpdateTaglineTask
@@ -28,6 +29,14 @@ def run_segment(segment_id = None):
     LOGGER.info("Running segment %d" % segment_id)
     task = ProcessWebsiteSegment()
     task.run(segment_id)
+
+@app.task(name='audit_websites')
+def run_audit_websites():
+    """Invoke and run the audit website tasks."""
+    LOGGER.info("Running audit websites task.")
+
+    task = AuditWebsites()
+    task.run()
 
 @app.task(name='daily_tasks')
 def run_daily_tasks():

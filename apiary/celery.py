@@ -14,6 +14,8 @@ app = Celery(
     broker='redis://',
     backend='redis://',
     include=[
+        'apiary.tasks.bot.audit',
+        'apiary.tasks.bot.audit_websites',
         'apiary.tasks.bot.deletebotlogs',
         'apiary.tasks.bot.deletewebsitelogs',
         'apiary.tasks.bot.notify_segment',
@@ -42,6 +44,10 @@ app.conf.update(
         'run_segment': {
             'task': 'run_segment',
             'schedule': crontab()
+        },
+        'audit_websites': {
+            'task': 'audit_websites',
+            'schedule': crontab(minute='*/10')
         },
         'notify_segment': {
             'task': 'notify_segment',
