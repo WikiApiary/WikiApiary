@@ -18,16 +18,18 @@ if os.path.isfile(APIARY_CONFIG):
     config = ConfigParser.SafeConfigParser()
     config.read(APIARY_CONFIG)
 else:
-    LOGGER.info("No configuration file detected.")
+    LOGGER.warn("No configuration file detected.")
 
-def open_connection(bot_name):
+def open_connection(bot_name, env_name):
     """Open a connection to MediaWiki for a bot."""
 
     LOGGER.info("Opening MediaWiki connection for %s at %s" % (bot_name, API_URL))
     apiary_wiki = MediaWiki(API_URL)
 
     try:
-        password = config.get('Passwords', bot_name)
+        # Passwords may be defined in the environment or in the config file
+        # We prefer the environment variable if it is present
+        password = os.environ.get(env_name, config.get('Passwords', bot_name))
         LOGGER.debug("Logging in as %s using %s" % (bot_name, password))
         apiary_wiki.login(bot_name, password)
 
@@ -45,8 +47,8 @@ def open_connection(bot_name):
     return (apiary_wiki, edit_token)
 
 LOGGER.info("Setting up Bumble Bee")
-bumble_bee, bumble_bee_token = open_connection("Bumble Bee")
+bumble_bee, bumble_bee_token = open_connection("Bumble Bee", "BUMBLEBEE")
 
 LOGGER.info("Setting up Audit Bee")
-audit_bee, audit_bee_token = open_connection("Audit Bee")
+audit_bee, audit_bee_token = open_connection("Audit Bee", "AUDITBEE")
 

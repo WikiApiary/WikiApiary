@@ -1,35 +1,28 @@
 language: python
-
 python:
-  - "2.7"
-
-# We will use MySQL for testing
+- '2.7'
 services:
-  - mysql
-  - redis-server
-
-# command to install dependencies
+- mysql
+- redis-server
 install:
-  - pip install -r requirements.txt
-
+- pip install -r requirements.txt
 before_script:
-  - mysql -e 'create database apiary;'
-  - yoyo-migrate -b -vv apply ./migrations/ mysql://travis@localhost/apiary
-
-# command to run tests
+- mysql -e 'create database apiary;'
+- yoyo-migrate -b -vv apply ./migrations/ mysql://travis@localhost/apiary
 script:
-  - nosetests --with-coverage
-
+- nosetests --with-coverage
 after_success:
-  - coveralls
-
+- coveralls
 notifications:
   irc:
     channels:
-      - "chat.freenode.net#wikiapiary"
+    - chat.freenode.net#wikiapiary
     use_notice: true
     skip_join: true
   email:
     recipients:
-      - wikiapiary-dev@lists.thingelstad.com
-
+    - wikiapiary-dev@lists.thingelstad.com
+env:
+  global:
+  - secure: Fvv4YaX5aaKFNeEkwgbKLuhafcp/3VG5m4Ik0+SdZeVPdIWeSC57wrLHIa3PdnnEzs79iWHAFjOOkwcjEgukkF6YZw+BzqwSeJL6w3zSlVii3Ja+VS6yFWV68tzXzx9j3mDQQ80EVPwQD8YJBdJBJc7cXX/8N0FQIc0+ja2ssgM=
+  - secure: WfpvY8mJrrVF8ujIcUPs65QHEoGYhuTqDzrdRndVKOl3co37ZZBFg7ojVIoaXTNPijadU5U+k2YeaWsxbchKVq7yF0zyFiRkAyA6EcGRKLaZW44ntETzUKaa8gwrcAPdYd1Xi6ZN0s2h3Pvh0V7TVrtZSlqepHLn30Jpln3Wt1E=
