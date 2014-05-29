@@ -29,10 +29,16 @@ def open_connection(bot_name, env_name):
     try:
         # Passwords may be defined in the environment or in the config file
         # We prefer the environment variable if it is present
-        password = os.environ.get(env_name, config.get('Passwords', bot_name))
-        LOGGER.debug("Logging in as %s using %s" % (bot_name, password))
+        password = os.environ.get(env_name, None)
+        if password is None:
+            try:
+                config.get('Passwords', bot_name)
+            except Exception, e:
+                LOGGER.warn('No configuration file detected.')
+        LOGGER.info("Logging in as %s using %s" % (bot_name, password))
         apiary_wiki.login(bot_name, password)
 
+        LOGGER.info("Getting edit token for %s" % bot_name)
         wiki_return = apiary_wiki.call({
             'action': 'tokens',
             'type': 'edit'
@@ -45,6 +51,7 @@ def open_connection(bot_name, env_name):
         edit_token = None
 
     return (apiary_wiki, edit_token)
+
 
 LOGGER.info("Setting up Bumble Bee")
 bumble_bee, bumble_bee_token = open_connection("Bumble Bee", "BUMBLEBEE")
