@@ -7,6 +7,7 @@ take care of that.
 from apiary.tasks.bot.audit_websites import AuditWebsites
 from apiary.tasks.bot.deletebotlogs import DeleteBotLogsTask
 from apiary.tasks.bot.deletewebsitelogs import DeleteWebsiteLogsTask
+from apiary.tasks.bot.extension_weekly import ExtensionWeekly
 from apiary.tasks.bot.updatetagline import UpdateTaglineTask
 from apiary.tasks.bot.updatetotaledits import UpdateTotalEditsTask
 from apiary.tasks.bot.websitesegment import ProcessWebsiteSegment
@@ -62,3 +63,11 @@ def run_notify_segment():
 
     task = NotifySegment()
     task.run()
+
+@app.task(name='extension_weekly')
+def run_extension_weekly():
+    """Kick off weekly extesnion jobs."""
+    LOGGER.info("Starting extension weekly")
+
+    task = ExtensionWeekly()
+    task.run

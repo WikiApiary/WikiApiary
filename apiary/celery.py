@@ -18,6 +18,7 @@ app = Celery(
         'apiary.tasks.bot.audit_websites',
         'apiary.tasks.bot.deletebotlogs',
         'apiary.tasks.bot.deletewebsitelogs',
+        'apiary.tasks.bot.extension_weekly',
         'apiary.tasks.bot.notify_segment',
         'apiary.tasks.bot.send_weekly_report',
         'apiary.tasks.bot.updatetagline',
@@ -51,6 +52,10 @@ app.conf.update(
         },
         'notify_segment': {
             'task': 'notify_segment',
+            'schedule': crontab(minute='5')
+        },
+        'extension_weekly': {
+            'task': 'extension_weekly',
             'schedule': crontab(minute='5')
         },
         'daily_tasks': {
