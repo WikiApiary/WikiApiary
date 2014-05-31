@@ -24,6 +24,7 @@ app = Celery(
         'apiary.tasks.bot.updatetagline',
         'apiary.tasks.bot.updatetotaledits',
         'apiary.tasks.bot.websitesegment',
+        'apiary.tasks.extension.ohloh',
         'apiary.tasks.website.extensions',
         'apiary.tasks.website.general',
         'apiary.tasks.website.interwikimap',
