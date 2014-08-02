@@ -1,0 +1,20 @@
+[ApiaryDB]
+username = 
+password = 
+
+[Passwords]
+Bumble Bee = 
+Notify Bee = 
+Audit Bee = 
+Worker Bee = 
+
+[Ohloh]
+API Key = 
+OAuth Secret = 
+
+[Twitter]
+API Key = 
+API Secret = 
+Access token = 
+Access token secret = 
+
