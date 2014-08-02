@@ -1,5 +1,5 @@
 """Record OpenHub data for extensions."""
-# pylint: disable=C0301,R0201,R0904
+# pylint: disable=C0301,R0201,R0904,C0103
 
 from apiary.tasks import BaseApiaryTask
 import logging
@@ -14,6 +14,7 @@ class OpenHubTask(BaseApiaryTask):
     """Retrieve data from OpenHub to add to extensions."""
 
     def get_openhub_name(self, extension_name):
+        """Get the OpenHub name for a given extension."""
         try:
             wiki_return = self.bumble_bee.call({
                 'action': 'ask',
@@ -34,16 +35,17 @@ class OpenHubTask(BaseApiaryTask):
     def run(self, extension_name):
         """Get OpenHub data for extension and write to WikiApiary."""
 
-        APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
-        if os.path.isfile(APIARY_CONFIG):
-            LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
-            config = ConfigParser.SafeConfigParser()
-            config.read(APIARY_CONFIG)
-            OPENHUB_API_KEY = config.get('OpenHub', 'API Key')
-        else:
-            raise Exception("No configuration file detected to get OpenHub API key")
+        OPENHUB_API_KEY = os.environ.get('OPENHUB_API_KEY', None)
+        if OPENHUB_API_KEY is None:
+            APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
+            if os.path.isfile(APIARY_CONFIG):
+                LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
+                config = ConfigParser.SafeConfigParser()
+                config.read(APIARY_CONFIG)
+                OPENHUB_API_KEY = config.get('OpenHub', 'API Key')
+            else:
+                raise Exception("No configuration file detected to get OpenHub API key")
 
-        # TODO: Find the OpenHub name via the property for the given extension
         openhub_name = self.get_openhub_name(extension_name)
 
         openhub_url = "https://www.openhub.net/p/%s.xml?api_key=%s" % (openhub_name, OPENHUB_API_KEY)
