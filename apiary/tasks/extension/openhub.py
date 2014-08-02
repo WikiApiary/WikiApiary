@@ -1,4 +1,4 @@
-"""Record Ohloh data for extensions."""
+"""Record OpenHub data for extensions."""
 # pylint: disable=C0301,R0201,R0904
 
 from apiary.tasks import BaseApiaryTask
@@ -10,48 +10,48 @@ import os
 
 LOGGER = logging.getLogger()
 
-class OhlohTask(BaseApiaryTask):
-    """Retrieve data from Ohloh to add to extensions."""
+class OpenHubTask(BaseApiaryTask):
+    """Retrieve data from OpenHub to add to extensions."""
 
-    def get_ohloh_name(self, extension_name):
+    def get_openhub_name(self, extension_name):
         try:
             wiki_return = self.bumble_bee.call({
                 'action': 'ask',
                 'query': ''.join([
                     "[[%s]]" % extension_name,
-                    "|?Has Ohloh project"
+                    "|?Has OpenHub project"
                 ])
             })
         except Exception, e:
-            raise Exception("Error while querying for Ohloh project name for %s (%s)." % (extension_name, e))
+            raise Exception("Error while querying for OpenHub project name for %s (%s)." % (extension_name, e))
 
         try:
-            return wiki_return['query']['results'][extension_name]['printouts']['Has Ohloh project'][0]
+            return wiki_return['query']['results'][extension_name]['printouts']['Has OpenHub project'][0]
         except Exception, e:
             return None
 
 
     def run(self, extension_name):
-        """Get Ohloh data for extension and write to WikiApiary."""
+        """Get OpenHub data for extension and write to WikiApiary."""
 
         APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
         if os.path.isfile(APIARY_CONFIG):
             LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
             config = ConfigParser.SafeConfigParser()
             config.read(APIARY_CONFIG)
-            OHLOH_API_KEY = config.get('Ohloh', 'API Key')
+            OPENHUB_API_KEY = config.get('OpenHub', 'API Key')
         else:
-            raise Exception("No configuration file detected to get Ohloh API key")
+            raise Exception("No configuration file detected to get OpenHub API key")
 
-        # TODO: Find the Ohloh name via the property for the given extension
-        ohloh_name = self.get_ohloh_name(extension_name)
+        # TODO: Find the OpenHub name via the property for the given extension
+        openhub_name = self.get_openhub_name(extension_name)
 
-        ohloh_url = "https://www.ohloh.net/p/%s.xml?api_key=%s" % (ohloh_name, OHLOH_API_KEY)
-        response = requests.get(ohloh_url)
-        ohloh_data = ElementTree.fromstring(response.content)
+        openhub_url = "https://www.openhub.net/p/%s.xml?api_key=%s" % (openhub_name, OPENHUB_API_KEY)
+        response = requests.get(openhub_url)
+        openhub_data = ElementTree.fromstring(response.content)
 
-        datapage = "%s/Ohloh" % extension_name
-        template_block = self.generate_template(ohloh_data)
+        datapage = "%s/OpenHub" % extension_name
+        template_block = self.generate_template(openhub_data)
 
         wiki_return = self.bumble_bee.call({
             'action': 'edit',
@@ -66,13 +66,13 @@ class OhlohTask(BaseApiaryTask):
 
         return wiki_return
 
-    def generate_template(self, ohloh_data):
-        """Build a the wikitext for the Ohloh subpage."""
+    def generate_template(self, openhub_data):
+        """Build a the wikitext for the OpenHub subpage."""
 
-        template_block = "<noinclude>{{Ohloh subpage}}</noinclude><includeonly>"
-        template_block += "{{Ohloh\n"
+        template_block = "<noinclude>{{OpenHub subpage}}</noinclude><includeonly>"
+        template_block += "{{OpenHub\n"
 
-        project = ohloh_data.find("result").find("project")
+        project = openhub_data.find("result").find("project")
         analysis = project.find("analysis")
 
         template_block += "|rating_count=%s\n" % project.find("rating_count").text
