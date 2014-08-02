@@ -20,11 +20,15 @@ class TestMaxmindTask(unittest.TestCase):
         if 'edit' not in retval:
             raise Exception(retval)
 
-    def test_maxmind_task_fake(self):
-        """Get MaxMind from fake website."""
-        task = MaxmindTask()
-        with self.assertRaises(Exception):
-            task.run(666, 'Fake site', 'http://foo.bar.com/')
+    # This task currently has no dependency on the website being up or even
+    # having MediaWiki installed on it. The test for a fake website needs
+    # to be considered further before doing this.
+    #
+    # def test_maxmind_task_fake(self):
+    #     """Get MaxMind from fake website."""
+    #     task = MaxmindTask()
+    #     with self.assertRaises(Exception):
+    #         task.run(666, 'Fake site', 'http://foo.bar.com/')
 
 
 if __name__ == '__main__':
