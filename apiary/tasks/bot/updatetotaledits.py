@@ -33,9 +33,7 @@ ON
 """
 
         # Get the total edit count
-        cur = self.apiary_db.cursor()
-        cur.execute(sql_query)
-        data = cur.fetchone()
+        data = self.apiary_db.fetch_one(sql_query)
         LOGGER.info("Total edits: %d Total active users: %d Total pages: %d", data[0], data[1], data[2])
 
         # Update the wiki with the new value

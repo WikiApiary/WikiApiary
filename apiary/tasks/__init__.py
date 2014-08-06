@@ -78,11 +78,7 @@ class BaseApiaryTask(Task):
         """Helper to run a SQL command and catch errors"""
         LOGGER.debug("SQL: %s" % sql_command)
         try:
-            cur = self.apiary_db.cursor()
-            cur.execute(sql_command)
-            cur.close()
-            self.apiary_db.commit()
-            return True, cur.rowcount
+            return self.apiary_db.runSql(sql_command)
         except Exception, e:
             cur.close()
             LOGGER.error("SQL Command: %s" % sql_command)
