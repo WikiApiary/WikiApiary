@@ -39,14 +39,12 @@ class BaseApiaryTask(Task):
         # This function will take the value and return a more complex data structure.
 
         # First update the timestamp for seeing the current name/value
-        cur = self.apiary_db.cursor()
         temp_sql = "UPDATE apiary_multiprops SET last_date=\'%s\', occurrences = occurrences + 1 WHERE website_id = %d AND t_name = \'%s\' AND t_value = \'%s\'" % (
             self.sqlutcnow(),
             site_id,
             key,
             value)
-        cur.execute(temp_sql)
-        rows_returned = cur.rowcount
+        success, rows_returned = self.apiary_db.runSql(temp_sql)
 
         # No rows returned, we need to create this value
         if rows_returned == 0:
@@ -57,7 +55,7 @@ class BaseApiaryTask(Task):
                 self.sqlutcnow(),
                 self.sqlutcnow(),
                 1)
-            cur.execute(temp_sql)
+            self.apiary_db.runSql(temp_sql)
 
         # Now build the return value
         multivalue = ""
@@ -65,8 +63,7 @@ class BaseApiaryTask(Task):
             site_id,
             '2013-04-26 18:23:01',
             key)
-        cur.execute(temp_sql)
-        rows = cur.fetchall()
+        rows = self.apiary_db.fetchall(temp_sql)
         for row in rows:
             if len(multivalue) > 0:
                 multivalue += ","
@@ -78,13 +75,8 @@ class BaseApiaryTask(Task):
         """Helper to run a SQL command and catch errors"""
         LOGGER.debug("SQL: %s" % sql_command)
         try:
-            cur = self.apiary_db.cursor()
-            cur.execute(sql_command)
-            cur.close()
-            self.apiary_db.commit()
-            return True, cur.rowcount
+            return self.apiary_db.runSql(sql_command)
         except Exception, e:
-            cur.close()
             LOGGER.error("SQL Command: %s" % sql_command)
             raise Exception(e)
 

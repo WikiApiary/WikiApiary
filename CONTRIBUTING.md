@@ -28,6 +28,6 @@ It is important that pull requests are associated with defined issues and have g
 [mediawiki-org]: https://www.mediawiki.org/wiki/MediaWiki
 [smw-org]: https://semantic-mediawiki.org/
 [mailing-list]: http://lists.thingelstad.com/cgi-bin/mailman/listinfo/wikiapiary-l
-[issues]: https://github.com/thingles/WikiApiary/issues
+[issues]: https://github.com/WikiApiary/WikiApiary/issues
 [twn]: https://translatewiki.net/
-[build]: https://github.com/thingles/WikiApiary/blob/master/BUILD.md
+[build]: https://github.com/WikiApiary/WikiApiary/blob/master/BUILD.md

@@ -32,7 +32,7 @@ class AuditWebsites(BaseApiaryTask):
         })
 
         for pagename, site in sites['query']['results'].items():
-            LOGGER.info("Auditing %s." % pagename)
+            LOGGER.info("Auditing %s.", pagename)
 
             site_id = int(site['printouts']['Page ID'][0])
 

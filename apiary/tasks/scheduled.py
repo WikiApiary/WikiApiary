@@ -27,7 +27,7 @@ def run_segment(segment_id = None):
     if segment_id is None:
         segment_id = int(datetime.datetime.now().strftime("%M")) % 15
 
-    LOGGER.info("Running segment %d" % segment_id)
+    LOGGER.info("Running segment %d", segment_id)
     task = ProcessWebsiteSegment()
     task.run(segment_id)
 

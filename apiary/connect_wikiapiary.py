@@ -14,7 +14,7 @@ API_URL = 'https://wikiapiary.com/w/api.php'
 
 APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
 if os.path.isfile(APIARY_CONFIG):
-    LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
+    LOGGER.info("Detected configuration at %s", APIARY_CONFIG)
     config = ConfigParser.SafeConfigParser()
     config.read(APIARY_CONFIG)
 else:
@@ -23,7 +23,7 @@ else:
 def open_connection(bot_name, env_name):
     """Open a connection to MediaWiki for a bot."""
 
-    LOGGER.info("Opening MediaWiki connection for %s at %s" % (bot_name, API_URL))
+    LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, API_URL)
     apiary_wiki = MediaWiki(API_URL)
 
     try:
@@ -35,19 +35,19 @@ def open_connection(bot_name, env_name):
                 config.get('Passwords', bot_name)
             except Exception, e:
                 LOGGER.warn('No configuration file detected.')
-        LOGGER.info("Logging in as %s using %s" % (bot_name, password))
+        LOGGER.info("Logging in as %s using %s", bot_name, password)
         apiary_wiki.login(bot_name, password)
 
-        LOGGER.info("Getting edit token for %s" % bot_name)
+        LOGGER.info("Getting edit token for %s", bot_name)
         wiki_return = apiary_wiki.call({
             'action': 'tokens',
             'type': 'edit'
         })
         edit_token = wiki_return['tokens']['edittoken']
-        LOGGER.info("%s has been given edit token %s" % (bot_name, edit_token))
+        LOGGER.info("%s has been given edit token %s", bot_name, edit_token)
 
     except Exception, e:
-        LOGGER.error("Unable to login as %s. Error: %s" % (bot_name, e))
+        LOGGER.error("Unable to login as %s. Error: %s", bot_name, e)
         edit_token = None
 
     return (apiary_wiki, edit_token)

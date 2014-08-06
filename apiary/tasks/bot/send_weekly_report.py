@@ -79,14 +79,14 @@ You are receiving this message because you requested a weekly report from WikiAp
 
     def run(self, sitename):
         """Send weekly reports for a specific site."""
-        LOGGER.info("Sending notifications for %s" % sitename)
+        LOGGER.info("Sending notifications for %s", sitename)
 
         userlist = self.get_notify_list(sitename)
 
         message_body = self.generate_weekly_report(sitename)
 
         for username in userlist:
-            LOGGER.info("Sending %s notification." % username)
+            LOGGER.info("Sending %s notification.", username)
             self.send_notification(username, "Weekly Report for %s" % sitename, message_body)
 
 

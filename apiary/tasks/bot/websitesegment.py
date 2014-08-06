@@ -60,7 +60,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
 
     def run(self, segment):
         """Run a segment for processing."""
-        LOGGER.info("Processing segment %d" % segment)
+        LOGGER.info("Processing segment %d", segment)
 
         # TODO: It is very expensive to get the segment everytime. It would be better
         # to cache the segment in redis and just check the most recent "Modification date"
@@ -88,7 +88,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
             '|order=asc',
             '|limit=1000'])
         
-        LOGGER.debug("Query: %s" % my_query)
+        LOGGER.debug("Query: %s", my_query)
 
         sites = self.bumble_bee.call({
             'action': 'ask',
@@ -99,7 +99,7 @@ class ProcessWebsiteSegment(BaseApiaryTask):
         if len(sites['query']['results']) > 0:
             for pagename, site in sites['query']['results'].items():
                 i += 1
-                LOGGER.info("Processing %s" % pagename)
+                LOGGER.info("Processing %s", pagename)
 
                 site_id = int(site['printouts']['Page ID'][0])
                 try:

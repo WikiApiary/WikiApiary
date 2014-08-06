@@ -16,7 +16,7 @@ def data(site_id):
 
     duration = request.args.get('duration')
 
-    cur = apiary_db.cursor()
+    cur = apiary_db.apiary_db.cursor()
     # SELECT capture_date, articles, pages FROM statistics WHERE website_id = :id AND capture_date > :date_filter
     temp_sql = "SELECT capture_date, articles, pages FROM statistics WHERE website_id = %d" % site_id
     cur.execute(temp_sql)
