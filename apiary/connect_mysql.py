@@ -51,11 +51,12 @@ class ApiaryDB(object):
             charset='utf8')
 
     def fetch_one(self, sql, retry_count=0):
+        LOGGER.debug("SQL: %s", sql)
         try:
             cur = self.apiary_db.cursor()
             cur.execute(sql)
             return cur.fetchone()
-        except MySQLdb.OperationalError:
+        except mdb.OperationalError:
             if retry_count > 10: # seemed like a good count
                 raise Exception("max retries...")
             self.reconnect()
@@ -66,17 +67,33 @@ class ApiaryDB(object):
             LOGGER.error("SQL Command: %s" % sql)
             raise Exception(e)
 
+    def fetchall(self, sql, retry_count=0):
+        LOGGER.debug("SQL: %s", sql)
+        try:
+            cur = self.apiary_db.cursor()
+            cur.execute(sql)
+            return cur.fetchall()
+        except mdb.OperationalError:
+            if retry_count > 10: # seemed like a good count
+                raise Exception("max retries...")
+            self.reconnect()
+            retry_count += 1
+            return self.fetch_one(sql, retry_count)
+        except Exception, e:
+            cur.close()
+            LOGGER.error("SQL Command: %s" % sql)
+            raise Exception(e)
 
     def runSql(self, sql_command, retry_count=0):
         """Helper to run a SQL command and catch errors"""
-        LOGGER.debug("SQL: %s" % sql_command)
+        LOGGER.debug("SQL: %s", sql_command)
         try:
             cur = self.apiary_db.cursor()
             cur.execute(sql_command)
             cur.close()
             self.apiary_db.commit()
             return True, cur.rowcount
-        except MySQLdb.OperationalError:
+        except mdb.OperationalError:
             if retry_count > 10: # seemed like a good count
                 raise Exception("max retries...")
             self.reconnect()
@@ -84,7 +101,7 @@ class ApiaryDB(object):
             return self.runSql(sql_command, retry_count)
         except Exception, e:
             cur.close()
-            LOGGER.error("SQL Command: %s" % sql_command)
+            LOGGER.error("SQL Command: %s", sql_command)
             raise Exception(e)
 
 apiary_db = ApiaryDB(APIARYDB_HOSTNAME, APIARYDB_DATABASE, APIARYDB_USERNAME, APIARYDB_PASSWORD)
