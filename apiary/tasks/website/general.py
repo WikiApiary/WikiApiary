@@ -11,7 +11,7 @@ LOGGER = logging.getLogger()
 class RecordGeneralTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
-        LOGGER.info("Retrieve record_general for %d" % site_id)
+        LOGGER.info("Retrieve record_general for %d", site_id)
 
         data_url = api_url + '?action=query&meta=siteinfo&siprop=general&format=json'
 

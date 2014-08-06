@@ -49,6 +49,6 @@ class NotifySegment(BaseApiaryTask):
         sitelist = self.get_notify_sites()
 
         for site in sitelist:
-            LOGGER.info ("Sending notifations for %s." % site)
+            LOGGER.info ("Sending notifations for %s.", site)
             SendWeeklyReport.delay(site)
 

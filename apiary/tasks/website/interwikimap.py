@@ -13,7 +13,7 @@ class RecordInterwikimapTask(BaseApiaryTask):
 
     def run(self, site_id, sitename, api_url):
         """Pull skin data from website and write to WikiApiary."""
-        LOGGER.info("Retrieve record_interwikimap for %d" % site_id)
+        LOGGER.info("Retrieve record_interwikimap for %d", site_id)
 
         data_url = api_url + '?action=query&meta=siteinfo&siprop=interwikimap&format=json'
 

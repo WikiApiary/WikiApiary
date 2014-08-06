@@ -17,7 +17,7 @@ class Audit(BaseApiaryTask):
     def update_audit_status(self, sitename):
         """Helper function to update audit status."""
 
-        LOGGER.info("%s audit completed, updating audit date." % sitename)
+        LOGGER.info("%s audit completed, updating audit date.", sitename)
 
         wiki_return = self.audit_bee.call({
             'action': 'sfautoedit',
@@ -99,7 +99,7 @@ class Audit(BaseApiaryTask):
         else:
             # Unable to determine the version of MediaWiki. This is probably because the
             # wiki has been altered to hide its version.
-            LOGGER.info("%s returnd version %s which cannot be parsed." % (sitename, data['generator']))
+            LOGGER.info("%s returnd version %s which cannot be parsed.", sitename, data['generator'])
             self.record_error(
                 site_id=site_id,
                 sitename=sitename,
@@ -196,7 +196,7 @@ class Audit(BaseApiaryTask):
         # Pull extension information for audit too!
         if do_audit_extensions:
             data_url = api_url + "?action=query&meta=siteinfo&siprop=extensions&format=json"
-            LOGGER.info("Pulling extension info info from %s." % data_url)
+            LOGGER.info("Pulling extension info info from %s.", data_url)
             (success, data, duration) = self.pull_json(sitename, data_url, bot='Audit Bee')
 
             if success:
@@ -273,7 +273,7 @@ class Audit(BaseApiaryTask):
             # if this is a re-audit, leave these flags alone.
             if not site['Is audited']:
                 if not site['Is active']:
-                    LOGGER.info("Activating %s." % sitename)
+                    LOGGER.info("Activating %s.", sitename)
                     self.set_flag(sitename, 'Active', 'Yes', "Activated.")
 
         # Update audit status, wether success or failure

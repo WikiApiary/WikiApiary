@@ -23,11 +23,11 @@ WHERE
 """
         delete_before = datetime.datetime.utcnow() - datetime.timedelta(weeks=8)
         delete_before_str = delete_before.strftime('%Y-%m-%d %H:%M:%S')
-        LOGGER.info("Deleting apiary_website_logs before %s." % delete_before_str)
+        LOGGER.info("Deleting apiary_website_logs before %s.", delete_before_str)
         my_sql = sql_query % (delete_before_str)
 
         (success, rows_deleted) = self.runSql(my_sql)
 
-        LOGGER.info("Deleted %d rows." % rows_deleted)
+        LOGGER.info("Deleted %d rows.", rows_deleted)
 
         return rows_deleted

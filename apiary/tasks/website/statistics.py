@@ -16,12 +16,12 @@ class GetStatisticsTask(BaseApiaryTask):
     def run(self, site_id, site, method, api_url = None, stats_url = None):
         """Run the task."""
         
-        LOGGER.info("Retrieve get_statistics_stats for %d" % site_id)
+        LOGGER.info("Retrieve get_statistics_stats for %d", site_id)
 
         if method == 'API':
             # Go out and get the statistic information
             data_url = api_url + '?action=query&meta=siteinfo&siprop=statistics&format=json'
-            LOGGER.info("Pulling statistics info from %s." % data_url)
+            LOGGER.info("Pulling statistics info from %s.", data_url)
             status = False
 
             try:
@@ -48,7 +48,7 @@ class GetStatisticsTask(BaseApiaryTask):
                 data_url += "&action=raw"
             else:
                 data_url += "?action=raw"
-            LOGGER.info("Pulling statistics from %s." % data_url)
+            LOGGER.info("Pulling statistics from %s.", data_url)
 
             try:
                 # Get CSV data via raw Statistics call
@@ -106,13 +106,13 @@ class GetStatisticsTask(BaseApiaryTask):
                         log_bot='Bumble Bee',
                         log_url=data_url
                     )
-                    LOGGER.info("Result from statistics was not formatted as expected:\n%s" % ret_string)
+                    LOGGER.info("Result from statistics was not formatted as expected:\n%s", ret_string)
 
         ret_value = True
         if status:
             # Record the new data into the DB
-            LOGGER.info("JSON: %s" % data)
-            LOGGER.info("Duration: %s" % duration)
+            LOGGER.info("JSON: %s", data)
+            LOGGER.info("Duration: %s", duration)
 
             if 'query' in data:
                 # Record the data received to the database
@@ -191,8 +191,8 @@ class GetStatisticsTask(BaseApiaryTask):
                 raise Exception('Statistics returned unexpected JSON.')
 
         else:
-            LOGGER.info("Did not receive valid data from %s" % (data_url))
-            raise Exception("Did not receive valid data from %s" % (data_url))
+            LOGGER.info("Did not receive valid data from %s", data_url)
+            raise Exception("Did not receive valid data from %s" % data_url)
 
         return ret_value
 

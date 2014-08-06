@@ -14,7 +14,7 @@ class GetSMWInfoTask(BaseApiaryTask):
     def run(self, site_id, sitename, api_url):
         """Execute collection."""
 
-        LOGGER.info("Retrieve smwinfo for %d" % site_id)
+        LOGGER.info("Retrieve smwinfo for %d", site_id)
 
         data_url = ''.join([
             api_url,

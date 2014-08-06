@@ -39,7 +39,7 @@ class OpenHubTask(BaseApiaryTask):
         if OPENHUB_API_KEY is None:
             APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
             if os.path.isfile(APIARY_CONFIG):
-                LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
+                LOGGER.info("Detected configuration at %s", APIARY_CONFIG)
                 config = ConfigParser.SafeConfigParser()
                 config.read(APIARY_CONFIG)
                 OPENHUB_API_KEY = config.get('OpenHub', 'API Key')

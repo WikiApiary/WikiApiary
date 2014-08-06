@@ -16,7 +16,7 @@ class RecordExtensionsTask(BaseApiaryTask):
     def run(self, site_id, sitename, api_url):
         """Get extensions from the website and write them to WikiApiary."""
 
-        LOGGER.info("Retrieve record_extensions for %d" % site_id)
+        LOGGER.info("Retrieve record_extensions for %d", site_id)
 
         data_url = api_url + '?action=query&meta=siteinfo&siprop=extensions&format=json'
 

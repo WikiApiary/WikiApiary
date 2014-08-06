@@ -20,7 +20,7 @@ class ExtensionWeekly(BaseApiaryTask):
         if curr_hour is None:
             curr_hour = int(datetime.datetime.now().strftime("%H"))
 
-        LOGGER.info ("Processing extensions for day segment %d and hour segment %d" % (curr_day, curr_hour))
+        LOGGER.info ("Processing extensions for day segment %d and hour segment %d", curr_day, curr_hour)
         my_query = ''.join([
             "[[Category:Extension]]",
             "[[Has day segment::%d]]" % curr_day,
@@ -38,7 +38,7 @@ class ExtensionWeekly(BaseApiaryTask):
         for extension in extensions['query']['results'].items():
             i += 1
             LOGGER.info(extension)
-            LOGGER.info("Processing extension %s" % extension[1]['fulltext'])
+            LOGGER.info("Processing extension %s", extension[1]['fulltext'])
 
             # Now call tasks to operate on extensions
             pass

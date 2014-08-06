@@ -22,7 +22,7 @@ if os.environ.get("TRAVIS") == "true":
 
 APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
 if os.path.isfile(APIARY_CONFIG):
-    LOGGER.info("Detected configuration at %s" % APIARY_CONFIG)
+    LOGGER.info("Detected configuration at %s", APIARY_CONFIG)
     config = ConfigParser.SafeConfigParser()
     config.read(APIARY_CONFIG)
     APIARYDB_USERNAME = config.get('ApiaryDB', 'username')
