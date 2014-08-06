@@ -177,7 +177,7 @@ class GetStatisticsTask(BaseApiaryTask):
                     pages,
                     views)
 
-                self.runSql(sql_command)
+                self.apiary_db.runSql(sql_command)
             else:
                 self.record_error(
                     site_id=site_id,

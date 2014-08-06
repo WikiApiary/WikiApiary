@@ -34,15 +34,19 @@ else:
 
 
 class ApiaryDB(object):
+    """Class to manage interaction with the Apiary database."""
 
     def __init__(self, host, database, username, password):
+        """Initialize class."""
         self.host = host
         self.database = database
         self.username = username
         self.password = password
+        self.apiary_db = None
         self.reconnect()
 
     def reconnect(self):
+        """Reconnect to the database."""
         LOGGER.info("Opening MySQL connection")
         self.apiary_db = mdb.connect(
             host=self.host,
@@ -52,37 +56,41 @@ class ApiaryDB(object):
             charset='utf8')
 
     def fetch_one(self, sql, retry_count=0):
+        """Get a single row from DB."""
         LOGGER.debug("SQL: %s", sql)
         try:
             cur = self.apiary_db.cursor()
             cur.execute(sql)
             return cur.fetchone()
-        except mdb.OperationalError:
+        except mdb.OperationalError as e:
             if retry_count > 10: # seemed like a good count
-                raise Exception("max retries...")
+                raise Exception("Attempted retry 10 times, failing.")
+            LOGGER.warn("Attempting to reconnect to DB. Error: %s", e)
             self.reconnect()
             retry_count += 1
             return self.fetch_one(sql, retry_count)
-        except Exception, e:
+        except Exception as e:
             cur.close()
             LOGGER.error("SQL Command: %s" % sql)
             raise Exception(e)
 
     def fetchall(self, sql, retry_count=0):
+        """Get a result set from DB."""
         LOGGER.debug("SQL: %s", sql)
         try:
             cur = self.apiary_db.cursor()
             cur.execute(sql)
             return cur.fetchall()
-        except mdb.OperationalError:
+        except mdb.OperationalError as e:
             if retry_count:
                 time.sleep(retry_count)
             if retry_count > 10: # seemed like a good count
-                raise Exception("max retries...")
+                raise Exception("Attempted retry 10 times, failing.")
+            LOGGER.warn("Attempting to reconnect to DB. Error: %s", e)
             self.reconnect()
             retry_count += 1
             return self.fetch_one(sql, retry_count)
-        except Exception, e:
+        except Exception as e:
             cur.close()
             LOGGER.error("SQL Command: %s" % sql)
             raise Exception(e)
@@ -96,13 +104,14 @@ class ApiaryDB(object):
             cur.close()
             self.apiary_db.commit()
             return True, cur.rowcount
-        except mdb.OperationalError:
+        except mdb.OperationalError as e:
             if retry_count > 10: # seemed like a good count
-                raise Exception("max retries...")
+                raise Exception("Attempted retry 10 times, failing.")
+            LOGGER.warn("Attempting to reconnect to DB. Error: %s", e)
             self.reconnect()
             retry_count += 1
             return self.runSql(sql_command, retry_count)
-        except Exception, e:
+        except Exception as e:
             cur.close()
             LOGGER.error("SQL Command: %s", sql_command)
             raise Exception(e)

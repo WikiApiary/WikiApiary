@@ -67,7 +67,7 @@ class GetSMWInfoTask(BaseApiaryTask):
                     conceptcount,
                     subobjectcount)
 
-                self.runSql(sql_command)
+                self.apiary_db.runSql(sql_command)
 
                 return True
             else:
