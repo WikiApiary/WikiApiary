@@ -26,7 +26,7 @@ WHERE
         LOGGER.info("Deleting apiary_website_logs before %s.", delete_before_str)
         my_sql = sql_query % (delete_before_str)
 
-        (success, rows_deleted) = self.runSql(my_sql)
+        (success, rows_deleted) = self.apiary_db.runSql(my_sql)
 
         LOGGER.info("Deleted %d rows.", rows_deleted)
 

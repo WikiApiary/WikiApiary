@@ -71,15 +71,6 @@ class BaseApiaryTask(Task):
 
         return multivalue
 
-    def runSql(self, sql_command):
-        """Helper to run a SQL command and catch errors"""
-        LOGGER.debug("SQL: %s" % sql_command)
-        try:
-            return self.apiary_db.runSql(sql_command)
-        except Exception, e:
-            LOGGER.error("SQL Command: %s" % sql_command)
-            raise Exception(e)
-
     def record_error(self, site_id, sitename, log_message, log_type='info', log_severity='normal', log_bot=None, log_url=None):
         """
         If a task encounters an error while collecting from a website it can record that
