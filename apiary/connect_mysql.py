@@ -5,6 +5,7 @@ import ConfigParser
 import os
 import MySQLdb as mdb
 import logging
+import time
 
 
 LOGGER = logging.getLogger()
@@ -74,6 +75,8 @@ class ApiaryDB(object):
             cur.execute(sql)
             return cur.fetchall()
         except mdb.OperationalError:
+            if retry_count:
+                time.sleep(retry_count)
             if retry_count > 10: # seemed like a good count
                 raise Exception("max retries...")
             self.reconnect()
