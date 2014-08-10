@@ -41,6 +41,7 @@ class ExtensionWeekly(BaseApiaryTask):
             LOGGER.info("Processing extension %s", extension[1]['fulltext'])
 
             # Now call tasks to operate on extensions
+            MediawikiTasks.run(extension)
             pass
 
         return i

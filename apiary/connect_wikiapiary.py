@@ -10,9 +10,11 @@ import logging
 LOGGER = logging.getLogger()
 
 # Set default connection details for localhost dev
-API_URL = 'https://wikiapiary.com/w/api.php'
+APIARY_URL = 'https://wikiapiary.com/w/api.php'
+MEDIAWIKI_URL = 'https://www.mediawiki.org/w/api.php'
 
 APIARY_CONFIG = os.environ.get("APIARY_CONFIG", 'config/apiary.cfg')
+
 if os.path.isfile(APIARY_CONFIG):
     LOGGER.info("Detected configuration at %s", APIARY_CONFIG)
     config = ConfigParser.SafeConfigParser()
@@ -20,11 +22,11 @@ if os.path.isfile(APIARY_CONFIG):
 else:
     LOGGER.warn("No configuration file detected.")
 
-def open_connection(bot_name, env_name):
+def open_connection(bot_name, env_name, WIKI_URL):
     """Open a connection to MediaWiki for a bot."""
 
-    LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, API_URL)
-    apiary_wiki = MediaWiki(API_URL)
+    LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, WIKI_URL)
+    apiary_wiki = MediaWiki(WIKI_URL)
     edit_token = None
 
     try:
@@ -58,8 +60,10 @@ def open_connection(bot_name, env_name):
 
 
 LOGGER.info("Setting up Bumble Bee")
-bumble_bee, bumble_bee_token = open_connection("Bumble Bee", "BUMBLEBEE")
+bumble_bee, bumble_bee_token = open_connection("Bumble Bee", "BUMBLEBEE", APIARY_URL)
 
 LOGGER.info("Setting up Audit Bee")
-audit_bee, audit_bee_token = open_connection("Audit Bee", "AUDITBEE")
+audit_bee, audit_bee_token = open_connection("Audit Bee", "AUDITBEE", APIARY_URL)
 
+LOGGER.info("Setting up MWorg Bee")
+mworg_bee, mworg_bee_token = open_connection("mworg Bee", "MWORGBEE", MEDIAWIKI_URL)
