@@ -3,10 +3,6 @@
 
 from apiary.tasks import BaseApiaryTask
 import logging
-import requests
-import ConfigParser
-from xml.etree import ElementTree
-import os
 import mwparserfromhell
 
 LOGGER = logging.getLogger()
@@ -41,12 +37,13 @@ class MediawikiTasks(BaseApiaryTask):
 
         try:
             wiki_return = self.bumble_bee.call({
-                    'action': 'ask',
-                    'query': ''.join([
-                        "[[%s]]" % extension_name,
-                        "|?Has URL|?Has MediaWiki.org title"
-                        ])
-                    })
+                'action': 'ask',
+                'query': ''.join([
+                    "[[%s]]" % extension_name,
+                    '|?Has URL',
+                    '|?Has MediaWiki.org title'
+                ])
+            })
             url = ((wiki_return['query']['results']).values()[0])['printouts']['Has URL']
             mw_title = ((wiki_return['query']['results']).values()[0])['printouts']['Has MediaWiki.org title']
         except Exception as e:
@@ -74,7 +71,7 @@ class MediawikiTasks(BaseApiaryTask):
         text = wiki_return['parse']['wikitext']['*']
         return mwparserfromhell.parse(text)
 
-    def updatemediawiki(self, extension_name,title, data):
+    def updatemediawiki(self, extension_name, title, data):
         """Edit a page on mediawiki.org using its title"""
 
         wiki_return = self.mworg_bee.call({
@@ -111,13 +108,10 @@ class MediawikiTasks(BaseApiaryTask):
             if '|Extension}' in template.name:
                 template.add('WikiApiary rating', rating)
 
-        #Update ratings inside extension template
+        # Update ratings inside extension template
         return self.updatemediawiki(extension_name, mwtitle, data)
 
     def run(self, extension_name):
         """Execute tasks related to mediawiki.org"""
 
-        wiki_return = self.pushratings(extension_name)
-        #Write code to fetch more data to mw.o in subpage
-
-        return wiki_return
+        return self.pushratings(extension_name)
