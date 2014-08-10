@@ -25,6 +25,7 @@ def open_connection(bot_name, env_name):
 
     LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, API_URL)
     apiary_wiki = MediaWiki(API_URL)
+    edit_token = None
 
     try:
         # Passwords may be defined in the environment or in the config file
@@ -33,22 +34,25 @@ def open_connection(bot_name, env_name):
         if password is None:
             try:
                 config.get('Passwords', bot_name)
-            except Exception, e:
+            except Exception as e:
                 LOGGER.warn('No configuration file detected.')
-        LOGGER.info("Logging in as %s using %s", bot_name, password)
-        apiary_wiki.login(bot_name, password)
 
-        LOGGER.info("Getting edit token for %s", bot_name)
-        wiki_return = apiary_wiki.call({
-            'action': 'tokens',
-            'type': 'edit'
-        })
-        edit_token = wiki_return['tokens']['edittoken']
-        LOGGER.info("%s has been given edit token %s", bot_name, edit_token)
+        if password is not None:
+            LOGGER.info("Logging in as %s using %s", bot_name, password)
+            apiary_wiki.login(bot_name, password)
 
-    except Exception, e:
+            LOGGER.info("Getting edit token for %s", bot_name)
+            wiki_return = apiary_wiki.call({
+                'action': 'tokens',
+                'type': 'edit'
+            })
+            edit_token = wiki_return['tokens']['edittoken']
+            LOGGER.info("%s has been given edit token %s", bot_name, edit_token)
+        else:
+            LOGGER.warn("No password was provided for %s. Queries allowed but editing will not work.", bot_name)
+
+    except Exception as e:
         LOGGER.error("Unable to login as %s. Error: %s", bot_name, e)
-        edit_token = None
 
     return (apiary_wiki, edit_token)
 
