@@ -74,16 +74,18 @@ class MediawikiTasks(BaseApiaryTask):
         text = wiki_return['parse']['wikitext']['*']
         return mwparserfromhell.parse(text)
 
-    def updatemediawiki(self, title, data):
+    def updatemediawiki(self, extension_name,title, data):
         """Edit a page on mediawiki.org using its title"""
 
         wiki_return = self.mworg_bee.call({
             'action': 'edit',
             'title': title,
             'text': data,
-            'token': self.mworg_bee_token,
-            'bot': 'true',
-            'assert': 'bot'
+            'bot': True,
+            'minor': True,
+            'assert': 'bot',
+            'summary': "Updating rating from [[wikiapiary:Main Page|WikiApiary]] for [[wikiapiary:%s|%s]]" % (extension_name, extension_name),
+            'token': self.mworg_bee_token
         })
         LOGGER.debug(wiki_return)
         
@@ -110,7 +112,7 @@ class MediawikiTasks(BaseApiaryTask):
                 template.add('WikiApiary rating', rating)
 
         #Update ratings inside extension template
-        return self.updatemediawiki(mwtitle, data)
+        return self.updatemediawiki(extension_name, mwtitle, data)
 
     def run(self, extension_name):
         """Execute tasks related to mediawiki.org"""
