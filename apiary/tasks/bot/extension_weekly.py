@@ -2,6 +2,7 @@
 # pylint: disable=C0301,C0103,W1201
 
 from apiary.tasks import BaseApiaryTask
+from apiary.tasks.extension.mw_org import MediawikiTasks
 import logging
 import datetime
 
@@ -41,8 +42,6 @@ class ExtensionWeekly(BaseApiaryTask):
             LOGGER.info("Processing extension %s", extension[1]['fulltext'])
 
             # Now call tasks to operate on extensions
-            pass
+            MediawikiTasks.delay(extension)
 
         return i
-
-
