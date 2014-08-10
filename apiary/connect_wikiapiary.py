@@ -22,11 +22,11 @@ if os.path.isfile(APIARY_CONFIG):
 else:
     LOGGER.warn("No configuration file detected.")
 
-def open_connection(bot_name, env_name, WIKI_URL):
+def open_connection(bot_name, env_name, api_url):
     """Open a connection to MediaWiki for a bot."""
 
-    LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, WIKI_URL)
-    apiary_wiki = MediaWiki(WIKI_URL)
+    LOGGER.info("Opening MediaWiki connection for %s at %s", bot_name, api_url)
+    apiary_wiki = MediaWiki(api_url)
     edit_token = None
 
     try:
@@ -54,7 +54,7 @@ def open_connection(bot_name, env_name, WIKI_URL):
             LOGGER.warn("No password was provided for %s. Queries allowed but editing will not work.", bot_name)
 
     except Exception as e:
-        LOGGER.error("Unable to login as %s. Error: %s", bot_name, e)
+        raise Exception("Unable to login as %s got '%s'", bot_name, e)
 
     return (apiary_wiki, edit_token)
 
@@ -66,4 +66,4 @@ LOGGER.info("Setting up Audit Bee")
 audit_bee, audit_bee_token = open_connection("Audit Bee", "AUDITBEE", APIARY_URL)
 
 LOGGER.info("Setting up MWorg Bee")
-mworg_bee, mworg_bee_token = open_connection("mworg Bee", "MWORGBEE", MEDIAWIKI_URL)
+mworg_bee, mworg_bee_token = open_connection("WikiApiary", "MWORGBEE", MEDIAWIKI_URL)
