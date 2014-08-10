@@ -34,6 +34,9 @@ semantic_version
 # logo for the wiki
 beautifulsoup4
 
+# Pull in parser to read templates from wikitext
+mwparserfromhell
+
 # Parse JSON easier
 simplejson
 
