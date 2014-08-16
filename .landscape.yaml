@@ -2,3 +2,7 @@ doc-warnings: yes
 test-warnings: no
 strictness: medium
 autodetect: yes
+uses:
+    - celery
+ignore-paths:
+    - apiary/connect.py
